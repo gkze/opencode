@@ -1,3 +1,5 @@
+/// <reference path="./arborist.d.ts" />
+
 import path from "path"
 import semver from "semver"
 import { Effect, Schema, Context, Layer, Option, FileSystem } from "effect"
