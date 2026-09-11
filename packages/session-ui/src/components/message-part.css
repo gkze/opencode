@@ -1771,8 +1771,8 @@
   font-weight: 440;
 
   [data-slot="user-message-text"] {
-    background: var(--v2-background-bg-layer-02);
-    color: var(--v2-text-text-base);
+    background: var(--v2-background-bg-message-local, var(--v2-background-bg-layer-02));
+    color: var(--v2-text-text-message-local, var(--v2-text-text-base));
   }
 
   [data-slot="user-message-comments"] {
