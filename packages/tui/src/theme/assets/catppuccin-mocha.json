@@ -5,103 +5,103 @@
   "dark": {
     "hue": {
       "gray": {
-        "100": "#cad3f5",
-        "200": "#b8c0e0",
-        "300": "#a5adcb",
-        "400": "#939ab7",
-        "500": "#5b6078",
-        "600": "#363a4f",
-        "700": "#24273a",
-        "800": "#1e2030",
-        "900": "#181926"
+        "100": "#cdd6f4",
+        "200": "#bac2de",
+        "300": "#a6adc8",
+        "400": "#9399b2",
+        "500": "#585b70",
+        "600": "#313244",
+        "700": "#1e1e2e",
+        "800": "#181825",
+        "900": "#11111b"
       },
       "red": {
-        "100": "#ec7486",
-        "200": "#ed8796",
-        "300": "#ec7486",
-        "400": "#ec7486",
-        "500": "#ed8796",
-        "600": "#ec7486",
-        "700": "#ec7486",
-        "800": "#ec7486",
-        "900": "#ec7486"
+        "100": "#f37799",
+        "200": "#f38ba8",
+        "300": "#f37799",
+        "400": "#f37799",
+        "500": "#f38ba8",
+        "600": "#f37799",
+        "700": "#f37799",
+        "800": "#f37799",
+        "900": "#f37799"
       },
       "orange": {
-        "100": "#f5a97f",
-        "200": "#f5a97f",
-        "300": "#f5a97f",
-        "400": "#f5a97f",
-        "500": "#f5a97f",
-        "600": "#f5a97f",
-        "700": "#f5a97f",
-        "800": "#f5a97f",
-        "900": "#f5a97f"
+        "100": "#fab387",
+        "200": "#fab387",
+        "300": "#fab387",
+        "400": "#fab387",
+        "500": "#fab387",
+        "600": "#fab387",
+        "700": "#fab387",
+        "800": "#fab387",
+        "900": "#fab387"
       },
       "yellow": {
-        "100": "#e1c682",
-        "200": "#eed49f",
-        "300": "#e1c682",
-        "400": "#e1c682",
-        "500": "#eed49f",
-        "600": "#e1c682",
-        "700": "#e1c682",
-        "800": "#e1c682",
-        "900": "#e1c682"
+        "100": "#ebd391",
+        "200": "#f9e2af",
+        "300": "#ebd391",
+        "400": "#ebd391",
+        "500": "#f9e2af",
+        "600": "#ebd391",
+        "700": "#ebd391",
+        "800": "#ebd391",
+        "900": "#ebd391"
       },
       "green": {
-        "100": "#8ccf7f",
-        "200": "#a6da95",
-        "300": "#8ccf7f",
-        "400": "#8ccf7f",
-        "500": "#a6da95",
-        "600": "#8ccf7f",
-        "700": "#8ccf7f",
-        "800": "#8ccf7f",
-        "900": "#8ccf7f"
+        "100": "#89d88b",
+        "200": "#a6e3a1",
+        "300": "#89d88b",
+        "400": "#89d88b",
+        "500": "#a6e3a1",
+        "600": "#89d88b",
+        "700": "#89d88b",
+        "800": "#89d88b",
+        "900": "#89d88b"
       },
       "cyan": {
-        "100": "#63cbc0",
-        "200": "#8bd5ca",
-        "300": "#63cbc0",
-        "400": "#63cbc0",
-        "500": "#8bd5ca",
-        "600": "#63cbc0",
-        "700": "#63cbc0",
-        "800": "#63cbc0",
-        "900": "#63cbc0"
+        "100": "#6bd7ca",
+        "200": "#94e2d5",
+        "300": "#6bd7ca",
+        "400": "#6bd7ca",
+        "500": "#94e2d5",
+        "600": "#6bd7ca",
+        "700": "#6bd7ca",
+        "800": "#6bd7ca",
+        "900": "#6bd7ca"
       },
       "blue": {
-        "100": "#78a1f6",
-        "200": "#8aadf4",
-        "300": "#78a1f6",
-        "400": "#78a1f6",
-        "500": "#8aadf4",
-        "600": "#78a1f6",
-        "700": "#78a1f6",
-        "800": "#78a1f6",
-        "900": "#78a1f6"
+        "100": "#74a8fc",
+        "200": "#89b4fa",
+        "300": "#74a8fc",
+        "400": "#74a8fc",
+        "500": "#89b4fa",
+        "600": "#74a8fc",
+        "700": "#74a8fc",
+        "800": "#74a8fc",
+        "900": "#74a8fc"
       },
       "purple": {
-        "100": "#c6a0f6",
-        "200": "#c6a0f6",
-        "300": "#c6a0f6",
-        "400": "#c6a0f6",
-        "500": "#c6a0f6",
-        "600": "#c6a0f6",
-        "700": "#c6a0f6",
-        "800": "#c6a0f6",
-        "900": "#c6a0f6"
+        "100": "#cba6f7",
+        "200": "#cba6f7",
+        "300": "#cba6f7",
+        "400": "#cba6f7",
+        "500": "#cba6f7",
+        "600": "#cba6f7",
+        "700": "#cba6f7",
+        "800": "#cba6f7",
+        "900": "#cba6f7"
       },
       "accent": {
-        "100": "#f2a9dd",
-        "200": "#f5bde6",
-        "300": "#f2a9dd",
-        "400": "#f2a9dd",
-        "500": "#f5bde6",
-        "600": "#f2a9dd",
-        "700": "#f2a9dd",
-        "800": "#f2a9dd",
-        "900": "#f2a9dd"
+        "100": "#f2aede",
+        "200": "#f5c2e7",
+        "300": "#f2aede",
+        "400": "#f2aede",
+        "500": "#f5c2e7",
+        "600": "#f2aede",
+        "700": "#f2aede",
+        "800": "#f2aede",
+        "900": "#f2aede"
       },
       "interactive": "$hue.blue",
       "neutral": "$hue.gray"
@@ -122,21 +122,21 @@
           "default": "$hue.neutral.100",
           "$focused": "$hue.neutral.900",
           "$selected": "$hue.blue.200",
-          "$disabled": "#6e738d"
+          "$disabled": "#6c7086"
         },
         "secondary": {
           "default": "$hue.neutral.200",
           "$hovered": "$hue.neutral.100",
-          "$disabled": "#6e738d"
+          "$disabled": "#6c7086"
         },
         "destructive": {
           "default": "$hue.neutral.900",
-          "$disabled": "#6e738d"
+          "$disabled": "#6c7086"
         }
       },
       "formfield": {
         "default": "$hue.neutral.100",
-        "$disabled": "#6e738d"
+        "$disabled": "#6c7086"
       },
       "status": {
         "running": "$hue.blue.200",
@@ -147,7 +147,7 @@
       "feedback": {
         "error": {
           "default": "$hue.red.200",
-          "subdued": "#ee99a0"
+          "subdued": "#eba0ac"
         },
         "warning": {
           "default": "$hue.yellow.200",
@@ -172,18 +172,18 @@
       "action": {
         "primary": {
           "default": "transparent",
-          "$hovered": "#cad3f50f",
+          "$hovered": "#cdd6f40f",
           "$focused": "$hue.blue.200",
-          "$pressed": "#cad3f51a",
-          "$selected": "#939ab740",
+          "$pressed": "#cdd6f41a",
+          "$selected": "#9399b240",
           "$disabled": "transparent"
         },
         "secondary": {
           "default": "transparent",
-          "$hovered": "#cad3f50f",
-          "$focused": "#939ab740",
-          "$pressed": "#cad3f51a",
-          "$selected": "#939ab740",
+          "$hovered": "#cdd6f40f",
+          "$focused": "#9399b240",
+          "$pressed": "#cdd6f41a",
+          "$selected": "#9399b240",
           "$disabled": "transparent"
         },
         "destructive": {
@@ -193,29 +193,29 @@
       },
       "formfield": {
         "default": "$hue.neutral.600",
-        "$hovered": "#494d64",
-        "$focused": "#494d64",
+        "$hovered": "#45475a",
+        "$focused": "#45475a",
         "$pressed": "$hue.neutral.500",
-        "$selected": "#939ab740",
+        "$selected": "#9399b240",
         "$disabled": "$hue.neutral.700"
       },
       "feedback": {
         "error": {
-          "default": "#ed879626"
+          "default": "#f38ba826"
         },
         "warning": {
-          "default": "#eed49f26"
+          "default": "#f9e2af26"
         },
         "success": {
-          "default": "#a6da9526"
+          "default": "#a6e3a126"
         },
         "info": {
-          "default": "#8bd5ca26"
+          "default": "#94e2d526"
         }
       }
     },
     "border": {
-      "default": "#494d64"
+      "default": "#45475a"
     },
     "scrollbar": {
       "default": "$hue.neutral.500"
@@ -228,8 +228,8 @@
         "hunkHeader": "$hue.orange.200"
       },
       "background": {
-        "added": "#a6da9526",
-        "removed": "#ed879626",
+        "added": "#a6e3a126",
+        "removed": "#f38ba826",
         "context": "$hue.neutral.800"
       },
       "highlight": {
@@ -239,8 +239,8 @@
       "lineNumber": {
         "text": "$hue.neutral.400",
         "background": {
-          "added": "#a6da9538",
-          "removed": "#ed879638"
+          "added": "#a6e3a138",
+          "removed": "#f38ba838"
         }
       }
     },
@@ -252,23 +252,23 @@
       "string": "$hue.green.200",
       "number": "$hue.orange.200",
       "type": "$hue.yellow.200",
-      "operator": "#91d7e3",
+      "operator": "#89dceb",
       "punctuation": "$hue.neutral.100"
     },
     "markdown": {
       "text": "$hue.neutral.100",
       "heading": "$hue.purple.200",
       "link": "$hue.blue.200",
-      "linkText": "#91d7e3",
+      "linkText": "#89dceb",
       "code": "$hue.green.200",
       "blockQuote": "$hue.yellow.200",
       "emphasis": "$hue.yellow.200",
       "strong": "$hue.orange.200",
       "horizontalRule": "$hue.neutral.300",
       "listItem": "$hue.blue.200",
-      "listEnumeration": "#91d7e3",
+      "listEnumeration": "#89dceb",
       "image": "$hue.blue.200",
-      "imageText": "#91d7e3",
+      "imageText": "#89dceb",
       "codeBlock": "$hue.neutral.100"
     },
     "@context:elevated": {

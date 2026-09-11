@@ -3,9 +3,6 @@ import type { Theme, ThemeV1Json } from "@opencode/theme/tui/v1"
 import aura from "./assets/aura.json" with { type: "json" }
 import ayu from "./assets/ayu.json" with { type: "json" }
 import carbonfox from "./assets/carbonfox.json" with { type: "json" }
-import catppuccinFrappe from "./assets/catppuccin-frappe.json" with { type: "json" }
-import catppuccinMacchiato from "./assets/catppuccin-macchiato.json" with { type: "json" }
-import catppuccin from "./assets/catppuccin.json" with { type: "json" }
 import cobalt2 from "./assets/cobalt2.json" with { type: "json" }
 import cursor from "./assets/cursor.json" with { type: "json" }
 import dracula from "./assets/dracula.json" with { type: "json" }
@@ -39,9 +36,6 @@ export type { ColorValue, HexColor, RefName, Theme, ThemeColor, ThemeV1Json, Var
 export const DEFAULT_THEMES: Record<string, ThemeV1Json> = {
   aura,
   ayu,
-  catppuccin,
-  ["catppuccin-frappe"]: catppuccinFrappe,
-  ["catppuccin-macchiato"]: catppuccinMacchiato,
   cobalt2,
   cursor,
   dracula,

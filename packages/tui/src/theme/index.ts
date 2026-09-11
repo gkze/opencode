@@ -2,6 +2,7 @@ import { Schema } from "effect"
 import { migrateV1, resolveThemeDocument, ThemeDocument, themeDecodeError } from "@opencode/theme/tui"
 import { resolveThemeColors } from "./resolve"
 import { DEFAULT_THEMES, type Theme, type ThemeV1Json } from "./v1"
+import { CATPPUCCIN_THEMES } from "./catppuccin"
 
 export { DEFAULT_THEMES, generateSyntax, selectedForeground, type Theme, type ThemeV1Json } from "./v1"
 export { resolveThemeDocument, type ThemeDocument }
@@ -19,6 +20,7 @@ function listThemes() {
   // Priority: defaults < plugin installs < custom files < generated system.
   const themes: Record<string, ThemeDocumentSource> = {
     ...DEFAULT_THEMES,
+    ...CATPPUCCIN_THEMES,
     ...pluginThemes,
     ...customThemes,
   }

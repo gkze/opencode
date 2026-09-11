@@ -1,230 +1,285 @@
 {
   "$schema": "https://opencode.ai/theme.json",
-  "defs": {
-    "frappeRosewater": "#f2d5cf",
-    "frappeFlamingo": "#eebebe",
-    "frappePink": "#f4b8e4",
-    "frappeMauve": "#ca9ee6",
-    "frappeRed": "#e78284",
-    "frappeMaroon": "#ea999c",
-    "frappePeach": "#ef9f76",
-    "frappeYellow": "#e5c890",
-    "frappeGreen": "#a6d189",
-    "frappeTeal": "#81c8be",
-    "frappeSky": "#99d1db",
-    "frappeSapphire": "#85c1dc",
-    "frappeBlue": "#8da4e2",
-    "frappeLavender": "#babbf1",
-    "frappeText": "#c6d0f5",
-    "frappeSubtext1": "#b5bfe2",
-    "frappeSubtext0": "#a5adce",
-    "frappeOverlay2": "#949cb8",
-    "frappeOverlay1": "#838ba7",
-    "frappeOverlay0": "#737994",
-    "frappeSurface2": "#626880",
-    "frappeSurface1": "#51576d",
-    "frappeSurface0": "#414559",
-    "frappeBase": "#303446",
-    "frappeMantle": "#292c3c",
-    "frappeCrust": "#232634"
-  },
-  "theme": {
-    "primary": {
-      "dark": "frappeBlue",
-      "light": "frappeBlue"
+  "version": 2,
+  "standalone": true,
+  "dark": {
+    "hue": {
+      "gray": {
+        "100": "#c6d0f5",
+        "200": "#b5bfe2",
+        "300": "#a5adce",
+        "400": "#949cbb",
+        "500": "#626880",
+        "600": "#414559",
+        "700": "#303446",
+        "800": "#292c3c",
+        "900": "#232634"
+      },
+      "red": {
+        "100": "#e67172",
+        "200": "#e78284",
+        "300": "#e67172",
+        "400": "#e67172",
+        "500": "#e78284",
+        "600": "#e67172",
+        "700": "#e67172",
+        "800": "#e67172",
+        "900": "#e67172"
+      },
+      "orange": {
+        "100": "#ef9f76",
+        "200": "#ef9f76",
+        "300": "#ef9f76",
+        "400": "#ef9f76",
+        "500": "#ef9f76",
+        "600": "#ef9f76",
+        "700": "#ef9f76",
+        "800": "#ef9f76",
+        "900": "#ef9f76"
+      },
+      "yellow": {
+        "100": "#d9ba73",
+        "200": "#e5c890",
+        "300": "#d9ba73",
+        "400": "#d9ba73",
+        "500": "#e5c890",
+        "600": "#d9ba73",
+        "700": "#d9ba73",
+        "800": "#d9ba73",
+        "900": "#d9ba73"
+      },
+      "green": {
+        "100": "#8ec772",
+        "200": "#a6d189",
+        "300": "#8ec772",
+        "400": "#8ec772",
+        "500": "#a6d189",
+        "600": "#8ec772",
+        "700": "#8ec772",
+        "800": "#8ec772",
+        "900": "#8ec772"
+      },
+      "cyan": {
+        "100": "#5abfb5",
+        "200": "#81c8be",
+        "300": "#5abfb5",
+        "400": "#5abfb5",
+        "500": "#81c8be",
+        "600": "#5abfb5",
+        "700": "#5abfb5",
+        "800": "#5abfb5",
+        "900": "#5abfb5"
+      },
+      "blue": {
+        "100": "#7b9ef0",
+        "200": "#8caaee",
+        "300": "#7b9ef0",
+        "400": "#7b9ef0",
+        "500": "#8caaee",
+        "600": "#7b9ef0",
+        "700": "#7b9ef0",
+        "800": "#7b9ef0",
+        "900": "#7b9ef0"
+      },
+      "purple": {
+        "100": "#ca9ee6",
+        "200": "#ca9ee6",
+        "300": "#ca9ee6",
+        "400": "#ca9ee6",
+        "500": "#ca9ee6",
+        "600": "#ca9ee6",
+        "700": "#ca9ee6",
+        "800": "#ca9ee6",
+        "900": "#ca9ee6"
+      },
+      "accent": {
+        "100": "#f2a4db",
+        "200": "#f4b8e4",
+        "300": "#f2a4db",
+        "400": "#f2a4db",
+        "500": "#f4b8e4",
+        "600": "#f2a4db",
+        "700": "#f2a4db",
+        "800": "#f2a4db",
+        "900": "#f2a4db"
+      },
+      "interactive": "$hue.blue",
+      "neutral": "$hue.gray"
     },
-    "secondary": {
-      "dark": "frappeMauve",
-      "light": "frappeMauve"
-    },
-    "accent": {
-      "dark": "frappePink",
-      "light": "frappePink"
-    },
-    "error": {
-      "dark": "frappeRed",
-      "light": "frappeRed"
-    },
-    "warning": {
-      "dark": "frappeYellow",
-      "light": "frappeYellow"
-    },
-    "success": {
-      "dark": "frappeGreen",
-      "light": "frappeGreen"
-    },
-    "info": {
-      "dark": "frappeTeal",
-      "light": "frappeTeal"
-    },
+    "categorical": [
+      "blue",
+      "purple",
+      "green",
+      "orange",
+      "red",
+      "cyan"
+    ],
     "text": {
-      "dark": "frappeText",
-      "light": "frappeText"
-    },
-    "textMuted": {
-      "dark": "frappeOverlay2",
-      "light": "frappeOverlay2"
+      "default": "$hue.neutral.100",
+      "subdued": "$hue.neutral.300",
+      "action": {
+        "primary": {
+          "default": "$hue.neutral.100",
+          "$focused": "$hue.neutral.900",
+          "$selected": "$hue.blue.200",
+          "$disabled": "#737994"
+        },
+        "secondary": {
+          "default": "$hue.neutral.200",
+          "$hovered": "$hue.neutral.100",
+          "$disabled": "#737994"
+        },
+        "destructive": {
+          "default": "$hue.neutral.900",
+          "$disabled": "#737994"
+        }
+      },
+      "formfield": {
+        "default": "$hue.neutral.100",
+        "$disabled": "#737994"
+      },
+      "status": {
+        "running": "$hue.blue.200",
+        "question": "$hue.yellow.200",
+        "permission": "$hue.orange.200",
+        "unread": "$hue.accent.200"
+      },
+      "feedback": {
+        "error": {
+          "default": "$hue.red.200",
+          "subdued": "#ea999c"
+        },
+        "warning": {
+          "default": "$hue.yellow.200",
+          "subdued": "$hue.orange.200"
+        },
+        "success": {
+          "default": "$hue.green.200",
+          "subdued": "$hue.green.200"
+        },
+        "info": {
+          "default": "$hue.cyan.200",
+          "subdued": "$hue.cyan.200"
+        }
+      }
     },
     "background": {
-      "dark": "frappeBase",
-      "light": "frappeBase"
-    },
-    "backgroundPanel": {
-      "dark": "frappeMantle",
-      "light": "frappeMantle"
-    },
-    "backgroundElement": {
-      "dark": "frappeCrust",
-      "light": "frappeCrust"
+      "default": "$hue.neutral.700",
+      "surface": {
+        "offset": "$hue.neutral.800",
+        "overlay": "$hue.neutral.600"
+      },
+      "action": {
+        "primary": {
+          "default": "transparent",
+          "$hovered": "#c6d0f50f",
+          "$focused": "$hue.blue.200",
+          "$pressed": "#c6d0f51a",
+          "$selected": "#949cbb40",
+          "$disabled": "transparent"
+        },
+        "secondary": {
+          "default": "transparent",
+          "$hovered": "#c6d0f50f",
+          "$focused": "#949cbb40",
+          "$pressed": "#c6d0f51a",
+          "$selected": "#949cbb40",
+          "$disabled": "transparent"
+        },
+        "destructive": {
+          "default": "$hue.red.200",
+          "$disabled": "$hue.neutral.600"
+        }
+      },
+      "formfield": {
+        "default": "$hue.neutral.600",
+        "$hovered": "#51576d",
+        "$focused": "#51576d",
+        "$pressed": "$hue.neutral.500",
+        "$selected": "#949cbb40",
+        "$disabled": "$hue.neutral.700"
+      },
+      "feedback": {
+        "error": {
+          "default": "#e7828426"
+        },
+        "warning": {
+          "default": "#e5c89026"
+        },
+        "success": {
+          "default": "#a6d18926"
+        },
+        "info": {
+          "default": "#81c8be26"
+        }
+      }
     },
     "border": {
-      "dark": "frappeSurface0",
-      "light": "frappeSurface0"
+      "default": "#51576d"
     },
-    "borderActive": {
-      "dark": "frappeSurface1",
-      "light": "frappeSurface1"
+    "scrollbar": {
+      "default": "$hue.neutral.500"
     },
-    "borderSubtle": {
-      "dark": "frappeSurface2",
-      "light": "frappeSurface2"
+    "diff": {
+      "text": {
+        "added": "$hue.green.200",
+        "removed": "$hue.red.200",
+        "context": "$hue.neutral.400",
+        "hunkHeader": "$hue.orange.200"
+      },
+      "background": {
+        "added": "#a6d18926",
+        "removed": "#e7828426",
+        "context": "$hue.neutral.800"
+      },
+      "highlight": {
+        "added": "$hue.green.200",
+        "removed": "$hue.red.200"
+      },
+      "lineNumber": {
+        "text": "$hue.neutral.400",
+        "background": {
+          "added": "#a6d18938",
+          "removed": "#e7828438"
+        }
+      }
     },
-    "diffAdded": {
-      "dark": "frappeGreen",
-      "light": "frappeGreen"
+    "syntax": {
+      "comment": "$hue.neutral.400",
+      "keyword": "$hue.purple.200",
+      "function": "$hue.blue.200",
+      "variable": "$hue.red.200",
+      "string": "$hue.green.200",
+      "number": "$hue.orange.200",
+      "type": "$hue.yellow.200",
+      "operator": "#99d1db",
+      "punctuation": "$hue.neutral.100"
     },
-    "diffRemoved": {
-      "dark": "frappeRed",
-      "light": "frappeRed"
+    "markdown": {
+      "text": "$hue.neutral.100",
+      "heading": "$hue.purple.200",
+      "link": "$hue.blue.200",
+      "linkText": "#99d1db",
+      "code": "$hue.green.200",
+      "blockQuote": "$hue.yellow.200",
+      "emphasis": "$hue.yellow.200",
+      "strong": "$hue.orange.200",
+      "horizontalRule": "$hue.neutral.300",
+      "listItem": "$hue.blue.200",
+      "listEnumeration": "#99d1db",
+      "image": "$hue.blue.200",
+      "imageText": "#99d1db",
+      "codeBlock": "$hue.neutral.100"
     },
-    "diffContext": {
-      "dark": "frappeOverlay2",
-      "light": "frappeOverlay2"
+    "@context:elevated": {
+      "background": {
+        "default": "$hue.neutral.800"
+      }
     },
-    "diffHunkHeader": {
-      "dark": "frappePeach",
-      "light": "frappePeach"
-    },
-    "diffHighlightAdded": {
-      "dark": "frappeGreen",
-      "light": "frappeGreen"
-    },
-    "diffHighlightRemoved": {
-      "dark": "frappeRed",
-      "light": "frappeRed"
-    },
-    "diffAddedBg": {
-      "dark": "#29342b",
-      "light": "#29342b"
-    },
-    "diffRemovedBg": {
-      "dark": "#3a2a31",
-      "light": "#3a2a31"
-    },
-    "diffContextBg": {
-      "dark": "frappeMantle",
-      "light": "frappeMantle"
-    },
-    "diffLineNumber": "textMuted",
-    "diffAddedLineNumberBg": {
-      "dark": "#223025",
-      "light": "#223025"
-    },
-    "diffRemovedLineNumberBg": {
-      "dark": "#2f242b",
-      "light": "#2f242b"
-    },
-    "markdownText": {
-      "dark": "frappeText",
-      "light": "frappeText"
-    },
-    "markdownHeading": {
-      "dark": "frappeMauve",
-      "light": "frappeMauve"
-    },
-    "markdownLink": {
-      "dark": "frappeBlue",
-      "light": "frappeBlue"
-    },
-    "markdownLinkText": {
-      "dark": "frappeSky",
-      "light": "frappeSky"
-    },
-    "markdownCode": {
-      "dark": "frappeGreen",
-      "light": "frappeGreen"
-    },
-    "markdownBlockQuote": {
-      "dark": "frappeYellow",
-      "light": "frappeYellow"
-    },
-    "markdownEmph": {
-      "dark": "frappeYellow",
-      "light": "frappeYellow"
-    },
-    "markdownStrong": {
-      "dark": "frappePeach",
-      "light": "frappePeach"
-    },
-    "markdownHorizontalRule": {
-      "dark": "frappeSubtext0",
-      "light": "frappeSubtext0"
-    },
-    "markdownListItem": {
-      "dark": "frappeBlue",
-      "light": "frappeBlue"
-    },
-    "markdownListEnumeration": {
-      "dark": "frappeSky",
-      "light": "frappeSky"
-    },
-    "markdownImage": {
-      "dark": "frappeBlue",
-      "light": "frappeBlue"
-    },
-    "markdownImageText": {
-      "dark": "frappeSky",
-      "light": "frappeSky"
-    },
-    "markdownCodeBlock": {
-      "dark": "frappeText",
-      "light": "frappeText"
-    },
-    "syntaxComment": {
-      "dark": "frappeOverlay2",
-      "light": "frappeOverlay2"
-    },
-    "syntaxKeyword": {
-      "dark": "frappeMauve",
-      "light": "frappeMauve"
-    },
-    "syntaxFunction": {
-      "dark": "frappeBlue",
-      "light": "frappeBlue"
-    },
-    "syntaxVariable": {
-      "dark": "frappeRed",
-      "light": "frappeRed"
-    },
-    "syntaxString": {
-      "dark": "frappeGreen",
-      "light": "frappeGreen"
-    },
-    "syntaxNumber": {
-      "dark": "frappePeach",
-      "light": "frappePeach"
-    },
-    "syntaxType": {
-      "dark": "frappeYellow",
-      "light": "frappeYellow"
-    },
-    "syntaxOperator": {
-      "dark": "frappeSky",
-      "light": "frappeSky"
-    },
-    "syntaxPunctuation": {
-      "dark": "frappeText",
-      "light": "frappeText"
+    "@context:overlay": {
+      "background": {
+        "default": "$hue.neutral.600"
+      }
     }
   }
 }
