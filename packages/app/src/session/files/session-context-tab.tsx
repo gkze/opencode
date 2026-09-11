@@ -21,11 +21,18 @@ import { useServerSDK } from "@/runtime/server/client"
 import { useSessionLayout } from "@/session/session-layout"
 import { createSessionContextFormatter } from "./session-context-format"
 
-function Stat(props: { label: string; value: JSX.Element }) {
+function Stat(props: { label: string; value: JSX.Element; numeric?: boolean }) {
   return (
     <div class="flex flex-col gap-1">
-      <div class="text-12-regular text-text-weak">{props.label}</div>
-      <div class="text-12-medium text-text-strong">{props.value}</div>
+      <div class="text-12-regular text-text-weak" style={{ color: "var(--v2-context-label, var(--text-weak))" }}>
+        {props.label}
+      </div>
+      <div
+        class="text-12-medium text-text-strong"
+        style={{ color: props.numeric ? "var(--v2-context-numeric, var(--text-strong))" : undefined }}
+      >
+        {props.value}
+      </div>
     </div>
   )
 }
@@ -61,8 +68,11 @@ function RawMessage(props: {
       <StickyAccordionHeader>
         <Accordion.Trigger>
           <div class="flex items-center justify-between gap-2 w-full">
-            <div class="min-w-0 truncate">
-              {props.message.type} <span class="text-text-base">• {props.message.id}</span>
+            <div class="min-w-0 truncate" style={{ color: `var(--v2-context-message-${props.message.type}, inherit)` }}>
+              {props.message.type}{" "}
+              <span class="text-text-base" style={{ color: "var(--v2-context-metadata, var(--text-base))" }}>
+                • {props.message.id}
+              </span>
             </div>
             <div class="flex items-center gap-3">
               <div class="shrink-0 text-12-regular text-text-weak">{props.time(props.message.time.created)}</div>
@@ -172,25 +182,38 @@ export function SessionContextTab() {
 
   const stats = [
     { label: "context.stats.session", value: () => info()?.title ?? params.id ?? "—" },
-    { label: "context.stats.messages", value: () => counts().all.toLocaleString(language.intl()) },
+    { label: "context.stats.messages", value: () => counts().all.toLocaleString(language.intl()), numeric: true },
     { label: "context.stats.provider", value: providerLabel },
     { label: "context.stats.model", value: modelLabel },
-    { label: "context.stats.limit", value: () => formatter().number(ctx()?.limit) },
-    { label: "context.stats.totalTokens", value: () => formatter().number(ctx()?.total) },
-    { label: "context.stats.usage", value: () => formatter().percent(ctx()?.usage) },
-    { label: "context.stats.inputTokens", value: () => formatter().number(ctx()?.input) },
-    { label: "context.stats.outputTokens", value: () => formatter().number(ctx()?.tokens.output) },
-    { label: "context.stats.reasoningTokens", value: () => formatter().number(ctx()?.tokens.reasoning) },
+    { label: "context.stats.limit", value: () => formatter().number(ctx()?.limit), numeric: true },
+    { label: "context.stats.totalTokens", value: () => formatter().number(ctx()?.total), numeric: true },
+    { label: "context.stats.usage", value: () => formatter().percent(ctx()?.usage), numeric: true },
+    { label: "context.stats.inputTokens", value: () => formatter().number(ctx()?.input), numeric: true },
+    { label: "context.stats.outputTokens", value: () => formatter().number(ctx()?.tokens.output), numeric: true },
+    {
+      label: "context.stats.reasoningTokens",
+      value: () => formatter().number(ctx()?.tokens.reasoning),
+      numeric: true,
+    },
     {
       label: "context.stats.cacheTokens",
       value: () => `${formatter().number(ctx()?.tokens.cache.read)} / ${formatter().number(ctx()?.tokens.cache.write)}`,
+      numeric: true,
     },
-    { label: "context.stats.userMessages", value: () => counts().user.toLocaleString(language.intl()) },
-    { label: "context.stats.assistantMessages", value: () => counts().assistant.toLocaleString(language.intl()) },
-    { label: "context.stats.totalCost", value: cost },
+    {
+      label: "context.stats.userMessages",
+      value: () => counts().user.toLocaleString(language.intl()),
+      numeric: true,
+    },
+    {
+      label: "context.stats.assistantMessages",
+      value: () => counts().assistant.toLocaleString(language.intl()),
+      numeric: true,
+    },
+    { label: "context.stats.totalCost", value: cost, numeric: true },
     { label: "context.stats.sessionCreated", value: () => formatter().time(info()?.time.created) },
     { label: "context.stats.lastActivity", value: () => formatter().time(ctx()?.message.time.created) },
-  ] satisfies { label: string; value: () => JSX.Element }[]
+  ] satisfies { label: string; value: () => JSX.Element; numeric?: boolean }[]
 
   const exportSession = async () => {
     const sessionID = params.id
@@ -276,7 +299,13 @@ export function SessionContextTab() {
       <div data-slot="session-usage-content" class="px-4 pt-4 pb-6 flex flex-col gap-6 md:px-6 md:pb-10 md:gap-10">
         <div class="grid grid-cols-1 @[32rem]:grid-cols-2 gap-4">
           <For each={stats}>
-            {(stat) => <Stat label={language.t(stat.label as Parameters<typeof language.t>[0])} value={stat.value()} />}
+            {(stat) => (
+              <Stat
+                label={language.t(stat.label as Parameters<typeof language.t>[0])}
+                value={stat.value()}
+                numeric={stat.numeric}
+              />
+            )}
           </For>
         </div>
 

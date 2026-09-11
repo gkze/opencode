@@ -285,13 +285,16 @@
     font-weight: var(--font-weight-medium);
     padding: 0 4px;
     border-radius: 4px;
-    background: color-mix(in oklch, var(--v2-text-text-base) var(--markdown-inline-code-bg-mix), transparent);
+    background: var(
+      --v2-background-bg-code-inline,
+      color-mix(in oklch, var(--v2-text-text-base) var(--markdown-inline-code-bg-mix), transparent)
+    );
   }
 
   :not(pre) > code[data-inline-code-kind="path"] {
     color: var(--markdown-inline-code-path-color);
     padding: 0 2px;
-    background: none;
+    background: var(--v2-background-bg-code-inline, none);
   }
 
   a.external-link > code[data-inline-code-kind="url"] {
