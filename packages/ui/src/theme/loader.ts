@@ -1,3 +1,4 @@
+import { themeAppearanceMode } from "./appearance"
 import type { DesktopTheme, ResolvedTheme, ResolvedV2Theme } from "./types"
 import { resolveThemeVariant, themeToCss } from "./resolve"
 import { resolveThemeVariantV2, themeV2ToCss } from "./v2/resolve"
@@ -7,9 +8,9 @@ let activeTheme: DesktopTheme | null = null
 const THEME_STYLE_ID = "opencode-theme"
 
 function ensureLoaderStyleElement(): HTMLStyleElement {
-  const existing = document.getElementById(THEME_STYLE_ID) as HTMLStyleElement | null
+  const existing = document.getElementById(THEME_STYLE_ID)
 
-  if (existing) {
+  if (existing instanceof HTMLStyleElement) {
     return existing
   }
 
@@ -43,6 +44,15 @@ function buildThemeCss(
   const isDefaultTheme = themeId === "oc-2"
   const lightCss = `${themeToCss(light)}\n  ${themeV2ToCss(lightV2)}`
   const darkCss = `${themeToCss(dark)}\n  ${themeV2ToCss(darkV2)}`
+  const mode = themeAppearanceMode(themeId)
+
+  if (mode) {
+    return `html[data-theme="${themeId}"] {
+  color-scheme: ${mode};
+  --text-mix-blend-mode: ${mode === "dark" ? "plus-lighter" : "multiply"};
+  ${mode === "dark" ? darkCss : lightCss}
+}`
+  }
 
   if (isDefaultTheme) {
     return `
