@@ -1,4 +1,5 @@
 import { withAlpha } from "@opencode/ui/theme/color"
+import { catppuccinTerminalTheme } from "@opencode/ui/theme/catppuccin-terminal"
 import { useTheme } from "@opencode/ui/theme/context"
 import { resolveThemeVariant } from "@opencode/ui/theme/resolve"
 import { resolveThemeVariantV2 } from "@opencode/ui/theme/v2/resolve"
@@ -262,6 +263,8 @@ export const Terminal = (props: TerminalProps) => {
 
   const getTerminalColors = (): TerminalColors => {
     const mode = theme.mode() === "dark" ? "dark" : "light"
+    const catppuccin = catppuccinTerminalTheme(theme.themeId(), mode)
+    if (catppuccin) return catppuccin
     const fallback = DEFAULT_TERMINAL_COLORS[mode]
     const currentTheme = theme.themes()[theme.themeId()]
     if (!currentTheme) return fallback

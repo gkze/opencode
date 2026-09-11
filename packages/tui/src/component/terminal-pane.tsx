@@ -1,11 +1,11 @@
-import { EmbeddedTerminalRenderable, type RGBA } from "@opentui/core"
-import type { ResolvedThemeTokens } from "@opencode/theme/tui"
+import { EmbeddedTerminalRenderable } from "@opentui/core"
 import { extend, useRenderer } from "@opentui/solid"
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js"
 import { useClient } from "../context/client"
 import { Keymap } from "../context/keymap"
 import { useTheme, useThemes } from "../context/theme"
 import { errorMessage } from "../util/error"
+import { terminalPalette } from "../theme/terminal"
 
 declare module "@opentui/solid" {
   interface OpenTUIComponents {
@@ -156,7 +156,13 @@ export function TerminalPane(props: {
 
   createEffect(() => {
     const tokens = themes.currentTokens().contextual.elevated
-    terminalTheme = terminalPalette(tokens, themes.mode(), tokens.background.default)
+    terminalTheme = terminalPalette(
+      tokens,
+      themes.mode(),
+      tokens.background.default,
+      themes.selected,
+      themes.all()[themes.selected],
+    )
     applyTerminalTheme()
   })
 
@@ -333,43 +339,6 @@ export function TerminalPane(props: {
 
 function sameSize(first: TerminalSize | undefined, second: TerminalSize | undefined) {
   return !!first && !!second && first.cols === second.cols && first.rows === second.rows
-}
-
-function terminalPalette(theme: ResolvedThemeTokens, mode: "dark" | "light", background: RGBA) {
-  const base = mode === "dark" ? 200 : 800
-  const bright = mode === "dark" ? 100 : 900
-  const colors = [
-    background,
-    theme.text.feedback.error.default,
-    theme.text.feedback.success.default,
-    theme.text.feedback.warning.default,
-    theme.hue.blue[base],
-    theme.hue.purple[base],
-    theme.text.feedback.info.default,
-    theme.text.default,
-    theme.text.subdued,
-    theme.text.feedback.error.subdued,
-    theme.text.feedback.success.subdued,
-    theme.text.feedback.warning.subdued,
-    theme.hue.blue[bright],
-    theme.hue.purple[bright],
-    theme.hue.cyan[bright],
-    theme.hue.neutral[mode === "dark" ? 100 : 900],
-  ]
-  return Buffer.from(
-    colors
-      .map((color, index) => `\x1b]4;${index};${hex(color)}\x1b\\`)
-      .concat(`\x1b]10;${hex(theme.text.default)}\x1b\\`, `\x1b]11;${hex(background)}\x1b\\`)
-      .join(""),
-  )
-}
-
-function hex(color: RGBA) {
-  return `#${color
-    .toInts()
-    .slice(0, 3)
-    .map((value) => value.toString(16).padStart(2, "0"))
-    .join("")}`
 }
 
 function interactionFrame(size: { cols: number; rows: number }, data?: Uint8Array) {
