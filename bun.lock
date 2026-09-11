@@ -948,10 +948,12 @@
         "solid-sonner": "catalog:",
       },
       "devDependencies": {
+        "@catppuccin/palette": "1.8.0",
         "@solidjs/meta": "catalog:",
         "@tsconfig/node22": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native-preview": "catalog:",
+        "postcss": "8.5.26",
         "solid-js": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
@@ -1659,6 +1661,8 @@
     "@bufbuild/protoplugin": ["@bufbuild/protoplugin@2.14.0", "", { "dependencies": { "@bufbuild/protobuf": "2.14.0", "@typescript/vfs": "^1.6.2", "typescript": "5.4.5" } }, "sha512-S0TvZhVtTEkZQRj2JsXBCXiib/b0+bLQtJCcn+hj9O/usgbcgxHn4D+ii22Ao3qj0/kKxVYeo7BtAI2dMk+iig=="],
 
     "@capsizecss/unpack": ["@capsizecss/unpack@4.0.1", "", { "dependencies": { "fontkitten": "^1.0.3" } }, "sha512-CuNiSqg7+e1cO/GjffyMOm5Tt2jUF9CWHHnvQ/UkqvtkGfHdgwEC0wpmq7fkN3gxwpRnrAN0WzO3vREKmNolMQ=="],
+
+    "@catppuccin/palette": ["@catppuccin/palette@1.8.0", "", {}, "sha512-qXhwKiLzQomUygUJYB36YAFgs+dET5bIocfkiaFIatQF5Pwc7L112TlF9P8J5Oqs3x3XTjYSucG0ncHXSCuk7Q=="],
 
     "@chevrotain/types": ["@chevrotain/types@11.1.2", "", {}, "sha512-U+HFai5+zmJCkK86QsaJtoITlboZHBqrVketcO2ROv865xfCMSFpELQoz1GkX5GzME8pTa+3kbKrZHQtI0gdbw=="],
 

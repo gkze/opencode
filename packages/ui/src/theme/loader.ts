@@ -1,3 +1,4 @@
+import { themeAppearanceMode } from "./appearance"
 import type { DesktopTheme, ResolvedTheme, ResolvedV2Theme } from "./types"
 import { resolveThemeVariant, themeToCss } from "./resolve"
 import { resolveThemeVariantV2, themeV2ToCss } from "./v2/resolve"
@@ -39,6 +40,14 @@ function buildThemeCss(
   const isDefaultTheme = themeId === "oc-2"
   const lightCss = `${themeToCss(light)}\n  ${themeV2ToCss(lightV2)}`
   const darkCss = `${themeToCss(dark)}\n  ${themeV2ToCss(darkV2)}`
+  const mode = themeAppearanceMode(themeId)
+  if (mode) {
+    return `html[data-theme="${themeId}"] {
+  color-scheme: ${mode};
+  --text-mix-blend-mode: ${mode === "dark" ? "plus-lighter" : "multiply"};
+  ${mode === "dark" ? darkCss : lightCss}
+}`
+  }
 
   if (isDefaultTheme) {
     return `

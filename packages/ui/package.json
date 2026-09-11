@@ -96,10 +96,12 @@
     "generate:v2-oc2": "bun run script/build-oc2-v2-overrides.ts"
   },
   "devDependencies": {
+    "@catppuccin/palette": "1.8.0",
     "@solidjs/meta": "catalog:",
     "@tsconfig/node22": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native-preview": "catalog:",
+    "postcss": "8.5.26",
     "solid-js": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
