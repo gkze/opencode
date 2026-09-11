@@ -2,6 +2,7 @@ import { migrateV1, parseThemeDocument, type ThemeDocument, type ModeDefinition 
 import { resolveThemeColors } from "./resolve"
 import { DEFAULT_THEMES, type Theme, type ThemeV1Json } from "./v1"
 import opencode from "./assets/v2/opencode.json" with { type: "json" }
+import { CATPPUCCIN_THEMES } from "./catppuccin"
 
 export { DEFAULT_THEMES, type Theme, type ThemeV1Json } from "./v1"
 
@@ -11,10 +12,12 @@ let customThemes: Record<string, ThemeDocumentSource> = {}
 let systemTheme: ThemeDocumentSource | undefined
 const listeners = new Set<(themes: Record<string, ThemeDocumentSource>) => void>()
 const parsed = new WeakMap<object, ThemeDocument>()
-let opencodeTheme: (ThemeDocument & {
-  readonly light: ModeDefinition
-  readonly dark: ModeDefinition
-}) | undefined
+let opencodeTheme:
+  | (ThemeDocument & {
+      readonly light: ModeDefinition
+      readonly dark: ModeDefinition
+    })
+  | undefined
 
 export function getOpenCodeTheme() {
   if (opencodeTheme) return opencodeTheme
@@ -28,6 +31,7 @@ function listThemes(): Record<string, ThemeDocumentSource> {
   const themes: Record<string, ThemeDocumentSource> = {
     ...DEFAULT_THEMES,
     opencode: getOpenCodeTheme(),
+    ...CATPPUCCIN_THEMES,
     ...customThemes,
   }
   return {
