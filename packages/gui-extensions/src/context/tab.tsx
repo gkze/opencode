@@ -16,11 +16,18 @@ import { catalogModel, syncCatalog } from "./catalog"
 import { fetchSessionExport, sessionExportFilename } from "./export"
 import { createSessionContextFormatter } from "./format"
 
-function Stat(props: { label: string; value: JSX.Element }) {
+function Stat(props: { label: string; value: JSX.Element; numeric?: boolean }) {
   return (
     <div class="flex flex-col gap-1">
-      <div class="text-12-regular text-text-weak">{props.label}</div>
-      <div class="text-12-medium text-text-strong">{props.value}</div>
+      <div class="text-12-regular text-text-weak" style={{ color: "var(--v2-context-label, var(--text-weak))" }}>
+        {props.label}
+      </div>
+      <div
+        class="text-12-medium text-text-strong"
+        style={{ color: props.numeric ? "var(--v2-context-numeric, var(--text-strong))" : undefined }}
+      >
+        {props.value}
+      </div>
     </div>
   )
 }
@@ -57,8 +64,11 @@ function RawMessage(props: {
       <StickyAccordionHeader>
         <Accordion.Trigger>
           <div class="flex items-center justify-between gap-2 w-full">
-            <div class="min-w-0 truncate">
-              {props.message.type} <span class="text-text-base">• {props.message.id}</span>
+            <div class="min-w-0 truncate" style={{ color: `var(--v2-context-message-${props.message.type}, inherit)` }}>
+              {props.message.type}{" "}
+              <span class="text-text-base" style={{ color: "var(--v2-context-metadata, var(--text-base))" }}>
+                • {props.message.id}
+              </span>
             </div>
             <div class="flex items-center gap-3">
               <div class="shrink-0 text-12-regular text-text-weak">{props.time(props.message.time.created)}</div>
@@ -180,26 +190,27 @@ export default function SessionContextTab(props: { session: MountedSession }) {
 
   const stats = [
     { label: "stats.session", value: () => info()?.title ?? (props.session.id || "—") },
-    { label: "stats.messages", value: () => counts().all.toLocaleString(i18n.locale()) },
+    { label: "stats.messages", value: () => counts().all.toLocaleString(i18n.locale()), numeric: true },
     { label: "stats.provider", value: providerLabel },
     { label: "stats.model", value: modelLabel },
-    { label: "stats.limit", value: () => formatter().number(context()?.limit) },
-    { label: "stats.totalTokens", value: () => formatter().number(context()?.total) },
-    { label: "stats.usage", value: () => formatter().percent(context()?.usage) },
-    { label: "stats.inputTokens", value: () => formatter().number(context()?.input) },
-    { label: "stats.outputTokens", value: () => formatter().number(context()?.tokens.output) },
-    { label: "stats.reasoningTokens", value: () => formatter().number(context()?.tokens.reasoning) },
+    { label: "stats.limit", value: () => formatter().number(context()?.limit), numeric: true },
+    { label: "stats.totalTokens", value: () => formatter().number(context()?.total), numeric: true },
+    { label: "stats.usage", value: () => formatter().percent(context()?.usage), numeric: true },
+    { label: "stats.inputTokens", value: () => formatter().number(context()?.input), numeric: true },
+    { label: "stats.outputTokens", value: () => formatter().number(context()?.tokens.output), numeric: true },
+    { label: "stats.reasoningTokens", value: () => formatter().number(context()?.tokens.reasoning), numeric: true },
     {
       label: "stats.cacheTokens",
       value: () =>
         `${formatter().number(context()?.tokens.cache.read)} / ${formatter().number(context()?.tokens.cache.write)}`,
+      numeric: true,
     },
-    { label: "stats.userMessages", value: () => counts().user.toLocaleString(i18n.locale()) },
-    { label: "stats.assistantMessages", value: () => counts().assistant.toLocaleString(i18n.locale()) },
-    { label: "stats.totalCost", value: cost },
+    { label: "stats.userMessages", value: () => counts().user.toLocaleString(i18n.locale()), numeric: true },
+    { label: "stats.assistantMessages", value: () => counts().assistant.toLocaleString(i18n.locale()), numeric: true },
+    { label: "stats.totalCost", value: cost, numeric: true },
     { label: "stats.sessionCreated", value: () => formatter().time(info()?.time.created) },
     { label: "stats.lastActivity", value: () => formatter().time(context()?.message.time.created) },
-  ] satisfies { label: string; value: () => JSX.Element }[]
+  ] satisfies { label: string; value: () => JSX.Element; numeric?: boolean }[]
 
   const exportSession = async () => {
     const sessionID = props.session.id
@@ -293,7 +304,9 @@ export default function SessionContextTab(props: { session: MountedSession }) {
     >
       <div data-slot="session-usage-content" class="px-4 pt-4 pb-6 flex flex-col gap-6 md:px-6 md:pb-10 md:gap-10">
         <div class="grid grid-cols-1 @[32rem]:grid-cols-2 gap-4">
-          <For each={stats}>{(stat) => <Stat label={ctx.t(stat.label)} value={stat.value()} />}</For>
+          <For each={stats}>
+            {(stat) => <Stat label={ctx.t(stat.label)} value={stat.value()} numeric={stat.numeric} />}
+          </For>
         </div>
 
         <Show when={systemPrompt()}>
