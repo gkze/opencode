@@ -49,6 +49,9 @@ export interface DesktopTheme {
   dark: ThemeVariant
 }
 
+/** Themes keyed by built-in or runtime-registered IDs. */
+export type ThemeRegistry = Record<string, DesktopTheme>
+
 export type TokenCategory =
   | "background"
   | "surface"
