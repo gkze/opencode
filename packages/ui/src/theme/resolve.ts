@@ -1,5 +1,5 @@
 import type { ColorValue, DesktopTheme, HexColor, ResolvedTheme, ThemeVariant } from "./types"
-import { blend, generateNeutralScale, generateScale, hexToOklch, hexToRgb, shift, withAlpha } from "./color"
+import { blend, contrastRatio, generateNeutralScale, generateScale, hexToOklch, shift, withAlpha } from "./color"
 
 export function resolveThemeVariant(variant: ThemeVariant, isDark: boolean): ResolvedTheme {
   const colors = getColors(variant)
@@ -93,22 +93,10 @@ export function resolveThemeVariant(variant: ThemeVariant, isDark: boolean): Res
   const infob = info[isDark ? 6 : 4]
   const infow = info[isDark ? 5 : 3]
   const infos = info[10]
-  const lum = (hex: HexColor) => {
-    const rgb = hexToRgb(hex)
-    const lift = (v: number) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4))
-    return 0.2126 * lift(rgb.r) + 0.7152 * lift(rgb.g) + 0.0722 * lift(rgb.b)
-  }
-  const hit = (a: HexColor, b: HexColor) => {
-    const x = lum(a)
-    const y = lum(b)
-    const light = Math.max(x, y)
-    const dark = Math.min(x, y)
-    return (light + 0.05) / (dark + 0.05)
-  }
   const on = (fill: HexColor) => {
     const light = "#ffffff" as HexColor
     const dark = "#000000" as HexColor
-    return hit(light, fill) > hit(dark, fill) ? light : dark
+    return contrastRatio(light, fill) > contrastRatio(dark, fill) ? light : dark
   }
 
   const tokens: ResolvedTheme = {}
