@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test"
-import { RGBA } from "@opentui/core"
+import { EmbeddedTerminalRenderable, RGBA } from "@opentui/core"
+import { createTestRenderer } from "@opentui/core/testing"
 import { resolveThemeDocument, themeModes } from "@opencode/theme/tui"
 import { CATPPUCCIN_FLAVORS } from "../../ui/src/theme/catppuccin-palette"
-import { allThemes, DEFAULT_THEMES, parseTheme } from "../src/theme"
+import { allThemes, DEFAULT_THEMES, parseTheme, setCustomThemes } from "../src/theme"
+import { terminalPalette } from "../src/theme/terminal"
 
 const flavors = [
   ["latte", "light", "#eff1f5", "#4c4f69", "#40a02b", "#d20f39"],
@@ -35,12 +37,9 @@ describe("Catppuccin native TUI resolution", () => {
       expect(theme.background.action.primary.selected.equals(RGBA.fromHex(`${swatches.overlay2}40`))).toBe(true)
       expect(theme.surface("dialog").background.base.equals(RGBA.fromHex(swatches.mantle))).toBe(true)
       expect(theme.source(theme.background.base)?.hue).toBe("neutral")
-      const raised =
-        theme.increase(theme.background.base)
+      const raised = theme.increase(theme.background.base)
       expect(raised.equals(theme.background.base)).toBe(false)
-      expect(theme.decrease(theme.text.feedback.warning.base, 2).equals(theme.text.feedback.warning.base)).toBe(
-        false,
-      )
+      expect(theme.decrease(theme.text.feedback.warning.base, 2).equals(theme.text.feedback.warning.base)).toBe(false)
 
       // Verify the consumed v2 document, including inferred/default and contextual roles.
       const canonical = new Set(
@@ -55,8 +54,77 @@ describe("Catppuccin native TUI resolution", () => {
         expect([15, 26, 38, 56, 64, 255]).toContain(channels[3])
       }
 
+      const terminal = terminalPalette(theme, mode, theme.background.base, `catppuccin-${flavor}`, source).toString()
+      for (const [name, color] of Object.entries(CATPPUCCIN_FLAVORS[flavor].ansi)) {
+        const normal = name.replace(/^bright(.)/, (_, letter: string) => letter.toLowerCase())
+        const code = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"].indexOf(normal)
+        expect(code).toBeGreaterThanOrEqual(0)
+        expect(terminal).toContain(`\x1b]4;${code + (name.startsWith("bright") ? 8 : 0)};${color}\x1b\\`)
+      }
+      expect(terminal).toContain(`\x1b]10;${swatches.text}\x1b\\`)
+      expect(terminal).toContain(`\x1b]11;${swatches.base}\x1b\\`)
+      expect(terminal).toContain(`\x1b]12;${swatches.rosewater}\x1b\\`)
     },
   )
+
+  test("custom Catppuccin names retain their resolved terminal colors", () => {
+    setCustomThemes({
+      "catppuccin-mocha": {
+        ...allThemes()["catppuccin-mocha"],
+        dark: {
+          ...parseTheme(allThemes()["catppuccin-mocha"]).dark,
+          background: { base: "#112233" },
+          text: { base: "#abcdef" },
+        },
+      },
+    })
+    try {
+      const source = allThemes()["catppuccin-mocha"]
+      const theme = resolveThemeDocument(parseTheme(source), "dark")
+      const output = terminalPalette(theme, "dark", theme.background.base, "catppuccin-mocha", source).toString()
+      expect(output).toContain("\x1b]10;#abcdef\x1b\\")
+      expect(output).toContain("\x1b]11;#112233\x1b\\")
+      expect(output).toContain("\x1b]12;#abcdef\x1b\\")
+    } finally {
+      setCustomThemes({})
+    }
+  })
+
+  test.each(["light", "dark"] as const)("switching to %s restores the terminal cursor", async (mode) => {
+    const setup = await createTestRenderer({ width: 40, height: 10, useThread: false })
+    const responses: string[] = []
+    try {
+      const terminal = new EmbeddedTerminalRenderable(setup.renderer, {
+        id: "theme-switch",
+        width: 40,
+        height: 10,
+        onData: (data, source) => {
+          if (source === "response") responses.push(Buffer.from(data).toString())
+        },
+      })
+      setup.renderer.root.add(terminal)
+      for (const [name, appearance] of [
+        ["catppuccin-mocha", "dark"],
+        ["opencode", mode],
+      ] as const) {
+        const source = allThemes()[name]
+        const theme = resolveThemeDocument(parseTheme(source), appearance)
+        terminal.write(terminalPalette(theme, appearance, theme.background.base, name, source))
+        terminal.write("\x1b]12;?\x07")
+      }
+      const theme = resolveThemeDocument(parseTheme(allThemes().opencode), mode)
+      const expected = theme.text.base
+        .toInts()
+        .slice(0, 3)
+        .map((channel) => channel.toString(16).padStart(2, "0").repeat(2))
+        .join("/")
+      expect(responses).toHaveLength(2)
+      expect(responses[0]).not.toBe(responses[1])
+      expect(responses[1]).toBe(`\x1b]12;rgb:${expected}\x07`)
+    } finally {
+      setup.renderer.destroy()
+    }
+  })
 
   test("retains compatibility for existing unnamed Catppuccin configs", () => {
     const document = parseTheme(allThemes().catppuccin)
@@ -68,7 +136,19 @@ describe("Catppuccin native TUI resolution", () => {
     expect(DEFAULT_THEMES.catppuccin).toBeUndefined()
   })
 
-
+  test.each(["light", "dark"] as const)("other themes retain their %s terminal palette", (mode) => {
+    const theme = resolveThemeDocument(parseTheme(allThemes().opencode), mode)
+    const output = terminalPalette(theme, mode, theme.background.base, "opencode", allThemes().opencode).toString()
+    const controls = [...output.matchAll(/\x1b\](\d+);([^\x1b]+)\x1b\\/g)]
+    expect(controls).toHaveLength(19)
+    const error = theme.text.feedback.error.base
+      .toInts()
+      .slice(0, 3)
+      .map((channel) => channel.toString(16).padStart(2, "0"))
+      .join("")
+    expect(output).toContain(`\x1b]4;1;#${error}\x1b\\`)
+    expect(output).toContain("\x1b]12;")
+  })
 })
 
 function resolvedColors(value: unknown): RGBA[] {
