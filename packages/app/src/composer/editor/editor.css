@@ -42,6 +42,62 @@
   mask-image: none;
 }
 
+[data-component="composer-editor"] :is(ul, ol) {
+  margin: 0;
+  padding-inline-start: 20px;
+  list-style-position: outside;
+}
+
+[data-component="composer-editor"] ul {
+  list-style-type: disc;
+}
+
+[data-component="composer-editor"] ol {
+  list-style-type: decimal;
+}
+
+[data-component="composer-editor"] li {
+  unicode-bidi: plaintext;
+}
+
+[data-component="composer-editor"] [data-md="marker"] {
+  color: var(--v2-text-text-faint);
+}
+
+[data-component="composer-editor"] [data-md="bold"] {
+  font-weight: 600;
+}
+
+[data-component="composer-editor"] [data-md="italic"] {
+  font-style: italic;
+}
+
+[data-component="composer-editor"] [data-md="strike"] {
+  text-decoration: line-through;
+}
+
+[data-component="composer-editor"] [data-md="link"] {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+[data-component="composer-editor"] [data-md="quote"] {
+  color: var(--v2-text-text-muted);
+}
+
+[data-component="composer-editor"] :is([data-md="code"], [data-md="code-block"]) {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-family-mono);
+  font-feature-settings: var(--font-family-mono--font-feature-settings);
+}
+
+[data-component="composer-editor"] [data-md="code"] {
+  padding: 0 2px;
+  border-radius: 4px;
+  background: color-mix(in oklch, currentColor 10%, transparent);
+}
+
 /* Masks only cover hidden content; they do not reserve space in the toolbar. */
 [data-slot="composer-controls"][data-overflow-start="true"] {
   --mask-start: 16px;
