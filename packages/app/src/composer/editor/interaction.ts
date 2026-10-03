@@ -5,6 +5,7 @@ import { useFilteredList } from "@opencode/ui/hooks"
 import { createComposerAttachments, type ComposerAttachmentConfig } from "../attachments/attachments"
 import type { Upload } from "../attachments/uploads"
 import { createComposerEditorActions, type ComposerStateStoreInput } from "./actions"
+import { getCursorPosition, setCursorPosition } from "./dom"
 import type {
   ComposerAttachment,
   ComposerComment,
@@ -309,8 +310,9 @@ export function createComposerEditor(input: {
 
   const restoreFocus = (cursor = draft.state.cursor ?? promptLength(draft.state.prompt)) => {
     requestAnimationFrame(() => {
-      editor?.focus()
-      setEditorCursor(editor, cursor)
+      if (!editor) return
+      editor.focus()
+      setCursorPosition(editor, cursor)
     })
   }
 
@@ -328,7 +330,7 @@ export function createComposerEditor(input: {
     if (!selection?.isCollapsed || !editor.contains(selection.anchorNode)) return false
     const text = draft.state.prompt.map((part) => ("content" in part ? part.content : "")).join("")
 
-    if (!canNavigateHistory(direction, text, editorCursor(editor), state.historyIndex >= 0)) return false
+    if (!canNavigateHistory(direction, text, getCursorPosition(editor), state.historyIndex >= 0)) return false
     const entries = input.history.entries(state.mode)
 
     if (direction === "up") {
@@ -567,40 +569,4 @@ function canNavigateHistory(direction: "up" | "down", text: string, cursor: numb
   if (direction === "up") return position === 0 && text.length === 0
 
   return position === text.length
-}
-
-function editorCursor(editor: HTMLElement) {
-  const selection = window.getSelection()
-
-  if (!selection?.rangeCount || !editor.contains(selection.anchorNode)) return editor.textContent?.length ?? 0
-  const range = selection.getRangeAt(0).cloneRange()
-  range.selectNodeContents(editor)
-  range.setEnd(selection.anchorNode!, selection.anchorOffset)
-
-  return range.toString().length
-}
-
-function setEditorCursor(editor: HTMLElement | undefined, cursor: number) {
-  if (!editor) return
-  const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT)
-  let remaining = cursor
-  let node = walker.nextNode()
-
-  while (node) {
-    const length = node.textContent?.length ?? 0
-
-    if (remaining <= length) {
-      const range = document.createRange()
-      range.setStart(node, remaining)
-      range.collapse(true)
-      const selection = window.getSelection()
-      selection?.removeAllRanges()
-      selection?.addRange(range)
-
-      return
-    }
-
-    remaining -= length
-    node = walker.nextNode()
-  }
 }
