@@ -87,3 +87,25 @@ story("renders user image, file attachment, file reference, and agent reference"
   expect(bodyBox).not.toBeNull()
   expect(bodyBox!.y - (attachmentsBox!.y + attachmentsBox!.height)).toBe(8)
 })
+
+story("renders simple Markdown in user messages", async ({ mount }) => {
+  const timeline = await mount("current-session-timeline-rows--conversation", { args: { scenario: "markdown" } })
+  const message = timeline.locator('[data-slot="user-message-text"]')
+  await expect(message.locator("strong")).toHaveText("review")
+  await expect(message.locator("em")).toHaveText("shipping")
+  await expect(message.locator('[data-highlight="file"]')).toHaveText("@src/a.ts")
+  await expect(message.locator("ul")).toHaveCSS("list-style-type", "disc")
+  await expect(message.locator("ul > li")).toHaveText([
+    "Check the old parse path",
+    "Keep https://opencode.ai/docs working",
+  ])
+  await expect(message.locator("ul s")).toHaveText("old")
+  await expect(message.locator("ul code")).toHaveText("parse")
+  await expect(message.getByRole("link", { name: "https://opencode.ai/docs", exact: true })).toHaveAttribute(
+    "href",
+    "https://opencode.ai/docs",
+  )
+  await expect(message.locator("ol > li")).toHaveText(["Run tests", "Ship it"])
+  await expect(message.locator("blockquote")).toHaveText("Quoted note")
+  await expect(message.locator("pre")).toHaveText("const value = *raw*")
+})
