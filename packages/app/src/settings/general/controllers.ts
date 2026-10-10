@@ -110,6 +110,12 @@ export function createAppearanceSettingsController() {
       setCode: (value: string) => settings.appearance.setFont(value),
       setTerminal: (value: string) => settings.appearance.setTerminalFont(value),
     },
+    text: {
+      size: settings.appearance.fontSize,
+      setSize: (value: number) => settings.appearance.setFontSize(value),
+      lineHeight: settings.appearance.lineHeight,
+      setLineHeight: (value: number) => settings.appearance.setLineHeight(value),
+    },
   }
 }
 
