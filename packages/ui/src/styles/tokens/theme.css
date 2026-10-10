@@ -135,9 +135,10 @@
     --font-family-text: var(--font-family-sans);
     --v2-font-family-sans: var(--font-family-sans);
     --v2-font-family-code: var(--font-family-mono);
-    --line-height-tight: 12px;
-    --line-height-compact: 16px;
-    --line-height-base: 20px;
+    /* Fixed leading for chrome rows; scales with the base text size from the appearance settings. */
+    --line-height-tight: calc(var(--font-size-base, 14px) * 12 / 14);
+    --line-height-compact: calc(var(--font-size-base, 14px) * 16 / 14);
+    --line-height-base: calc(var(--font-size-base, 14px) * 20 / 14);
   }
 
   /* OS preference fallback (no JS needed) */
