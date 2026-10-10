@@ -103,6 +103,7 @@ describe("settings schema", () => {
       },
       appearance: {
         fontSize: 14,
+        lineHeight: 1.6,
         mono: "",
         sans: "",
         terminal: "",
@@ -156,6 +157,7 @@ describe("settings schema", () => {
     })
     expect(settings.appearance).toEqual({
       fontSize: 14,
+      lineHeight: 1.6,
       mono: "Custom Mono",
       sans: "",
       terminal: "",
