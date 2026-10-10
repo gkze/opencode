@@ -117,8 +117,8 @@ function Cell(props: {
           dir="ltr"
           classList={{
             "uppercase font-bold tabular-nums": true,
-            "text-[11px] leading-text-tight": !!props.inline,
-            "text-[13px] leading-text-compact sm:text-[14px]": !props.inline,
+            "text-[length:var(--font-size-2x-small)] leading-text-tight": !!props.inline,
+            "text-[length:var(--font-size-small)] leading-text-compact sm:text-[length:var(--font-size-base)]": !props.inline,
             "text-text-on-critical-base": !!props.bad,
             "opacity-70": !!props.dim,
           }}
@@ -167,7 +167,7 @@ function ToggleCell(props: {
         <span dir="ltr" class="text-[10px] leading-none font-black tracking-[0.04em] opacity-70">
           {props.label}
         </span>
-        <span dir="ltr" class="text-[11px] leading-none font-bold">
+        <span dir="ltr" class="text-[length:var(--font-size-2x-small)] leading-none font-bold">
           {props.value}
         </span>
       </span>

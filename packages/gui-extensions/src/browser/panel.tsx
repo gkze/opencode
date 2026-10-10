@@ -916,7 +916,7 @@ export default function SessionBrowserPane(props: {
             class="flex size-full flex-col items-center justify-center gap-2 p-6 pb-[200px] text-center text-text-weak"
           >
             <Icon name="globe" size="large" class="mb-2 shrink-0" />
-            <div class="text-[13px] font-medium leading-[var(--line-height-compact)] text-text-strong">
+            <div class="text-[length:var(--font-size-small)] font-medium leading-[var(--line-height-compact)] text-text-strong">
               {extension.t("failed.title")}
             </div>
             <div class="text-13-regular leading-[var(--line-height-base)]">{extension.t("failed.description")}</div>

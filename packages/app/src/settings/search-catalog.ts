@@ -143,6 +143,18 @@ export const clientSettings: Entry<SettingsRootTab>[] = [
     keywords: "animation accessibility",
   },
   {
+    tab: "appearance",
+    label: "settings.general.row.fontSize.title",
+    target: "settings-font-size",
+    keywords: "text size scale zoom larger smaller accessibility",
+  },
+  {
+    tab: "appearance",
+    label: "settings.general.row.lineHeight.title",
+    target: "settings-line-height",
+    keywords: "leading spacing readability text",
+  },
+  {
     tab: "notifications",
     label: "settings.general.notifications.agent.title",
     target: "settings-notifications-agent",
