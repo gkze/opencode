@@ -21,7 +21,7 @@
 
   font-style: normal;
   font-weight: 530;
-  font-size: 11px;
+  font-size: var(--font-size-2x-small);
   line-height: 12px;
   letter-spacing: 0.05px;
   color: var(--v2-text-text-base);
@@ -67,7 +67,7 @@
 
 [data-component="tooltip-v2"][data-appearance="large"] {
   padding: 12px;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   line-height: var(--line-height-compact);
   letter-spacing: -0.04px;
 }
