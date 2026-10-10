@@ -46,7 +46,7 @@
 [data-component="line-comment-v2"][data-variant="display"] [data-slot="line-comment-v2-text"] {
   margin: 0;
   width: 100%;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-style: normal;
   font-weight: 440;
   line-height: var(--line-height-compact);
@@ -56,7 +56,7 @@
 }
 
 [data-component="line-comment-v2"][data-variant="display"] [data-slot="line-comment-v2-meta"] {
-  font-size: 11px;
+  font-size: var(--font-size-2x-small);
   font-style: normal;
   font-weight: 530;
   line-height: var(--line-height-tight);
@@ -135,7 +135,7 @@
   flex-direction: row;
   align-items: center;
   width: 100%;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-style: normal;
   font-weight: 530;
   line-height: var(--line-height-compact);
@@ -156,7 +156,7 @@
   border-radius: 6px;
   background:
     linear-gradient(180deg, var(--v2-alpha-light-2) 0%, var(--v2-alpha-light-0) 100%), var(--v2-background-bg-base);
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-style: normal;
   font-weight: 440;
   line-height: 1.35;
@@ -187,7 +187,7 @@
 [data-component="line-comment-v2"][data-variant="editor"] [data-slot="line-comment-v2-footer-meta"] {
   flex: 1 1 auto;
   min-width: 0;
-  font-size: 11px;
+  font-size: var(--font-size-2x-small);
   font-style: normal;
   font-weight: 530;
   line-height: 1;
@@ -240,7 +240,7 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  font-size: 12px;
+  font-size: var(--font-size-x-small);
   line-height: 16px;
 }
 

@@ -425,7 +425,7 @@ function ModelSelectorDrawer(props: {
                   </Button>
                 </Show>
                 <Show when={props.chatgptPlan}>
-                  <div class="flex min-h-10 items-center gap-2 border-t border-v2-border-border-muted px-3 py-2 text-[13px] leading-5 text-v2-text-text-base">
+                  <div class="flex min-h-10 items-center gap-2 border-t border-v2-border-border-muted px-3 py-2 text-[length:var(--font-size-small)] leading-5 text-v2-text-text-base">
                     <ProviderModelIcon provider={{ id: "openai", name: "OpenAI" }} class="shrink-0" />
                     <span class="min-w-0 flex-1 truncate">{language.t("dialog.model.chatgptPlan")}</span>
                     <ExternalLink
@@ -609,7 +609,7 @@ export function ModelSelectorPopoverView(props: {
                 ref={(el) => (searchRef = el)}
                 value={store.search}
                 placeholder={language.t("dialog.model.search.placeholder")}
-                class="h-7 min-w-0 flex-1 border-0 bg-transparent text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base outline-none placeholder:text-v2-text-text-faint"
+                class="h-7 min-w-0 flex-1 border-0 bg-transparent text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base outline-none placeholder:text-v2-text-text-faint"
                 spellcheck={false}
                 autocorrect="off"
                 autocomplete="off"
@@ -669,7 +669,7 @@ export function ModelSelectorPopoverView(props: {
               <Show
                 when={models().length > 0}
                 fallback={
-                  <div class="flex h-12 items-center px-3 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-faint">
+                  <div class="flex h-12 items-center px-3 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-faint">
                     {language.t("dialog.model.empty")}
                   </div>
                 }
@@ -744,7 +744,7 @@ export function ModelSelectorPopoverView(props: {
           </div>
           <Show when={props.chatgptPlan}>
             <div class="h-px bg-v2-border-border-muted" />
-            <div class="flex min-h-10 items-center gap-2 px-3 py-2 text-[13px] leading-5 text-v2-text-text-base">
+            <div class="flex min-h-10 items-center gap-2 px-3 py-2 text-[length:var(--font-size-small)] leading-5 text-v2-text-text-base">
               <ProviderModelIcon provider={{ id: "openai", name: "OpenAI" }} class="shrink-0" />
               <span class="min-w-0 flex-1 truncate">{language.t("dialog.model.chatgptPlan")}</span>
               <ExternalLink
@@ -793,7 +793,7 @@ export const DialogSelectModel: Component<{ provider?: string; model?: ModelStat
         <div class="shrink-0 border-t border-v2-border-border-muted px-4 py-3">
           <button
             type="button"
-            class="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[13px] font-[530] leading-text-compact tracking-[-0.04px] text-v2-text-text-base hover:bg-v2-overlay-simple-overlay-hover focus-visible:bg-v2-overlay-simple-overlay-hover focus-visible:outline-none"
+            class="flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[length:var(--font-size-small)] font-[530] leading-text-compact tracking-[-0.04px] text-v2-text-text-base hover:bg-v2-overlay-simple-overlay-hover focus-visible:bg-v2-overlay-simple-overlay-hover focus-visible:outline-none"
             onClick={manage}
           >
             <Icon name="outline-sliders" size="small" />
