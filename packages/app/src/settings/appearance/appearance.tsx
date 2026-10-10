@@ -1,6 +1,7 @@
 import { Component } from "solid-js"
 import { Select } from "@opencode/ui/select"
 import { TextInput } from "@opencode/ui/text-input"
+import { NumberStepper } from "@opencode/ui/number-stepper"
 import { useLanguage } from "@/runtime/i18n/language"
 import { ExternalLink } from "@/runtime/platform/external-link"
 import { SettingsList } from "@/settings/list"
@@ -128,6 +129,40 @@ export const SettingsAppearance: Component = () => {
             <FontSetting kind="ui" fonts={appearance.fonts} />
             <FontSetting kind="code" fonts={appearance.fonts} />
             <FontSetting kind="terminal" fonts={appearance.fonts} />
+
+            <SettingsRow
+              title={language.t("settings.general.row.fontSize.title")}
+              description={language.t("settings.general.row.fontSize.description")}
+            >
+              <div data-action="settings-font-size">
+                <NumberStepper
+                  aria-label={language.t("settings.general.row.fontSize.title")}
+                  value={appearance.text.size()}
+                  onChange={appearance.text.setSize}
+                  min={10}
+                  max={24}
+                  step={1}
+                  format={(value) => value.toFixed(0)}
+                />
+              </div>
+            </SettingsRow>
+
+            <SettingsRow
+              title={language.t("settings.general.row.lineHeight.title")}
+              description={language.t("settings.general.row.lineHeight.description")}
+            >
+              <div data-action="settings-line-height">
+                <NumberStepper
+                  aria-label={language.t("settings.general.row.lineHeight.title")}
+                  value={appearance.text.lineHeight()}
+                  onChange={appearance.text.setLineHeight}
+                  min={1.2}
+                  max={2.4}
+                  step={0.1}
+                  format={(value) => value.toFixed(1)}
+                />
+              </div>
+            </SettingsRow>
           </SettingsList>
         </div>
       </div>
