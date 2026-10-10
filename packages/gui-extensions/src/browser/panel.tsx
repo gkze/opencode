@@ -877,10 +877,10 @@ export default function SessionBrowserPane(props: {
               <div class="absolute inset-x-6 top-20 mx-auto flex max-w-[360px] flex-col items-center gap-4 text-center">
                 <Icon name="outline-globe" size="large" class="text-v2-icon-icon-muted" />
                 <div class="flex flex-col gap-2">
-                  <div class="text-[13px] font-[530] leading-[var(--line-height-compact)] text-v2-text-text-base">
+                  <div class="text-[length:var(--font-size-small)] font-[530] leading-[var(--line-height-compact)] text-v2-text-text-base">
                     {extension.t("home.title")}
                   </div>
-                  <div class="text-[13px] font-[440] leading-[var(--line-height-compact)] text-v2-text-text-muted">
+                  <div class="text-[length:var(--font-size-small)] font-[440] leading-[var(--line-height-compact)] text-v2-text-text-muted">
                     {extension.t("home.description")}
                   </div>
                 </div>
@@ -888,7 +888,7 @@ export default function SessionBrowserPane(props: {
               {/* One visit is enough to list; the list stops at a handful. */}
               <Show when={recent().length > 0}>
                 <div class="flex w-full max-w-[685px] flex-col gap-4">
-                  <div class="px-2 text-[13px] font-[440] leading-[var(--line-height-compact)] text-v2-text-text-muted">
+                  <div class="px-2 text-[length:var(--font-size-small)] font-[440] leading-[var(--line-height-compact)] text-v2-text-text-muted">
                     {extension.t("home.recent")}
                   </div>
                   <div class="flex flex-col gap-2">
@@ -906,7 +906,7 @@ export default function SessionBrowserPane(props: {
             class="flex size-full flex-col items-center justify-center gap-2 p-6 pb-[200px] text-center text-text-weak"
           >
             <Icon name="globe" size="large" class="mb-2 shrink-0" />
-            <div class="text-[13px] font-medium leading-[var(--line-height-compact)] text-text-strong">
+            <div class="text-[length:var(--font-size-small)] font-medium leading-[var(--line-height-compact)] text-text-strong">
               {extension.t("failed.title")}
             </div>
             <div class="text-13-regular leading-[var(--line-height-base)]">{extension.t("failed.description")}</div>
