@@ -80,6 +80,13 @@ comes from an explicit list of V2 roles, with every referenced alpha color
 mapped to canonical palette endpoints. Layout and component behavior remain
 owned by V2.
 
+The new-session logo keeps its inner fills at 30% of the outer fill's theme
+color in both light and dark modes. This component-local opacity recipe keeps
+the letter details distinct when Catppuccin's icon neutrals are close together,
+without changing their canonical RGB channels or global icon roles. The logo's
+overall opacity and shimmer remain unchanged. The recipe applies to all themes
+in `packages/app/src/new-session/wordmark.css`.
+
 Run from the repository's pinned development environment:
 
 ```sh
