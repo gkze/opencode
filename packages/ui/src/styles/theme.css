@@ -5,17 +5,25 @@
     "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-family-mono--font-feature-settings: normal;
 
-  --font-size-small: 13px;
+  /* Text scale. Every size derives from --font-size-base, which the appearance settings set from the chosen
+     base size (14px by default); the ratios reproduce the original pixel sizes at that default. */
   --font-size-base: 14px;
-  --font-size-large: 16px;
-  --font-size-x-large: 20px;
+  --font-size-2x-small: calc(var(--font-size-base) * 11 / 14);
+  --font-size-x-small: calc(var(--font-size-base) * 12 / 14);
+  --font-size-small: calc(var(--font-size-base) * 13 / 14);
+  --font-size-large: calc(var(--font-size-base) * 16 / 14);
+  --font-size-x-large: calc(var(--font-size-base) * 20 / 14);
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-bold: 670;
-  --line-height-normal: 130%;
-  --line-height-large: 150%;
-  --line-height-x-large: 180%;
-  --line-height-2x-large: 200%;
+  /* Line heights derive from --line-height-mono (1.6 by default), which the appearance settings set. */
+  --line-height-mono: 1.6;
+  --line-height-normal: calc(var(--line-height-mono) * 0.8125);
+  --line-height-large: calc(var(--line-height-mono) * 0.9375);
+  --line-height-x-large: calc(var(--line-height-mono) * 1.125);
+  --line-height-2x-large: calc(var(--line-height-mono) * 1.25);
+  /* Code and diff leading: 24px at the default 13px code size, scaled with the base text size. */
+  --line-height-code: calc(var(--font-size-small) * 24 / 13);
   --letter-spacing-normal: 0;
   --letter-spacing-tight: -0.1599999964237213;
   --letter-spacing-tightest: -0.3199999928474426;

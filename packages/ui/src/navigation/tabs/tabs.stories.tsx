@@ -78,10 +78,10 @@ export const Settings = {
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="general">
-        <p class="text-[12px] text-[#5c5c5c] mx-4 my-3.5">General settings</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-4 my-3.5">General settings</p>
       </Tabs.Content>
       <Tabs.Content value="appearance">
-        <p class="text-[12px] text-[#5c5c5c] mx-4 my-3.5">Appearance settings</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-4 my-3.5">Appearance settings</p>
       </Tabs.Content>
     </Tabs>
   ),
@@ -100,10 +100,10 @@ export const Normal = {
         <Tabs.Trigger value="second">Second</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="first">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Normal content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Normal content</p>
       </Tabs.Content>
       <Tabs.Content value="second">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Some more alt content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Some more alt content</p>
       </Tabs.Content>
     </Tabs>
   ),
@@ -128,13 +128,13 @@ export const Pill = {
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="first">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Normal content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Normal content</p>
       </Tabs.Content>
       <Tabs.Content value="second">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Some more alt content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Some more alt content</p>
       </Tabs.Content>
       <Tabs.Content value="third">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Closable content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Closable content</p>
       </Tabs.Content>
     </Tabs>
   ),
@@ -158,10 +158,10 @@ export const Closable = {
         <Tabs.Trigger value="tab-2">Tab 2</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="tab-1">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Closable content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Closable content</p>
       </Tabs.Content>
       <Tabs.Content value="tab-2">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Standard content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Standard content</p>
       </Tabs.Content>
     </Tabs>
   ),
