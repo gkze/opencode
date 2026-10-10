@@ -165,7 +165,7 @@ export function SessionRunningMenu(props: {
         <Show when={!props.title}>
           <span
             aria-hidden="true"
-            class="shrink-0 ps-2 pe-1 text-[11px] font-medium leading-text-compact text-v2-text-text-faint"
+            class="shrink-0 ps-2 pe-1 text-[length:var(--font-size-2x-small)] font-medium leading-text-compact text-v2-text-text-faint"
           >
             /
           </span>
@@ -183,7 +183,7 @@ export function SessionRunningMenu(props: {
                 as="button"
                 type="button"
                 aria-label={presence.value()}
-                class="flex h-7 shrink-0 items-center rounded-[6px] px-2 text-[13px] font-[530] leading-text-compact tracking-[-0.04px] tabular-nums whitespace-nowrap text-v2-text-text-base outline-none hover:bg-v2-overlay-simple-overlay-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-v2-border-border-focus data-[expanded]:bg-v2-overlay-simple-overlay-hover"
+                class="flex h-7 shrink-0 items-center rounded-[6px] px-2 text-[length:var(--font-size-small)] font-[530] leading-text-compact tracking-[-0.04px] tabular-nums whitespace-nowrap text-v2-text-text-base outline-none hover:bg-v2-overlay-simple-overlay-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-v2-border-border-focus data-[expanded]:bg-v2-overlay-simple-overlay-hover"
               >
                 <TextShimmer text={presence.value() ?? ""} active={presence.show()} />
               </Menu.Trigger>
@@ -192,7 +192,7 @@ export function SessionRunningMenu(props: {
             <h1
               data-slot="session-title-child"
               aria-label={props.title}
-              class="min-w-0 text-[13px] font-[530] leading-text-compact tracking-[-0.04px] text-v2-text-text-base"
+              class="min-w-0 text-[length:var(--font-size-small)] font-[530] leading-text-compact tracking-[-0.04px] text-v2-text-text-base"
             >
               <Menu.Trigger
                 as="button"
