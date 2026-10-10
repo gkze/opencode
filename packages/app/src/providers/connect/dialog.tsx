@@ -333,7 +333,7 @@ function ProviderPicker(props: { directory?: string; onSelect: (provider: string
             {(group) => (
               <Show when={group.items().length > 0}>
                 <section class="flex flex-col">
-                  <div class="px-3 pb-2 text-[13px] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted">
+                  <div class="px-3 pb-2 text-[length:var(--font-size-small)] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted">
                     {group.title}
                   </div>
                   <For each={group.items()}>
@@ -341,7 +341,7 @@ function ProviderPicker(props: { directory?: string; onSelect: (provider: string
                       <button
                         type="button"
                         data-provider-id={provider.id}
-                        class="flex min-h-9 w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-[13px] leading-text-compact tracking-[-0.04px] hover:bg-v2-overlay-simple-overlay-hover focus:bg-v2-overlay-simple-overlay-hover focus:outline-none"
+                        class="flex min-h-9 w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-[length:var(--font-size-small)] leading-text-compact tracking-[-0.04px] hover:bg-v2-overlay-simple-overlay-hover focus:bg-v2-overlay-simple-overlay-hover focus:outline-none"
                         classList={{ "bg-v2-overlay-simple-overlay-hover": store.active === provider.id }}
                         onMouseEnter={() => setStore("active", provider.id)}
                         disabled={store.connecting !== undefined}
@@ -369,12 +369,12 @@ function ProviderPicker(props: { directory?: string; onSelect: (provider: string
                                 : "dialog.provider.opencodeGo.tagline",
                             )}
                           </span>
-                          <span class="flex h-4 shrink-0 items-center rounded-xs border-[0.5px] border-v2-border-border-base bg-v2-background-bg-layer-03 px-1 text-[11px] font-[530] leading-none tracking-[0.05px] text-v2-text-text-muted">
+                          <span class="flex h-4 shrink-0 items-center rounded-xs border-[0.5px] border-v2-border-border-base bg-v2-background-bg-layer-03 px-1 text-[length:var(--font-size-2x-small)] font-[530] leading-none tracking-[0.05px] text-v2-text-text-muted">
                             {language.t("dialog.provider.tag.recommended")}
                           </span>
                         </Show>
                         <Show when={provider.id === CUSTOM_ID}>
-                          <span class="flex h-4 shrink-0 items-center rounded-xs border-[0.5px] border-v2-border-border-base bg-v2-background-bg-layer-03 px-1 text-[11px] font-[530] leading-none tracking-[0.05px] text-v2-text-text-muted">
+                          <span class="flex h-4 shrink-0 items-center rounded-xs border-[0.5px] border-v2-border-border-base bg-v2-background-bg-layer-03 px-1 text-[length:var(--font-size-2x-small)] font-[530] leading-none tracking-[0.05px] text-v2-text-text-muted">
                             {language.t("settings.providers.tag.custom")}
                           </span>
                         </Show>
@@ -389,7 +389,7 @@ function ProviderPicker(props: { directory?: string; onSelect: (provider: string
             )}
           </For>
           <Show when={rows().length === 0}>
-            <div class="flex h-24 items-center justify-center text-[13px] font-[440] text-v2-text-text-muted">
+            <div class="flex h-24 items-center justify-center text-[length:var(--font-size-small)] font-[440] text-v2-text-text-muted">
               {language.t("dialog.provider.empty")}
             </div>
           </Show>
@@ -939,7 +939,7 @@ function ProviderConnection(props: {
   function MethodSelection() {
     return (
       <div class="flex flex-col gap-2">
-        <div class="px-3 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
+        <div class="px-3 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
           {language.t("provider.connect.selectMethod", { provider: provider().name })}
         </div>
         <div class="flex flex-col">
@@ -950,7 +950,7 @@ function ProviderConnection(props: {
               return (
                 <button
                   type="button"
-                  class="group flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[13px] leading-5 tracking-[-0.04px] hover:bg-v2-overlay-simple-overlay-hover focus-visible:bg-v2-overlay-simple-overlay-hover focus-visible:outline-none"
+                  class="group flex h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px] hover:bg-v2-overlay-simple-overlay-hover focus-visible:bg-v2-overlay-simple-overlay-hover focus-visible:outline-none"
                   onClick={() => void controller.auth.select(index())}
                 >
                   <span class="flex h-2 w-4 shrink-0 items-center justify-center rounded-[1px] bg-v2-background-bg-base shadow-[var(--v2-elevation-button-neutral)]">
@@ -971,7 +971,7 @@ function ProviderConnection(props: {
 
   function StatusRow(input: { children: JSX.Element }) {
     return (
-      <div class="flex items-center gap-2 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
+      <div class="flex items-center gap-2 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
         <Spinner class="size-4 shrink-0 text-v2-icon-icon-muted" />
         <span>{input.children}</span>
       </div>
@@ -981,7 +981,7 @@ function ProviderConnection(props: {
   function ErrorRow() {
     return (
       <div class="flex flex-col items-start" classList={{ "gap-3": !isConsole, "gap-4": isConsole }}>
-        <div class="flex items-start gap-2 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base">
+        <div class="flex items-start gap-2 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base">
           <Icon name="circle-ban-sign" size="small" class="mt-0.5 shrink-0 text-v2-state-fg-danger" />
           <span role="alert">
             {isConsole
@@ -1030,7 +1030,7 @@ function ProviderConnection(props: {
 
     return (
       <div
-        class="flex flex-col gap-5 px-3 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted"
+        class="flex flex-col gap-5 px-3 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted"
         classList={{ "pb-1": isConsole }}
       >
         <p>
@@ -1108,7 +1108,7 @@ function ProviderConnection(props: {
     }
 
     return (
-      <div class="flex flex-col gap-5 px-3 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
+      <div class="flex flex-col gap-5 px-3 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
         <div>{language.t("provider.connect.oauth.code.description", { provider: provider().name })}</div>
         <Button variant="neutral" icon="arrow-up-right" onClick={() => void controller.auth.open()}>
           {language.t("provider.connect.oauth.openBrowser")}
@@ -1146,7 +1146,7 @@ function ProviderConnection(props: {
 
   function OAuthAutoView() {
     return (
-      <div class="flex flex-col gap-5 px-3 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
+      <div class="flex flex-col gap-5 px-3 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
         <div>{language.t("provider.connect.oauth.auto.description", { provider: provider().name })}</div>
         <StatusRow>{language.t("provider.connect.status.waiting")}</StatusRow>
         <div class="flex flex-wrap items-center gap-2">
@@ -1204,7 +1204,7 @@ function ProviderConnection(props: {
     return (
       <div data-component="provider-accounts" class="flex flex-col gap-3">
         <section class="flex flex-col">
-          <div class="px-3 pb-2 text-[13px] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted">
+          <div class="px-3 pb-2 text-[length:var(--font-size-small)] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted">
             {language.t("dialog.provider.accounts.connected")}
           </div>
           <div role="radiogroup" aria-label={language.t("dialog.provider.accounts.connected")} class="flex flex-col">
@@ -1213,7 +1213,7 @@ function ProviderConnection(props: {
                 <Show
                   when={state.confirming !== account.id}
                   fallback={
-                    <div class="flex min-h-9 items-center gap-2 rounded-md px-3 text-[13px] leading-5 tracking-[-0.04px]">
+                    <div class="flex min-h-9 items-center gap-2 rounded-md px-3 text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px]">
                       <span role="alert" class="min-w-0 flex-1 truncate font-[440] text-v2-text-text-base">
                         {language.t("dialog.provider.accounts.removeConfirm", { account: account.label })}
                       </span>
@@ -1233,7 +1233,7 @@ function ProviderConnection(props: {
                         <div class="flex min-h-9 min-w-0 flex-1 items-center px-3">
                           <AccountNameInput
                             value={account.label}
-                            class="-ms-1 max-w-full text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base"
+                            class="-ms-1 max-w-full text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base"
                             onSave={(label) => accountActions.rename(account, label)}
                             onClose={() => setState("renaming", undefined)}
                           />
@@ -1244,7 +1244,7 @@ function ProviderConnection(props: {
                         type="button"
                         role="radio"
                         aria-checked={activeAccount() === account.id}
-                        class="flex min-h-9 min-w-0 flex-1 items-center gap-2 px-3 text-left text-[13px] leading-5 tracking-[-0.04px] focus-visible:outline-none"
+                        class="flex min-h-9 min-w-0 flex-1 items-center gap-2 px-3 text-left text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px] focus-visible:outline-none"
                         disabled={state.switching !== undefined}
                         onClick={() => void activateAccount(account)}
                       >
@@ -1298,7 +1298,7 @@ function ProviderConnection(props: {
   function ConsoleIntro() {
     return (
       <div class="flex flex-col items-start gap-5 px-3">
-        <p class="text-[13px] leading-5 text-v2-text-text-muted">{language.t("provider.connect.console.intro")}</p>
+        <p class="text-[length:var(--font-size-small)] leading-5 text-v2-text-text-muted">{language.t("provider.connect.console.intro")}</p>
         <Button
           size="large"
           class="!px-3"
@@ -1318,7 +1318,7 @@ function ProviderConnection(props: {
           </span>
         </Button>
         <Show when={keyIndex() !== -1}>
-          <div data-component="console-service-account" class="flex h-7 items-center gap-1 text-[13px]">
+          <div data-component="console-service-account" class="flex h-7 items-center gap-1 text-[length:var(--font-size-small)]">
             <span class="text-v2-text-text-faint">{language.t("provider.connect.console.serviceAccount")}</span>
             <Button
               variant="ghost-muted"
@@ -1336,7 +1336,7 @@ function ProviderConnection(props: {
 
   function ConsoleNoModels() {
     return (
-      <div role="status" class="flex flex-col items-start gap-5 px-3 text-[13px] leading-5 text-v2-text-text-muted">
+      <div role="status" class="flex flex-col items-start gap-5 px-3 text-[length:var(--font-size-small)] leading-5 text-v2-text-text-muted">
         <div>
           <p class="flex items-center gap-2 font-medium text-v2-text-text-base">
             <Icon name="circle-check" />
@@ -1432,7 +1432,7 @@ function ProviderConnection(props: {
   function FirstConnectionModels() {
     return (
       <div data-component="first-provider-models" class="flex min-h-0 flex-1 flex-col px-3">
-        <p class="shrink-0 pb-5 text-[13px] leading-5 text-v2-text-text-muted">
+        <p class="shrink-0 pb-5 text-[length:var(--font-size-small)] leading-5 text-v2-text-text-muted">
           {language.t("provider.connect.models.description")}
         </p>
         <div
@@ -1440,7 +1440,7 @@ function ProviderConnection(props: {
           class="settings-panel settings-models min-h-0 flex-1 overflow-y-auto pb-4"
         >
           <div data-component="available-models-heading" class="flex items-center gap-1.5">
-            <span class="text-[13px] font-[530] leading-4 text-v2-text-text-base">
+            <span class="text-[length:var(--font-size-small)] font-[530] leading-4 text-v2-text-text-base">
               {language.t("provider.connect.models.available")}
             </span>
             <Show when={managedProviders()}>{(managed) => <Badge>{managed().workspace}</Badge>}</Show>
