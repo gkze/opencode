@@ -216,7 +216,7 @@ export function PromptWorkspaceSelector(props: {
               class={
                 summary()
                   ? "session-summary-row"
-                  : "flex h-6 min-w-0 max-w-[220px] items-center gap-1.5 rounded-full bg-v2-background-bg-layer-02 px-2.5 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-faint transition-colors hover:bg-v2-background-bg-layer-03 hover:text-v2-text-text-muted focus-visible:bg-v2-background-bg-layer-03 focus-visible:text-v2-text-text-muted focus-visible:outline-none data-[expanded]:bg-v2-background-bg-layer-03 data-[expanded]:text-v2-text-text-muted"
+                  : "flex h-6 min-w-0 max-w-[220px] items-center gap-1.5 rounded-full bg-v2-background-bg-layer-02 px-2.5 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-faint transition-colors hover:bg-v2-background-bg-layer-03 hover:text-v2-text-text-muted focus-visible:bg-v2-background-bg-layer-03 focus-visible:text-v2-text-text-muted focus-visible:outline-none data-[expanded]:bg-v2-background-bg-layer-03 data-[expanded]:text-v2-text-text-muted"
               }
             >
               <Icon name="branch-out" size={summary() ? "normal" : "small"} class="shrink-0 text-v2-icon-icon-muted" />
@@ -249,7 +249,7 @@ export function PromptWorkspaceSelector(props: {
                     value={search.branches}
                     placeholder={language.t("session.new.workspace.branch.search.placeholder")}
                     aria-label={language.t("session.new.workspace.branch.search.placeholder")}
-                    class="h-7 min-w-0 flex-1 border-0 bg-transparent text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base outline-none placeholder:text-v2-text-text-faint"
+                    class="h-7 min-w-0 flex-1 border-0 bg-transparent text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base outline-none placeholder:text-v2-text-text-faint"
                     onInput={(event) => {
                       setSearch("branches", event.currentTarget.value)
                       props.onSearch(event.currentTarget.value)
@@ -286,7 +286,7 @@ export function PromptWorkspaceSelector(props: {
                       {(branch) => (
                         <Menu.RadioItem
                           value={branch}
-                          class="h-7 gap-2 rounded-sm px-3 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base [font-family:var(--v2-font-family-sans)] data-[highlighted]:!bg-v2-overlay-simple-overlay-hover"
+                          class="h-7 gap-2 rounded-sm px-3 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base [font-family:var(--v2-font-family-sans)] data-[highlighted]:!bg-v2-overlay-simple-overlay-hover"
                           closeOnSelect
                           onSelect={() => (pending = { type: "create", branch })}
                         >
@@ -337,7 +337,7 @@ export function PromptGitStatus(props: { branch?: string; noGit?: boolean; from?
           class={`min-w-0 max-w-[220px] ${props.class ?? ""}`}
           contentClass="max-w-[calc(100vw-32px)] break-all"
         >
-          <div class="flex h-6 min-w-0 max-w-[220px] items-center gap-1.5 rounded-full bg-v2-background-bg-layer-02 px-2.5 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-faint">
+          <div class="flex h-6 min-w-0 max-w-[220px] items-center gap-1.5 rounded-full bg-v2-background-bg-layer-02 px-2.5 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-faint">
             <Icon name={icon()} size="small" class="shrink-0 text-v2-icon-icon-muted" />
             <span ref={truncation.observe} class="min-w-0 truncate">
               {value()}
