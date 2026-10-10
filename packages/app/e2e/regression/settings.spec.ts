@@ -946,3 +946,51 @@ for (const viewport of [
     }
   })
 }
+
+const cssVariable = (page: Page, name: string) =>
+  page.evaluate((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim(), name)
+
+test("font size and line height steppers rescale the interface", async ({ page }) => {
+  const { settings } = await open(page)
+  await settings.getByRole("tab", { name: "Appearance", exact: true }).click()
+
+  const size = settings.locator('[data-action="settings-font-size"]')
+  const lineHeight = settings.locator('[data-action="settings-line-height"]')
+  const sizeInput = size.getByRole("textbox", { name: "Font Size", exact: true })
+  const lineHeightInput = lineHeight.getByRole("textbox", { name: "Line Height", exact: true })
+
+  await expect(sizeInput).toHaveValue("14")
+  await expect(lineHeightInput).toHaveValue("1.6")
+
+  // Body text renders at the derived size, so the setting reaches the DOM, not just the variable.
+  const bodySize = () => page.evaluate(() => Number.parseFloat(getComputedStyle(document.body).fontSize))
+  const before = await bodySize()
+
+  await size.getByRole("button", { name: "Increase" }).click()
+  await expect(sizeInput).toHaveValue("15")
+  expect(await cssVariable(page, "--font-size-base")).toBe("15px")
+  expect(await bodySize()).toBeGreaterThan(before)
+
+  await lineHeight.getByRole("button", { name: "Increase" }).click()
+  await expect(lineHeightInput).toHaveValue("1.7")
+  expect(await cssVariable(page, "--line-height-mono")).toBe("1.7")
+
+  // The stepper clamps out-of-range input instead of accepting it.
+  await sizeInput.fill("99")
+  await sizeInput.blur()
+  await expect(sizeInput).toHaveValue("24")
+  expect(await cssVariable(page, "--font-size-base")).toBe("24px")
+
+  await page.reload()
+  await expect(sizeInput).toHaveValue("24")
+})
+
+test("a stored font size and line height apply on load", async ({ page }) => {
+  const { settings } = await open(page, { seed: { settings: { appearance: { fontSize: 20, lineHeight: 1.8 } } } })
+  await settings.getByRole("tab", { name: "Appearance", exact: true }).click()
+
+  await expect(settings.getByRole("textbox", { name: "Font Size", exact: true })).toHaveValue("20")
+  await expect(settings.getByRole("textbox", { name: "Line Height", exact: true })).toHaveValue("1.8")
+  expect(await cssVariable(page, "--font-size-base")).toBe("20px")
+  expect(await cssVariable(page, "--line-height-mono")).toBe("1.8")
+})

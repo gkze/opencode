@@ -414,7 +414,7 @@ function MessageTimelineView(
             }}
           >
             <div
-              class={`flex h-9 items-center gap-2 pt-3 text-[13px] font-[530] leading-text-compact ${turnPadding()}`}
+              class={`flex h-9 items-center gap-2 pt-3 text-[length:var(--font-size-small)] font-[530] leading-text-compact ${turnPadding()}`}
             >
               <Show when={showWorking()}>
                 <div data-component="session-working" role="status">
@@ -474,7 +474,7 @@ function MessageTimelineView(
                       fallback={
                         <h1
                           data-slot="session-title-child"
-                          class="truncate text-[13px] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base w-fit rounded-[6px] px-1 py-1 hover:bg-v2-overlay-simple-overlay-hover"
+                          class="truncate text-[length:var(--font-size-small)] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base w-fit rounded-[6px] px-1 py-1 hover:bg-v2-overlay-simple-overlay-hover"
                           classList={{ "max-w-[45%] shrink-0": !!parentID() }}
                           onClick={openTitleEditor}
                         >
@@ -490,7 +490,7 @@ function MessageTimelineView(
                         dir="auto"
                         value={title.draft}
                         disabled={props.pending.rename()}
-                        class="block text-[13px] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base field-sizing-content rounded-[6px] px-1 py-1"
+                        class="block text-[length:var(--font-size-small)] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base field-sizing-content rounded-[6px] px-1 py-1"
                         classList={{ "max-w-[45%] shrink-0": !!parentID() }}
                         style={{
                           "--inline-input-shadow": "none",

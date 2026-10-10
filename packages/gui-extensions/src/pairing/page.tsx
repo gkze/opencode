@@ -178,11 +178,11 @@ export default function PairingPage(props: {
             </Row>
             <Show when={listensLocally()}>
               <div class="flex flex-col gap-2 py-4" role="status">
-                <div class="flex items-center gap-2 text-[13px] font-[530] leading-[var(--line-height-compact)] text-v2-text-text-base">
+                <div class="flex items-center gap-2 text-[length:var(--font-size-small)] font-[530] leading-[var(--line-height-compact)] text-v2-text-text-base">
                   <Icon name="lock" size="small" class="shrink-0 text-v2-icon-icon-muted" />
                   {ctx.t("unreachable.title")}
                 </div>
-                <p class="text-[13px] leading-[var(--line-height-base)] text-v2-text-text-muted">
+                <p class="text-[length:var(--font-size-small)] leading-[var(--line-height-base)] text-v2-text-text-muted">
                   {ctx.t("unreachable.description")}
                 </p>
                 <div class="flex min-w-0 items-center gap-2">
@@ -395,7 +395,7 @@ function DialogPairing(props: {
             <Show when={route()}>
               {(item) => (
                 <div class="flex flex-col gap-0.5">
-                  <span class="text-[13px] font-[530] leading-[var(--line-height-compact)] text-v2-text-text-base">
+                  <span class="text-[length:var(--font-size-small)] font-[530] leading-[var(--line-height-compact)] text-v2-text-text-base">
                     {ctx.t(routeLabel[item().kind])}
                   </span>
                   <span class="text-12-regular leading-[var(--line-height-compact)] text-v2-text-text-muted">
@@ -448,7 +448,7 @@ function DialogPairing(props: {
             >
               <button
                 type="button"
-                class="inline-flex min-h-8 max-w-full select-none items-center justify-center gap-2 rounded-[6px] px-2 py-1 text-[13px] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted transition-colors hover:bg-v2-background-bg-layer-02 hover:text-v2-text-text-base focus-visible:bg-v2-background-bg-layer-02 focus-visible:outline-none disabled:opacity-50"
+                class="inline-flex min-h-8 max-w-full select-none items-center justify-center gap-2 rounded-[6px] px-2 py-1 text-[length:var(--font-size-small)] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted transition-colors hover:bg-v2-background-bg-layer-02 hover:text-v2-text-text-base focus-visible:bg-v2-background-bg-layer-02 focus-visible:outline-none disabled:opacity-50"
                 disabled={copy.isPending}
                 aria-label={ctx.t("copyLink")}
                 onClick={() => copy.mutate()}

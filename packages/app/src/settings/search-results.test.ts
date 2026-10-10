@@ -48,7 +48,7 @@ describe("settings search index", () => {
       target: undefined,
       subtab: undefined,
     })
-    expect(rankSettings("font", items, root)).toHaveLength(3)
+    expect(rankSettings("font", items, root)).toHaveLength(4)
   })
 
   test("only advertises settings supported by this platform", () => {
