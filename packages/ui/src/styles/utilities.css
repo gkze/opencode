@@ -43,9 +43,27 @@
   text-align: left;
 }
 
+.text-11-regular {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-2x-small);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-large);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-11-medium {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-2x-small);
+  font-style: normal;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-large);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
 .text-12-regular {
   font-family: var(--font-family-sans);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-x-small);
   font-style: normal;
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-large); /* 166.667% */
@@ -54,7 +72,7 @@
 
 .text-12-medium {
   font-family: var(--font-family-sans);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-x-small);
   font-style: normal;
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-large); /* 166.667% */
@@ -64,10 +82,28 @@
 .text-12-mono {
   font-family: var(--font-family-mono);
   font-feature-settings: var(--font-feature-settings-mono);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-x-small);
   font-style: normal;
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-large); /* 166.667% */
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-13-regular {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-small);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-large);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-13-medium {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-small);
+  font-style: normal;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-large);
   letter-spacing: var(--letter-spacing-normal);
 }
 
@@ -97,6 +133,15 @@
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-large); /* 171.429% */
   letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-16-regular {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-large);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-x-large);
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .text-16-medium {
