@@ -125,6 +125,7 @@ const generalSchema = Persistence.struct({
 
 const appearanceSchema = Persistence.struct({
   fontSize: Schema.Number,
+  lineHeight: Schema.Number,
   mono: Schema.String,
   sans: Schema.String,
   terminal: Schema.String,
@@ -282,7 +283,7 @@ export const defaultSettings: Settings = {
     terminalPlacement: "side",
     followUpBehavior: "steer",
   },
-  appearance: { fontSize: 14, mono: "", sans: "", terminal: "", tabLayout: "horizontal" },
+  appearance: { fontSize: 14, lineHeight: 1.6, mono: "", sans: "", terminal: "", tabLayout: "horizontal" },
   keybinds: {},
   permissions: { autoApprove: false, autoApproveProjects: {} },
   workspaces: { defaultDestination: "last-used", lastUsed: {} },
@@ -319,6 +320,12 @@ export const { use: useSettings, provider: SettingsProvider } = createSimpleCont
       const mono = monoFontFamily(store.appearance?.mono)
       root.style.setProperty("--font-family-mono", mono)
       root.style.setProperty("--font-family-sans", sansFontFamily(store.appearance?.sans))
+      // The whole text scale derives from these two values; see theme.css.
+      root.style.setProperty("--font-size-base", `${store.appearance?.fontSize ?? defaultSettings.appearance.fontSize}px`)
+      root.style.setProperty(
+        "--line-height-mono",
+        String(store.appearance?.lineHeight ?? defaultSettings.appearance.lineHeight),
+      )
       // Inline code can first appear during history backfill. Load its selected
       // face with the shell so that font discovery does not resize that mount.
       void document.fonts?.load(`440 13px ${mono}`).catch(() => undefined)
@@ -378,6 +385,10 @@ export const { use: useSettings, provider: SettingsProvider } = createSimpleCont
         fontSize: withFallback(() => store.appearance?.fontSize, defaultSettings.appearance.fontSize),
         setFontSize(value: number) {
           setStore("appearance", "fontSize", value)
+        },
+        lineHeight: withFallback(() => store.appearance?.lineHeight, defaultSettings.appearance.lineHeight),
+        setLineHeight(value: number) {
+          setStore("appearance", "lineHeight", value)
         },
         font: withFallback(() => store.appearance?.mono, defaultSettings.appearance.mono),
         setFont(value: string) {
