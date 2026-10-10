@@ -1232,7 +1232,7 @@ function ComposerEditorPopover(props: {
                 placeholder={search().placeholder}
                 autocomplete="off"
                 spellcheck={false}
-                class="w-full bg-transparent text-[13px] leading-5 text-v2-text-text-base outline-none placeholder:text-v2-text-text-faint"
+                class="w-full bg-transparent text-[length:var(--font-size-small)] leading-5 text-v2-text-text-base outline-none placeholder:text-v2-text-text-faint"
                 role="combobox"
                 aria-expanded="true"
                 aria-autocomplete="list"

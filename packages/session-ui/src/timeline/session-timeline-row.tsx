@@ -764,7 +764,7 @@ export function createSessionTimelineRowRenderer(input: {
                         <div class="flex min-h-5 min-w-0 items-center gap-2 overflow-hidden">
                           <bdi
                             dir="auto"
-                            class="shrink-0 text-[13px] font-[530] leading-text-compact tracking-[-0.04px] text-v2-text-text-faint"
+                            class="shrink-0 text-[length:var(--font-size-small)] font-[530] leading-text-compact tracking-[-0.04px] text-v2-text-text-faint"
                           >
                             {content().label}
                           </bdi>
@@ -772,7 +772,7 @@ export function createSessionTimelineRowRenderer(input: {
                             {(item) => (
                               <bdi
                                 dir="auto"
-                                class="min-w-0 truncate text-[13px] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-faint"
+                                class="min-w-0 truncate text-[length:var(--font-size-small)] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-faint"
                               >
                                 {item}
                               </bdi>
