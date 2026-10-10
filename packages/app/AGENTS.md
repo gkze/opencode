@@ -46,7 +46,7 @@ A flash, a blanked area, a dialog that resizes or a reset scroll on first open a
 
 ## Typography
 
-- Use `--line-height-compact` (`16px`) for `13px` compact UI text and `--line-height-base` (`20px`) for body text.
+- Use `--line-height-compact` (`16px` at the default base size) for `13px` compact UI text and `--line-height-base` (`20px` at the default base size) for body text. The metrics scale with the user's Font Size setting.
 - Do not use `leading-none`, `line-height: 1`, or a `13px` line height for normal text. Inter descenders clip inside truncation and overflow containers.
 - Keep control and row heights explicit. Fix font metrics directly rather than using transforms, negative margins, or clip-padding compensation.
 

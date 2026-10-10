@@ -413,11 +413,11 @@ input:where([type="button"], [type="reset"], [type="submit"]),
   select,
   textarea,
   [contenteditable="true"] {
-    font-size: 16px !important;
+    font-size: max(16px, var(--font-size-base)) !important;
   }
 
   input::placeholder,
   textarea::placeholder {
-    font-size: 13px;
+    font-size: var(--font-size-small);
   }
 }
