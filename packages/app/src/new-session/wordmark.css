@@ -1,5 +1,6 @@
 [data-component="new-session-wordmark"] {
   --icon-strong-base: var(--icon-base);
+  --icon-weak-base: color-mix(in srgb, var(--icon-base) 30%, transparent);
   --wordmark-shimmer-opacity: 0.45;
 
   .wordmark-shimmer {
@@ -16,10 +17,6 @@
     mask-repeat: no-repeat;
     animation: new-session-wordmark-shimmer 800ms linear both;
   }
-}
-
-[data-color-scheme="light"] [data-component="new-session-wordmark"] {
-  --icon-weak-base: color-mix(in srgb, var(--icon-base) 30%, transparent);
 }
 
 [data-color-scheme="dark"] [data-component="new-session-wordmark"] {
