@@ -6,6 +6,9 @@ on:
     tags: [fork-v*]
   workflow_dispatch:
   workflow_call:
+    secrets:
+      FORK_PUSH_TOKEN:
+        required: true
     inputs:
       source_ref:
         type: string
@@ -266,6 +269,7 @@ jobs:
           FORK_OLD: ${{ inputs.old }}
           FORK_CANDIDATE: ${{ inputs.source_ref }}
           FORK_UPSTREAM: ${{ inputs.upstream }}
+          FORK_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN }}
         run: |
           node script/fork/nightly.mjs promote
           if ! git ls-remote --exit-code origin "refs/tags/$TAG" > /dev/null; then
