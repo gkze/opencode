@@ -1,4 +1,7 @@
 import { app } from "electron"
+import { Fork } from "../../fork"
+
+export const FORK_BUILD = import.meta.env.OPENCODE_FORK === true
 
 type Channel = "local" | "dev" | "beta" | "prod"
 
@@ -21,6 +24,6 @@ const appIDs: Record<string, string> = {
 }
 
 // Local renderer/server mode keeps the dev application identity.
-export const APP_NAME = app.isPackaged ? appNames[CHANNEL] : "OpenCode Dev"
+export const APP_NAME = app.isPackaged ? (FORK_BUILD ? Fork.name : appNames[CHANNEL]) : "OpenCode Dev"
 
-export const APP_ID = app.isPackaged ? appIDs[CHANNEL] : "ai.opencode.desktop.dev"
+export const APP_ID = app.isPackaged ? (FORK_BUILD ? Fork.id : appIDs[CHANNEL]) : "ai.opencode.desktop.dev"
