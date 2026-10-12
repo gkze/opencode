@@ -114,6 +114,7 @@ jobs:
           APP=$(find dist -maxdepth 2 -name 'OpenCode Fork.app' -type d | head -n 1)
           test -n "$APP"
           codesign --verify --deep --strict "$APP"
+          ELECTRON_RUN_AS_NODE=1 "$APP/Contents/MacOS/OpenCode Fork" -e 'if (!process.versions.electron) process.exit(1)'
           test "$("$APP/Contents/Resources/opencode-cli" --version)" = "opencode v$OPENCODE_VERSION"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist")" = 'io.github.gkze.opencode'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
