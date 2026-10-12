@@ -63,7 +63,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: Smoke test native CLI
         run: |
-          test "$(packages/cli/dist/cli-linux-x64/bin/opencode --version)" = "$OPENCODE_VERSION"
+          test "$(packages/cli/dist/cli-linux-x64/bin/opencode --version)" = "opencode v$OPENCODE_VERSION"
           packages/cli/dist/cli-linux-x64/bin/opencode --help > /dev/null
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -114,7 +114,7 @@ jobs:
           APP=$(find dist -maxdepth 2 -name 'OpenCode Fork.app' -type d | head -n 1)
           test -n "$APP"
           codesign --verify --deep --strict "$APP"
-          test "$("$APP/Contents/Resources/opencode-cli" --version)" = "$OPENCODE_VERSION"
+          test "$("$APP/Contents/Resources/opencode-cli" --version)" = "opencode v$OPENCODE_VERSION"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist")" = 'io.github.gkze.opencode'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -189,7 +189,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ github.token }}
         run: |
           npm install --prefix "$RUNNER_TEMP/fork-install" "@gkze/opencode@$VERSION"
-          test "$("$RUNNER_TEMP/fork-install/node_modules/.bin/opencode" --version)" = "$VERSION"
+          test "$("$RUNNER_TEMP/fork-install/node_modules/.bin/opencode" --version)" = "opencode v$VERSION"
       - name: Publish GitHub prerelease
         run: |
           cat > notes.md <<'NOTES'
