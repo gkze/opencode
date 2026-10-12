@@ -72,3 +72,47 @@ the local tarball exactly; mismatches fail. Do not rebuild and replace already-p
 binaries under the same version. Build-only runs
 are the first validation boundary; installed desktop UI and Gatekeeper behavior
 must still be tested on a downloaded package.
+
+## Nightly maintenance
+
+The maintained branch is `gkze/patches`. Upstream V2 development now lives on
+`anomalyco/opencode:dev`; the old `v2` branch is no longer the refresh target.
+`fork-nightly.md` is the GitHub Agentic Workflow source; compile it with
+`gh aw compile fork-nightly` (currently gh-aw v0.89.21) and commit the generated
+lockfile and action lock. Its cron runs daily at 10:37 UTC; edit the schedule and
+recompile to change frequency. It also supports manual dispatch.
+
+Configure the repository Actions secret `COPILOT_GITHUB_TOKEN` with a token
+entitled to Copilot inference. Inference is billed separately from public runners.
+The agent has read-only repository credentials and exports a Git bundle and a
+per-commit keep/adapt/drop report. A separate workflow consumes artifacts only from
+successful scheduled/manual runs on this fork's maintained branch. It verifies
+captured ancestry, complete patch provenance, a linear candidate stack, and no agent-authored changes to
+publication controls before pushing a temporary `nightly-<run-id>` candidate branch.
+
+The existing release workflow checks the candidate, builds all CLI targets and both
+macOS applications, publishes and installs npm with read-only verification credentials, then atomically saves the old tip under `fork-backup-<sha>` and
+replaces `gkze/patches` with an exact lease. Concurrent changes stop promotion.
+The snapshot of upstream at run start is authoritative; newly arriving upstream
+commits are picked up on the next run. Unresolvable changes fail rather than silently
+removing customization. Upstream-only workflow/control changes carry through unchanged; conflicting fork
+control changes require a normal maintenance edit. The agent cannot author new
+publication controls.
+
+Nightlies use SemVer prereleases `X.Y.Z-gkze.nightly.<run-id>.<attempt>` and npm's
+`nightly` dist-tag (`npm install --global @gkze/opencode@nightly`). Regular fork
+releases retain `X.Y.Z-gkze.N` and the `fork` dist-tag. Build metadata alone is not
+used as a release identity because SemVer ignores it for version precedence.
+The GitHub release links to the reconciliation report in the refresh run artifacts.
+The consumer npm dist-tag advances only after registry verification, successful
+promotion, and GitHub release publication. Incomplete versions use the `candidate`
+tag until then. Privileged publisher code uses only Node standard-library modules
+and runs outside the candidate working directory.
+Archive tags and temporary candidate branches are retained for recovery; no automatic
+deletion policy is configured.
+
+A failed review, check, or build does not promote the branch. Publication can fail
+before or after promotion because Git, npm, and GitHub Releases are separate services; retry failed jobs using
+the same artifacts. A later fork update blocks an older run from promoting again.
+A local checkout is not reset by this remote automation: fetch and reconcile local
+work before publishing further changes after a nightly force-push.
