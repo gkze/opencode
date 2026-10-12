@@ -43,6 +43,7 @@ jobs:
       - id: accept
         env:
           SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          FORK_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN }}
         run: node script/fork/nightly.mjs accept "$RUNNER_TEMP/fork-nightly"
   release:
     needs: candidate
@@ -51,6 +52,8 @@ jobs:
       packages: write
       actions: read
     uses: ./.github/workflows/fork-release.yml
+    secrets:
+      FORK_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN }}
     with:
       source_ref: ${{ needs.candidate.outputs.sha }}
       nightly: true
