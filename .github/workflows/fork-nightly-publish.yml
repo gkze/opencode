@@ -1,0 +1,59 @@
+name: Publish fork nightly
+on:
+  workflow_run:
+    workflows: [Fork nightly refresh]
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: fork-nightly-publish
+  cancel-in-progress: false
+jobs:
+  candidate:
+    if: >-
+      github.repository == 'gkze/opencode' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == 'gkze/patches' &&
+      (github.event.workflow_run.event == 'schedule' || github.event.workflow_run.event == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      sha: ${{ steps.accept.outputs.candidate }}
+      old: ${{ steps.accept.outputs.old }}
+      upstream: ${{ steps.accept.outputs.upstream }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: nightly-input
+          path: ${{ runner.temp }}/fork-nightly
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: nightly-output
+          path: ${{ runner.temp }}/fork-nightly
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - id: accept
+        env:
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: node script/fork/nightly.mjs accept "$RUNNER_TEMP/fork-nightly"
+  release:
+    needs: candidate
+    permissions:
+      contents: write
+      packages: write
+      actions: read
+    uses: ./.github/workflows/fork-release.yml
+    with:
+      source_ref: ${{ needs.candidate.outputs.sha }}
+      nightly: true
+      old: ${{ needs.candidate.outputs.old }}
+      upstream: ${{ needs.candidate.outputs.upstream }}
+      report_run: ${{ format('{0}', github.event.workflow_run.id) }}
