@@ -3,7 +3,6 @@ run-name: Fork release • ${{ github.ref_name }}
 
 on:
   push:
-    branches: [fork-releases]
     tags: [fork-v*]
   workflow_dispatch:
 
