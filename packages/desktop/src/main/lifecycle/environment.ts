@@ -1,3 +1,4 @@
+import { FORK_BUILD } from "../constants"
 import http from "node:http"
 import { getCACertificates, setDefaultCACertificates } from "node:tls"
 import { app } from "electron"
@@ -43,7 +44,7 @@ export const prepareDesktop = Effect.gen(function* () {
   const path = yield* Path.Path
   const paths = yield* DesktopPaths.resolve
 
-  if (app.isPackaged || process.env.OPENCODE_DESKTOP_DISABLE_PROTOCOL_REGISTRATION !== "1")
+  if (!FORK_BUILD && (app.isPackaged || process.env.OPENCODE_DESKTOP_DISABLE_PROTOCOL_REGISTRATION !== "1"))
     app.setAsDefaultProtocolClient("opencode")
   const runFork = Effect.runForkWith(yield* Effect.context())
   setProtocolReporter((level, message, data) =>
