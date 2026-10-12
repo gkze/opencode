@@ -3,7 +3,23 @@ import { execFileSync } from "node:child_process"
 import { mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs"
 import path from "node:path"
 
-const git = (...args) => execFileSync("git", args, { encoding: "utf8" }).trim()
+const git = (...args) =>
+  execFileSync("git", args, {
+    encoding: "utf8",
+    // Only branch pushes need workflow-write access. Keep credentials out of argv
+    // and leave release tag creation on the built-in token to avoid duplicate runs.
+    env:
+      args[0] === "push" && process.env.FORK_PUSH_TOKEN
+        ? {
+            ...process.env,
+            GIT_CONFIG_COUNT: "2",
+            GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader",
+            GIT_CONFIG_VALUE_0: "",
+            GIT_CONFIG_KEY_1: "http.https://github.com/.extraheader",
+            GIT_CONFIG_VALUE_1: `AUTHORIZATION: basic ${Buffer.from(`x-access-token:${process.env.FORK_PUSH_TOKEN}`).toString("base64")}`,
+          }
+        : process.env,
+  }).trim()
 const lines = (text) => (text ? text.split("\n") : [])
 const read = (file) => JSON.parse(readFileSync(file, "utf8"))
 const sha = (value) => {

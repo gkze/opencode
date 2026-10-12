@@ -14,9 +14,9 @@ for example `fork-v2.0.26-gkze.1`. Tags and npm versions must be new. Do not mov
 published tag. The workflow publishes all native npm packages before the launcher,
 verifies an npm installation on Linux, then publishes the GitHub release.
 
-The job's built-in `GITHUB_TOKEN` uses `contents: write` and `packages: write` only
-in the publication job. No PAT, upstream credentials, Apple credentials, or paid
-runner is required. GitHub Packages access/visibility must be checked after the first
+The built-in `GITHUB_TOKEN` uses `contents: write` and `packages: write` only
+in the jobs that need them. Tagged releases need no PAT, upstream credentials,
+Apple credentials, or paid runner. GitHub Packages access/visibility must be checked after the first
 publication; an existing package must grant this repository Actions access.
 
 Each release contains CLI archives, macOS DMG/ZIP packages, and SHA256SUMS. npm
@@ -84,6 +84,11 @@ recompile to change frequency. It also supports manual dispatch.
 
 Configure the repository Actions secret `COPILOT_GITHUB_TOKEN` with a token
 entitled to Copilot inference. Inference is billed separately from public runners.
+Also configure `FORK_PUSH_TOKEN` with a fine-grained token limited to this repository,
+with Contents and Workflows read/write permissions. Upstream updates can include
+workflow files, which the built-in token cannot push. Only the trusted candidate
+and promotion steps receive this token; Copilot does not. Release tag creation and
+npm publication still use the built-in token.
 The agent has read-only repository credentials and exports a Git bundle and a
 per-commit keep/adapt/drop report. A separate workflow consumes artifacts only from
 successful scheduled/manual runs on this fork's maintained branch. It verifies
