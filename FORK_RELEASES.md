@@ -43,6 +43,7 @@ archive and install its `opencode` executable on PATH. The npm command is also
 ## Desktop signing and update behavior
 
 Desktop artifacts use an ad-hoc signature, not Developer ID or Apple notarization.
+The fork entitlement allows native library loading without a Developer ID Team ID.
 macOS may require explicit approval in Privacy & Security for downloaded builds.
 The app is named OpenCode Fork with identity `io.github.gkze.opencode`; its desktop
 preferences are separate, and it does not register as the upstream URL handler.
@@ -61,8 +62,8 @@ Those would be repository secrets; GitHub's token cannot replace Apple credentia
 
 Run `bun test test/fork-package.test.ts` from `packages/cli`, the affected package
 typechecks, and `bun run check` from the repository root. CI builds all binaries,
-checks native Linux CLI startup, verifies both macOS app signatures and bundled CLI
-versions, and verifies an npm install before announcing the release.
+checks native Linux CLI startup, verifies both macOS app signatures, Electron runtime
+startup, and bundled CLI versions, and verifies an npm install before announcing the release.
 
 npm publication and GitHub Releases are separate services, not one transaction.
 If publication fails midway, rerun only the failed jobs to reuse the same artifacts.
