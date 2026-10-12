@@ -34,6 +34,7 @@ network:
     - github
     - bun.sh
     - "*.bun.sh"
+    - pkg.pr.new
 tools:
   bash: true
 steps:
