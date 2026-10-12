@@ -65,7 +65,9 @@ checks native Linux CLI startup, verifies both macOS app signatures and bundled 
 versions, and verifies an npm install before announcing the release.
 
 npm publication and GitHub Releases are separate services, not one transaction.
-If publication fails midway, inspect which package versions exist before retrying;
-do not replace already-published binaries under the same version. Build-only runs
+If publication fails midway, rerun only the failed jobs to reuse the same artifacts.
+The publisher skips existing versions only when their registry integrity matches
+the local tarball exactly; mismatches fail. Do not rebuild and replace already-published
+binaries under the same version. Build-only runs
 are the first validation boundary; installed desktop UI and Gatekeeper behavior
 must still be tested on a downloaded package.
