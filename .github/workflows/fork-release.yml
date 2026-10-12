@@ -5,6 +5,23 @@ on:
   push:
     tags: [fork-v*]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      source_ref:
+        type: string
+        required: true
+      nightly:
+        type: boolean
+        default: false
+      old:
+        type: string
+        default: ""
+      upstream:
+        type: string
+        default: ""
+      report_run:
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -24,20 +41,26 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       release: ${{ steps.version.outputs.release }}
+      tag: ${{ steps.version.outputs.tag }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+          persist-credentials: false
       - id: version
         env:
+          NIGHTLY: ${{ inputs.nightly || false }}
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
         run: |
           node --input-type=module <<'JS'
           import fs from 'node:fs'
-          const release = process.env.REF_TYPE === 'tag'
+          const nightly = process.env.NIGHTLY === 'true'
+          const release = nightly || process.env.REF_TYPE === 'tag'
           const base = JSON.parse(fs.readFileSync('package.json')).version
-          const version = release ? process.env.REF_NAME.slice('fork-v'.length) : `${base}-gkze.${process.env.GITHUB_RUN_NUMBER}`
-          if (!/^\d+\.\d+\.\d+-gkze\.[1-9]\d*$/.test(version)) throw new Error('Use fork-vX.Y.Z-gkze.N tags')
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\nrelease=${release}\n`)
+          const version = nightly ? `${base}-gkze.nightly.${process.env.GITHUB_RUN_ID}.${process.env.GITHUB_RUN_ATTEMPT}` : release ? process.env.REF_NAME.slice('fork-v'.length) : `${base}-gkze.${process.env.GITHUB_RUN_NUMBER}`
+          if (!/^\d+\.\d+\.\d+-gkze\.(?:[1-9]\d*|nightly\.\d+\.\d+)$/.test(version)) throw new Error('Use fork-vX.Y.Z-gkze.N tags')
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\nrelease=${release}\ntag=fork-v${version}\n`)
           JS
 
   cli:
@@ -48,10 +71,16 @@ jobs:
       OPENCODE_VERSION: ${{ needs.version.outputs.version }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+          persist-credentials: false
       - uses: ./.github/actions/setup-bun
+      - name: Validate refreshed patch stack
+        if: inputs.nightly
+        run: bun run check
       - name: Test fork package installation and update policy
         working-directory: packages/cli
-        run: bun test test/fork-package.test.ts test/fork-updater.test.ts test/upgrade.test.ts test/updater-install.test.ts
+        run: bun test test/fork-nightly.test.ts test/fork-package.test.ts test/fork-updater.test.ts test/upgrade.test.ts test/updater-install.test.ts
       - name: Test desktop packaging contracts
         working-directory: packages/desktop
         run: bun test electron-builder.fork.test.ts electron-builder.config.test.ts
@@ -92,6 +121,9 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+          persist-credentials: false
       - uses: ./.github/actions/setup-bun
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
@@ -131,6 +163,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+          persist-credentials: false
       - uses: ./.github/actions/setup-bun
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
@@ -159,44 +194,121 @@ jobs:
     if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-24.04
     permissions:
+      contents: read
+      packages: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      NPM_DIST_TAG: ${{ inputs.nightly && 'nightly' || 'fork' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: fork-release
+          path: release
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          registry-url: https://npm.pkg.github.com
+          scope: "@gkze"
+      - name: Publish native npm packages, then launcher
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        working-directory: ${{ runner.temp }}
+        run: node "$GITHUB_WORKSPACE/script/fork/publish.mjs" "$GITHUB_WORKSPACE/release/npm"
+
+  verify:
+    needs: [version, publish]
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: read
+    steps:
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          registry-url: https://npm.pkg.github.com
+          scope: "@gkze"
+      - name: Verify registry installation with read-only credentials
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/fork-install" "@gkze/opencode@$VERSION"
+          test "$("$RUNNER_TEMP/fork-install/node_modules/.bin/opencode" --version)" = "opencode v$VERSION"
+
+  announce:
+    needs: [version, verify]
+    runs-on: ubuntu-24.04
+    permissions:
       contents: write
+      actions: read
       packages: write
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
       VERSION: ${{ needs.version.outputs.version }}
-      TAG: ${{ github.ref_name }}
+      TAG: ${{ needs.version.outputs.tag }}
+      NPM_DIST_TAG: ${{ inputs.nightly && 'nightly' || 'fork' }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: fork-release
           path: release
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "24"
-          registry-url: https://npm.pkg.github.com
-          scope: "@gkze"
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
-        with:
-          bun-version-file: package.json
-      - name: Publish native npm packages, then launcher
+      - name: Promote validated nightly and create immutable tag
+        if: inputs.nightly
         env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
-        run: bun script/fork/publish.ts release/npm
-      - name: Verify npm installation
-        env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
+          FORK_OLD: ${{ inputs.old }}
+          FORK_CANDIDATE: ${{ inputs.source_ref }}
+          FORK_UPSTREAM: ${{ inputs.upstream }}
         run: |
-          npm install --prefix "$RUNNER_TEMP/fork-install" "@gkze/opencode@$VERSION"
-          test "$("$RUNNER_TEMP/fork-install/node_modules/.bin/opencode" --version)" = "opencode v$VERSION"
+          node script/fork/nightly.mjs promote
+          if ! git ls-remote --exit-code origin "refs/tags/$TAG" > /dev/null; then
+            git tag "$TAG" "$FORK_CANDIDATE"
+            git push origin "refs/tags/$TAG"
+          fi
+          test "$(git ls-remote origin "refs/tags/$TAG" | cut -f1)" = "$FORK_CANDIDATE"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        if: inputs.nightly
+        with:
+          name: nightly-output
+          path: reconciliation
+          run-id: ${{ inputs.report_run }}
+          github-token: ${{ github.token }}
       - name: Publish GitHub prerelease
         run: |
           cat > notes.md <<'NOTES'
           Fork build with CLI/TUI/web binaries and ad-hoc-signed macOS desktop packages for Apple Silicon and Intel.
 
           Desktop packages are not Apple-notarized. Upstream automatic updates are disabled. Install future fork releases manually or update the npm package.
-
-          npm: configure @gkze to use https://npm.pkg.github.com, authenticate with read:packages, then install @gkze/opencode@fork.
           NOTES
-          gh release create "$TAG" release/assets/* --verify-tag --prerelease --title "OpenCode fork $VERSION" --notes-file notes.md
+          echo "npm: configure @gkze to use https://npm.pkg.github.com, authenticate with read:packages, then install @gkze/opencode@$NPM_DIST_TAG." >> notes.md
+          if [ "$NPM_DIST_TAG" = nightly ]; then
+            node --input-type=module <<'JS'
+          import fs from 'node:fs'
+          const report = JSON.parse(fs.readFileSync('reconciliation/report.json'))
+          fs.appendFileSync('notes.md', '\n' + report.summary + '\n\n' + report.patches.map(p => `- ${p.action}: ${p.old.slice(0, 10)} — ${p.reason}`).join('\n'))
+          JS
+            cp reconciliation/report.json release/assets/RECONCILIATION.json
+            (cd release/assets && sha256sum RECONCILIATION.json >> SHA256SUMS)
+          fi
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" release/assets/* --clobber
+          else
+            gh release create "$TAG" release/assets/* --verify-tag --prerelease --title "OpenCode fork $VERSION" --notes-file notes.md
+          fi
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          registry-url: https://npm.pkg.github.com
+          scope: "@gkze"
+      - name: Advance verified consumer dist-tag
+        working-directory: ${{ runner.temp }}
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: npm dist-tag add "@gkze/opencode@$VERSION" "$NPM_DIST_TAG" --registry https://npm.pkg.github.com
