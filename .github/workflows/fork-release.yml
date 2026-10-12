@@ -1,0 +1,197 @@
+name: Fork release
+run-name: Fork release • ${{ github.ref_name }}
+
+on:
+  push:
+    branches: [fork-releases]
+    tags: [fork-v*]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  OPENCODE_CHANNEL: dev
+  OPENCODE_FORK: "1"
+
+jobs:
+  version:
+    if: github.repository == 'gkze/opencode'
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release: ${{ steps.version.outputs.release }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs'
+          const release = process.env.REF_TYPE === 'tag'
+          const base = JSON.parse(fs.readFileSync('package.json')).version
+          const version = release ? process.env.REF_NAME.slice('fork-v'.length) : `${base}-gkze.${process.env.GITHUB_RUN_NUMBER}`
+          if (!/^\d+\.\d+\.\d+-gkze\.[1-9]\d*$/.test(version)) throw new Error('Use fork-vX.Y.Z-gkze.N tags')
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\nrelease=${release}\n`)
+          JS
+
+  cli:
+    needs: version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      OPENCODE_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bun
+      - name: Build all CLI targets and embedded web UI
+        run: bun packages/cli/script/build.ts
+        env:
+          BUN_COMPILE_RELEASE: bun-v1.4.2
+          GH_TOKEN: ${{ github.token }}
+      - name: Smoke test native CLI
+        run: |
+          test "$(packages/cli/dist/cli-linux-x64/bin/opencode --version)" = "$OPENCODE_VERSION"
+          packages/cli/dist/cli-linux-x64/bin/opencode --help > /dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fork-cli
+          path: packages/cli/dist/cli-*
+          if-no-files-found: error
+          retention-days: 3
+
+  desktop:
+    needs: [version, cli]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+            target: aarch64-apple-darwin
+          - runner: macos-15-intel
+            arch: x64
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    env:
+      OPENCODE_VERSION: ${{ needs.version.outputs.version }}
+      OPENCODE_CLI_TARGET: ${{ matrix.target }}
+      OPENCODE_CLI_DIST: ${{ github.workspace }}/packages/cli/dist
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bun
+      - uses: actions/download-artifact@v4
+        with:
+          name: fork-cli
+          path: packages/cli/dist
+      - name: Build desktop with this release's CLI
+        working-directory: packages/desktop
+        run: |
+          bun scripts/prepare.ts
+          bun run build
+      - name: Package with ad-hoc signing
+        working-directory: packages/desktop
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: bunx electron-builder --mac --"$ARCH" --publish never --config electron-builder.fork.ts
+      - name: Verify packaged application and CLI
+        working-directory: packages/desktop
+        run: |
+          APP=$(find dist -maxdepth 2 -name 'OpenCode Fork.app' -type d | head -n 1)
+          test -n "$APP"
+          codesign --verify --deep --strict "$APP"
+          test "$("$APP/Contents/Resources/opencode-cli" --version)" = "$OPENCODE_VERSION"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist")" = 'io.github.gkze.opencode'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fork-desktop-${{ matrix.arch }}
+          path: |
+            packages/desktop/dist/*.dmg
+            packages/desktop/dist/*.zip
+          if-no-files-found: error
+          retention-days: 3
+
+  package:
+    needs: [version, cli, desktop]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bun
+      - uses: actions/download-artifact@v4
+        with:
+          name: fork-cli
+          path: packages/cli/dist
+      - run: bun script/fork/package.ts packages/cli/dist release
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fork-desktop-*
+          path: release/assets
+          merge-multiple: true
+      - name: Checksums
+        working-directory: release/assets
+        run: sha256sum * > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fork-release
+          path: |
+            release/assets
+            release/npm
+          if-no-files-found: error
+          retention-days: 3
+
+  publish:
+    needs: [version, package]
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      packages: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      VERSION: ${{ needs.version.outputs.version }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: fork-release
+          path: release
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: https://npm.pkg.github.com
+          scope: "@gkze"
+      - name: Publish native npm packages, then launcher
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          for package in release/npm/gkze-opencode-*.tgz; do
+            if [ "$(basename "$package")" = "gkze-opencode-$VERSION.tgz" ]; then continue; fi
+            npm publish "$package" --registry https://npm.pkg.github.com --tag fork --access public
+          done
+          npm publish "release/npm/gkze-opencode-$VERSION.tgz" --registry https://npm.pkg.github.com --tag fork --access public
+      - name: Verify npm installation
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/fork-install" "@gkze/opencode@$VERSION"
+          test "$("$RUNNER_TEMP/fork-install/node_modules/.bin/opencode" --version)" = "$VERSION"
+      - name: Publish GitHub prerelease
+        run: |
+          cat > notes.md <<'NOTES'
+          Fork build with CLI/TUI/web binaries and ad-hoc-signed macOS desktop packages for Apple Silicon and Intel.
+
+          Desktop packages are not Apple-notarized. Upstream automatic updates are disabled. Install future fork releases manually or update the npm package.
+
+          npm: configure @gkze to use https://npm.pkg.github.com, authenticate with read:packages, then install @gkze/opencode@fork.
+          NOTES
+          gh release create "$TAG" release/assets/* --verify-tag --prerelease --title "OpenCode fork $VERSION" --notes-file notes.md
