@@ -26,7 +26,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       release: ${{ steps.version.outputs.release }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - id: version
         env:
           REF_TYPE: ${{ github.ref_type }}
@@ -48,8 +48,14 @@ jobs:
     env:
       OPENCODE_VERSION: ${{ needs.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: ./.github/actions/setup-bun
+      - name: Test fork package installation and update policy
+        working-directory: packages/cli
+        run: bun test test/fork-package.test.ts test/fork-updater.test.ts test/upgrade.test.ts test/updater-install.test.ts
+      - name: Test desktop packaging contracts
+        working-directory: packages/desktop
+        run: bun test electron-builder.fork.test.ts electron-builder.config.test.ts
       - name: Build all CLI targets and embedded web UI
         run: bun packages/cli/script/build.ts
         env:
@@ -59,7 +65,7 @@ jobs:
         run: |
           test "$(packages/cli/dist/cli-linux-x64/bin/opencode --version)" = "$OPENCODE_VERSION"
           packages/cli/dist/cli-linux-x64/bin/opencode --help > /dev/null
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: fork-cli
           path: packages/cli/dist/cli-*
@@ -86,9 +92,9 @@ jobs:
       OPENCODE_CLI_DIST: ${{ github.workspace }}/packages/cli/dist
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: ./.github/actions/setup-bun
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: fork-cli
           path: packages/cli/dist
@@ -110,7 +116,7 @@ jobs:
           codesign --verify --deep --strict "$APP"
           test "$("$APP/Contents/Resources/opencode-cli" --version)" = "$OPENCODE_VERSION"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist")" = 'io.github.gkze.opencode'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: fork-desktop-${{ matrix.arch }}
           path: |
@@ -124,14 +130,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: ./.github/actions/setup-bun
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: fork-cli
           path: packages/cli/dist
       - run: bun script/fork/package.ts packages/cli/dist release
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           pattern: fork-desktop-*
           path: release/assets
@@ -139,7 +145,7 @@ jobs:
       - name: Checksums
         working-directory: release/assets
         run: sha256sum * > SHA256SUMS
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: fork-release
           path: |
@@ -161,24 +167,23 @@ jobs:
       VERSION: ${{ needs.version.outputs.version }}
       TAG: ${{ github.ref_name }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: fork-release
           path: release
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "24"
           registry-url: https://npm.pkg.github.com
           scope: "@gkze"
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version-file: package.json
       - name: Publish native npm packages, then launcher
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
-        run: |
-          for package in release/npm/gkze-opencode-*.tgz; do
-            if [ "$(basename "$package")" = "gkze-opencode-$VERSION.tgz" ]; then continue; fi
-            npm publish "$package" --registry https://npm.pkg.github.com --tag fork --access public
-          done
-          npm publish "release/npm/gkze-opencode-$VERSION.tgz" --registry https://npm.pkg.github.com --tag fork --access public
+        run: bun script/fork/publish.ts release/npm
       - name: Verify npm installation
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
