@@ -8,6 +8,19 @@ if: github.repository == 'gkze/opencode' && github.ref == 'refs/heads/gkze/patch
 permissions:
   contents: read
 engine: copilot
+safe-outputs:
+  upload-artifact:
+    allowed-paths: [report.json]
+    retention-days: 14
+  noop:
+    report-as-issue: false
+  missing-tool:
+    create-issue: false
+  missing-data:
+    create-issue: false
+  report-incomplete:
+    create-issue: false
+  report-failure-as-issue: false
 timeout-minutes: 90
 concurrency:
   group: fork-nightly-refresh
@@ -58,6 +71,8 @@ Refresh the maintained OpenCode fork onto the upstream **dev** commit captured i
 `/tmp/gh-aw/agent/fork-nightly/input.json`. Produce working Git history, not just a review.
 Do not push, publish, change repository settings, or contact external users.
 The following deterministic workflow validates and publishes your candidate.
+Use the noop output to summarize completion; the post-steps upload the required
+bundle and report. Do not create issues or other GitHub messages.
 
 Read AGENTS.md and the release documentation. Local machine instructions whose
 absolute paths do not exist on the runner are unavailable; do not invent them.
@@ -107,6 +122,11 @@ Write `/tmp/gh-aw/agent/fork-nightly/report.json` with this shape:
 
 Include exactly one entry for every input commit. Use action `adapt` when changing
 its implementation, or `drop` with an empty commits array and concrete evidence.
+Each reason must name the specific files/symbols inspected in the current upstream
+and fork, explain the behavior still missing or now equivalent, and cite the
+relevant validation. Repeated generic reasons or clean cherry-picks alone are not
+a semantic review. Inspect build fixes against the current dependency/configuration
+state as carefully as product features.
 Every candidate commit above upstream must appear in the mapping. Consolidating
 related fixes is allowed; multiple old commits may map to one replacement.
 On uncertainty, conflicts you cannot resolve, or failing checks, fail the run and
