@@ -1,7 +1,7 @@
 import { Global } from "@opencode/util/global"
 import { AppProcess } from "@opencode/util/process"
 import { EffectFlock } from "@opencode/util/effect-flock"
-import { OPENCODE_ARTIFACT, OPENCODE_CHANNEL, OPENCODE_LOCAL, OPENCODE_VERSION } from "../version"
+import { FORK_BUILD, OPENCODE_ARTIFACT, OPENCODE_CHANNEL, OPENCODE_LOCAL, OPENCODE_VERSION } from "../version"
 import { Context, Duration, Effect, FileSystem, Layer, Option, Ref, Schema } from "effect"
 import { ChildProcess } from "effect/process"
 import { parse, type ParseError } from "jsonc-parser"
@@ -252,6 +252,15 @@ const make = Effect.gen(function* () {
   }
 
   const release = Effect.fnUntraced(function* (method?: Method) {
+    if (FORK_BUILD)
+      return yield* Effect.fail(
+        new UpgradeError({
+          title: "Fork builds use GitHub releases",
+          detail: "Upstream updates are disabled for this build.",
+          retry:
+            "Install a release from https://github.com/gkze/opencode/releases or update @gkze/opencode through npm.",
+        }),
+      )
     const distribution = method === "brew" ? "homebrew" : "npm"
     // Homebrew Core builds its formula on its own schedule, so the tap release does not describe it.
     const core = method === "brew" && installedFormula === "opencode"
@@ -456,9 +465,13 @@ const make = Effect.gen(function* () {
   })
 
   const inspect = Effect.fnUntraced(function* () {
-    if (OPENCODE_LOCAL || ["1", "true"].includes(process.env.OPENCODE_DISABLE_AUTOUPDATE?.toLowerCase() ?? "")) {
+    if (
+      FORK_BUILD ||
+      OPENCODE_LOCAL ||
+      ["1", "true"].includes(process.env.OPENCODE_DISABLE_AUTOUPDATE?.toLowerCase() ?? "")
+    ) {
       yield* Effect.logInfo("update check skipped", {
-        reason: OPENCODE_LOCAL ? "local-install" : "disabled",
+        reason: FORK_BUILD ? "fork-build" : OPENCODE_LOCAL ? "local-install" : "disabled",
         version: OPENCODE_VERSION,
         channel: OPENCODE_CHANNEL,
       })
@@ -508,6 +521,11 @@ const make = Effect.gen(function* () {
   })
 
   const check = Effect.fn("cli.updater.check")(function* () {
+    if (FORK_BUILD)
+      return {
+        type: "unavailable" as const,
+        message: "Install fork updates from https://github.com/gkze/opencode/releases or npm.",
+      }
     if (OPENCODE_LOCAL)
       return {
         type: "unavailable" as const,
