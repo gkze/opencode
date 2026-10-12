@@ -7,8 +7,8 @@ postinstall code. Fork publication is separate from upstream's npm/Cloudflare pi
 
 ## Build and publish
 
-Pushes to `fork-releases` build and validate downloadable Actions artifacts without
-publishing. The workflow can also run manually once present on the default branch.
+Manual runs on branches build and validate downloadable Actions artifacts without
+publishing, once the workflow is present on the default branch.
 Push a tag `fork-vX.Y.Z-gkze.N` on the exact tested fork commit to publish a prerelease;
 for example `fork-v2.0.26-gkze.1`. Tags and npm versions must be new. Do not move a
 published tag. The workflow publishes all native npm packages before the launcher,
