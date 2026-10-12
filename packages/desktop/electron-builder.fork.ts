@@ -14,6 +14,8 @@ export default {
   mac: {
     ...base.mac,
     identity: "-",
+    entitlements: "resources/entitlements.fork.plist",
+    entitlementsInherit: "resources/entitlements.fork.plist",
     notarize: false,
   },
 } satisfies Configuration

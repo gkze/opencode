@@ -21,6 +21,8 @@ test("fork packaging keeps ad-hoc signing and disables upstream distribution", a
   expect(config.productName).toBe("OpenCode Fork")
   expect(config.mac.identity).toBe("-")
   expect(config.mac.notarize).toBe(false)
+  expect(config.mac.entitlements).toBe("resources/entitlements.fork.plist")
+  expect(config.mac.entitlementsInherit).toBe(config.mac.entitlements)
   expect(config.publish).toBeNull()
   expect(config.protocols).toEqual([])
   expect(config.extraResources[0].filter).toContain("opencode-cli")
