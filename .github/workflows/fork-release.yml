@@ -45,6 +45,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       release: ${{ steps.version.outputs.release }}
       tag: ${{ steps.version.outputs.tag }}
+      title: ${{ steps.version.outputs.title }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -58,12 +59,16 @@ jobs:
         run: |
           node --input-type=module <<'JS'
           import fs from 'node:fs'
-          const nightly = process.env.NIGHTLY === 'true'
-          const release = nightly || process.env.REF_TYPE === 'tag'
-          const base = JSON.parse(fs.readFileSync('package.json')).version
-          const version = nightly ? `${base}-gkze.nightly.${process.env.GITHUB_RUN_ID}.${process.env.GITHUB_RUN_ATTEMPT}` : release ? process.env.REF_NAME.slice('fork-v'.length) : `${base}-gkze.${process.env.GITHUB_RUN_NUMBER}`
-          if (!/^\d+\.\d+\.\d+-gkze\.(?:[1-9]\d*|nightly\.\d+\.\d+)$/.test(version)) throw new Error('Use fork-vX.Y.Z-gkze.N tags')
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\nrelease=${release}\ntag=fork-v${version}\n`)
+          import { releaseVersion } from './script/fork/version.mjs'
+          const result = releaseVersion({
+            base: JSON.parse(fs.readFileSync('package.json')).version,
+            nightly: process.env.NIGHTLY === 'true',
+            tag: process.env.REF_TYPE === 'tag' ? process.env.REF_NAME : undefined,
+            run: process.env.GITHUB_RUN_NUMBER,
+            attempt: process.env.GITHUB_RUN_ATTEMPT,
+            date: new Date(),
+          })
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(result).map(([key, value]) => `${key}=${value}\n`).join(''))
           JS
 
   cli:
@@ -83,7 +88,7 @@ jobs:
         run: bun run check
       - name: Test fork package installation and update policy
         working-directory: packages/cli
-        run: bun test test/fork-nightly.test.ts test/fork-package.test.ts test/fork-updater.test.ts test/upgrade.test.ts test/updater-install.test.ts
+        run: bun test test/fork-version.test.ts test/fork-nightly.test.ts test/fork-package.test.ts test/fork-updater.test.ts test/upgrade.test.ts test/updater-install.test.ts
       - name: Test desktop packaging contracts
         working-directory: packages/desktop
         run: bun test electron-builder.fork.test.ts electron-builder.config.test.ts
@@ -253,6 +258,8 @@ jobs:
       GH_REPO: ${{ github.repository }}
       VERSION: ${{ needs.version.outputs.version }}
       TAG: ${{ needs.version.outputs.tag }}
+      TITLE: ${{ needs.version.outputs.title }}
+      SOURCE_REF: ${{ inputs.source_ref || github.sha }}
       NPM_DIST_TAG: ${{ inputs.nightly && 'nightly' || 'fork' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -287,11 +294,19 @@ jobs:
       - name: Publish GitHub prerelease
         run: |
           cat > notes.md <<'NOTES'
-          Fork build with CLI/TUI/web binaries and ad-hoc-signed macOS desktop packages for Apple Silicon and Intel.
+          ## Included
 
-          Desktop packages are not Apple-notarized. Upstream automatic updates are disabled. Install future fork releases manually or update the npm package.
+          CLI/TUI with embedded web UI for macOS, Linux, and Windows; desktop packages for Apple Silicon and Intel Macs.
+
+          ## Installation
+
+          Desktop: extract the matching macOS ZIP into `~/Applications`.
+          CLI: configure the `@gkze` scope for GitHub Packages with `read:packages` authentication, then use the Bun command below.
+
           NOTES
-          echo "npm: configure @gkze to use https://npm.pkg.github.com, authenticate with read:packages, then install @gkze/opencode@$NPM_DIST_TAG." >> notes.md
+          printf '\n```sh\nbun add --global --trust @gkze/opencode@%s\n```\n' "$VERSION" >> notes.md
+          printf '\nDesktop packages are ad-hoc signed, not Apple-notarized. Upstream automatic updates are disabled. Install future fork releases manually or update the package with Bun.\n' >> notes.md
+          printf '\n## Build\n\n- Version: `%s`\n- Source: `%s`\n- Channel: `%s`\n- [Build log](https://github.com/%s/actions/runs/%s)\n' "$VERSION" "$SOURCE_REF" "$NPM_DIST_TAG" "$GH_REPO" "$GITHUB_RUN_ID" >> notes.md
           if [ "$NPM_DIST_TAG" = nightly ]; then
             node --input-type=module <<'JS'
           import fs from 'node:fs'
@@ -304,7 +319,7 @@ jobs:
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" release/assets/* --clobber
           else
-            gh release create "$TAG" release/assets/* --verify-tag --prerelease --title "OpenCode Dev $VERSION" --notes-file notes.md
+            gh release create "$TAG" release/assets/* --verify-tag --prerelease --title "$TITLE" --notes-file notes.md
           fi
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
