@@ -18,7 +18,7 @@ test("fork packaging keeps ad-hoc signing and disables upstream distribution", a
   const config = JSON.parse(await new Response(child.stdout).text())
   expect(await child.exited).toBe(0)
   expect(config.appId).toBe("io.github.gkze.opencode")
-  expect(config.productName).toBe("OpenCode Fork")
+  expect(config.productName).toBe("OpenCode Dev")
   expect(config.mac.identity).toBe("-")
   expect(config.mac.notarize).toBe(false)
   expect(config.mac.entitlements).toBe("resources/entitlements.fork.plist")
