@@ -145,10 +145,10 @@ jobs:
       - name: Verify packaged application and CLI
         working-directory: packages/desktop
         run: |
-          APP=$(find dist -maxdepth 2 -name 'OpenCode Fork.app' -type d | head -n 1)
+          APP=$(find dist -maxdepth 2 -name 'OpenCode Dev.app' -type d | head -n 1)
           test -n "$APP"
           codesign --verify --deep --strict "$APP"
-          ELECTRON_RUN_AS_NODE=1 "$APP/Contents/MacOS/OpenCode Fork" -e 'if (!process.versions.electron) process.exit(1)'
+          ELECTRON_RUN_AS_NODE=1 "$APP/Contents/MacOS/OpenCode Dev" -e 'if (!process.versions.electron) process.exit(1)'
           test "$("$APP/Contents/Resources/opencode-cli" --version)" = "opencode v$OPENCODE_VERSION"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist")" = 'io.github.gkze.opencode'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -304,7 +304,7 @@ jobs:
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" release/assets/* --clobber
           else
-            gh release create "$TAG" release/assets/* --verify-tag --prerelease --title "OpenCode fork $VERSION" --notes-file notes.md
+            gh release create "$TAG" release/assets/* --verify-tag --prerelease --title "OpenCode Dev $VERSION" --notes-file notes.md
           fi
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
