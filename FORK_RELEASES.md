@@ -10,7 +10,7 @@ postinstall code. Fork publication is separate from upstream's npm/Cloudflare pi
 Manual runs on branches build and validate downloadable Actions artifacts without
 publishing, once the workflow is present on the default branch.
 Push a tag `fork-vX.Y.Z-gkze.N` on the exact tested fork commit to publish a prerelease;
-for example `fork-v2.0.26-gkze.1`. Tags and npm versions must be new. Do not move a
+for example `fork-v2.0.27-gkze.3`, titled `OpenCode Dev 2.0.27 · Build 3`. Tags and npm versions must be new. Do not move a
 published tag. The workflow publishes all native npm packages before the launcher,
 verifies an npm installation on Linux, then publishes the GitHub release.
 
@@ -32,7 +32,7 @@ with `npm login --scope=@gkze --registry=https://npm.pkg.github.com --auth-type=
 using a classic token with `read:packages`, then run:
 
 ```sh
-npm install --global @gkze/opencode@fork
+bun add --global --trust @gkze/opencode@fork
 ```
 
 Use protected credential storage; do not commit tokens in `.npmrc`. GitHub Release
@@ -45,7 +45,7 @@ archive and install its `opencode` executable on PATH. The npm command is also
 Desktop artifacts use an ad-hoc signature, not Developer ID or Apple notarization.
 The fork entitlement allows native library loading without a Developer ID Team ID.
 macOS may require explicit approval in Privacy & Security for downloaded builds.
-The app is named OpenCode Fork with identity `io.github.gkze.opencode`; its desktop
+The app is named OpenCode Dev with identity `io.github.gkze.opencode`; its desktop
 preferences are separate, and it does not register as the upstream URL handler.
 
 The bundled CLI is built from the same commit and version. Both CLI and desktop
@@ -104,11 +104,17 @@ removing customization. Upstream-only workflow/control changes carry through unc
 control changes require a normal maintenance edit. The agent cannot author new
 publication controls.
 
-Nightlies use SemVer prereleases `X.Y.Z-gkze.nightly.<run-id>.<attempt>` and npm's
-`nightly` dist-tag (`npm install --global @gkze/opencode@nightly`). Regular fork
+Nightlies use SemVer prereleases `X.Y.Z-gkze.nightly.YYYYMMDD.N` and npm's
+`nightly` dist-tag (`bun add --global --trust @gkze/opencode@nightly`). Regular fork
 releases retain `X.Y.Z-gkze.N` and the `fork` dist-tag. Build metadata alone is not
 used as a release identity because SemVer ignores it for version precedence.
-The GitHub release links to the reconciliation report in the refresh run artifacts.
+The nightly date is UTC and N is the publishing workflow run number. Rebuilt attempts
+append `.ATTEMPT` to avoid replacing published versions. Titles use
+`OpenCode Dev X.Y.Z · Nightly YYYY-MM-DD · Build N`. Run IDs and source commits
+belong in release notes. Nightly and manual versions are separate channels, not a
+single version ordering; select updates through the corresponding dist-tag.
+The older run-ID nightly format is retained only in historical tags/packages.
+The GitHub release includes the reconciliation report as an asset.
 The consumer npm dist-tag advances only after registry verification, successful
 promotion, and GitHub release publication. Incomplete versions use the `candidate`
 tag until then. Privileged publisher code uses only Node standard-library modules
