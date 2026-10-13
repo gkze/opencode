@@ -32,6 +32,7 @@ const controls = [
   ".github/aw",
   "script/fork/nightly.mjs",
   "script/fork/publish.mjs",
+  "script/fork/version.mjs",
 ]
 const branch = "refs/heads/gkze/patches"
 const [command, directory] = process.argv.slice(2)
