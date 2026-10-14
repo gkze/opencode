@@ -48,7 +48,7 @@
   padding: 4px 12px;
   border-radius: 4px;
   color: var(--v2-text-text-base);
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-weight: 440;
   line-height: var(--line-height-base);
   text-align: start;
@@ -194,7 +194,7 @@ button.session-service-row:focus-visible,
   border-radius: 6px;
   background: var(--v2-background-bg-layer-01);
   color: var(--v2-text-text-base);
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-weight: 440;
   line-height: var(--line-height-compact);
   clip-path: inset(0 0 calc(100% - var(--flyout-height)) 0 round 6px);
@@ -271,7 +271,7 @@ button.session-service-row:focus-visible,
 
 .session-service-drawer {
   color: var(--v2-text-text-base);
-  font-size: 13px;
+  font-size: var(--font-size-small);
   line-height: var(--line-height-compact);
 }
 
