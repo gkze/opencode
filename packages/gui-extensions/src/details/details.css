@@ -48,7 +48,7 @@
   padding: 4px 12px;
   border-radius: 4px;
   color: var(--v2-text-text-base);
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-weight: 440;
   line-height: var(--line-height-base);
   text-align: start;
@@ -128,7 +128,7 @@
   box-shadow: var(--v2-elevation-floating);
   outline: none;
   color: var(--v2-text-text-base);
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-weight: 440;
   line-height: var(--line-height-compact);
   transform-origin: var(--kb-popover-content-transform-origin);
@@ -155,7 +155,7 @@
 
 .session-service-drawer {
   color: var(--v2-text-text-base);
-  font-size: 13px;
+  font-size: var(--font-size-small);
   line-height: var(--line-height-compact);
 }
 
