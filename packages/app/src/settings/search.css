@@ -94,7 +94,7 @@
 .settings-search-detail,
 .settings-search-note {
   color: var(--v2-text-text-muted);
-  font-size: 13px;
+  font-size: var(--font-size-small);
   line-height: var(--line-height-compact);
   letter-spacing: -0.04px;
 }
@@ -184,7 +184,7 @@
 .settings-search-title,
 .settings-search-empty,
 .settings-search-empty-measure {
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-weight: 440;
   line-height: var(--line-height-compact);
   letter-spacing: -0.04px;
