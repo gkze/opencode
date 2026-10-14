@@ -167,6 +167,7 @@ function v2(colors: Swatches, isLatte: boolean, isDark: boolean): ResolvedV2Them
     "v2-overlay-simple-tab-active-scrim": alpha(colors.base, 0),
     "v2-overlay-simple-tab-hover-scrim": alpha(colors.base, 0),
     "v2-overlay-simple-tab-scrim": alpha(colors.base, 0),
+    "v2-question-answer-bg-selected": alpha(colors.blue, isDark ? 15 : 10),
 
     ...Object.fromEntries(
       Object.entries({ success: colors.green, warning: colors.yellow, danger: colors.red, info: colors.blue }).flatMap(
