@@ -1,5 +1,4 @@
 [data-component="dock-prompt"][data-kind="question"] {
-  --v2-question-answer-bg-selected: light-dark(#f5f8ff, #7698fd26);
   /* A bounce-0 spring sampled for CSS: every selection, focus and progress change eases on it, so two answers trading
      places always cross in the same frames. */
   --question-spring: linear(
@@ -220,7 +219,7 @@
     inset: 0;
     z-index: -1;
     background:
-      linear-gradient(var(--v2-question-answer-bg-selected), var(--v2-question-answer-bg-selected)),
+      linear-gradient(var(--v2-question-answer-bg-selected, light-dark(#f5f8ff, #7698fd26)), var(--v2-question-answer-bg-selected, light-dark(#f5f8ff, #7698fd26))),
       var(--v2-background-bg-layer-01);
     clip-path: inset(0 0 100% round 6px);
     pointer-events: none;
