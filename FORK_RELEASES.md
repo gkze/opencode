@@ -79,8 +79,9 @@ The maintained branch is `gkze/patches`. Upstream V2 development now lives on
 `anomalyco/opencode:dev`; the old `v2` branch is no longer the refresh target.
 `fork-nightly.md` is the GitHub Agentic Workflow source; compile it with
 `gh aw compile fork-nightly` (currently gh-aw v0.89.21) and commit the generated
-lockfile and action lock. Its cron runs daily at 10:37 UTC; edit the schedule and
-recompile to change frequency. It also supports manual dispatch.
+lockfile and action lock. Its cron runs daily at 3:00 AM Pacific
+(`America/Los_Angeles`), automatically adjusting for daylight saving time; edit
+the schedule and recompile to change frequency. It also supports manual dispatch.
 
 Configure the repository Actions secret `COPILOT_GITHUB_TOKEN` with a token
 entitled to Copilot inference. Inference is billed separately from public runners.
