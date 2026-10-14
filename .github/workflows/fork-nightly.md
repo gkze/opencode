@@ -2,7 +2,8 @@
 name: Fork nightly refresh
 on:
   schedule:
-    - cron: "37 10 * * *"
+    - cron: "0 3 * * *"
+      timezone: America/Los_Angeles
   workflow_dispatch:
 if: github.repository == 'gkze/opencode' && github.ref == 'refs/heads/gkze/patches'
 permissions:
