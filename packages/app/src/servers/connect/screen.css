@@ -36,7 +36,7 @@
   }
 
   p {
-    font-size: 13px;
+    font-size: var(--font-size-small);
     line-height: var(--line-height-base);
     color: var(--v2-text-text-muted);
   }
@@ -54,7 +54,7 @@
   }
 
   label {
-    font-size: 13px;
+    font-size: var(--font-size-small);
     line-height: var(--line-height-compact);
     font-weight: 530;
   }
@@ -81,7 +81,7 @@
   }
 
   .server-connect-hint {
-    font-size: 12px;
+    font-size: var(--font-size-x-small);
     line-height: var(--line-height-compact);
   }
 
@@ -100,7 +100,7 @@
     border: 1px solid var(--v2-border-border-base);
     border-radius: 6px;
     padding: 8px 16px;
-    font-size: 13px;
+    font-size: var(--font-size-small);
     line-height: var(--line-height-base);
     background: var(--v2-background-bg-layer-01);
     user-select: all;
