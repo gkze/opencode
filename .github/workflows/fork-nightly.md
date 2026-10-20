@@ -46,6 +46,7 @@ pre-agent-steps:
       node script/fork/nightly.mjs prepare /tmp/gh-aw/agent/fork-nightly
       git config user.name 'github-actions[bot]'
       git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      node script/fork/nightly.mjs replay /tmp/gh-aw/agent/fork-nightly
   - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
     with:
       name: nightly-input
@@ -90,8 +91,21 @@ conversation colors, typography, composer Markdown, Nix environment), fork packa
 identity, update isolation, and release functionality unless equivalent behavior
 is demonstrated. Do not remove a feature merely to make a check pass.
 
-Create branch `nightly-candidate` at the captured upstream SHA. Replay the smallest
-necessary patch stack, adapting to current ownership and APIs. Keep meaningful
+The trusted pre-step already created `nightly-candidate` at the captured upstream
+SHA and replayed commits deterministically until completion or the first text
+conflict. Read `/tmp/gh-aw/agent/fork-nightly/replay.json` for the old-to-new mapping,
+pending commits and conflict paths. Successful replay is not a semantic review:
+inspect every input patch as described above. Reuse the replayed history and mapping
+when the behavior remains necessary; do not redo clean cherry-picks.
+
+For a pending conflict, allow one focused repair attempt per patch, confined to
+its original files and the reported conflict paths. Do not repair publication
+controls, dependency manifests or lockfiles; fail for maintainer review instead.
+Run the relevant tests after repair and fail if validation does not pass. Do not
+loop on speculative repairs or broaden changes merely to make tests pass.
+Continue pending patches in order. If semantic review establishes that a cleanly
+replayed patch needs adaptation or removal, rebuild only the affected suffix.
+Keep the smallest necessary patch stack and meaningful
 commits in order. Do not merge the old fork history into upstream. Preserve existing
 release tags. Do not author changes to `.github/workflows`, `.github/actions`, `.github/aw`, or
 `script/fork/nightly.mjs` or `script/fork/publish.mjs`: these are the deterministic publication controls. Carry
