@@ -91,7 +91,7 @@ describe("Catppuccin native TUI resolution", () => {
   })
 
   test.each(["light", "dark"] as const)("switching to %s restores the terminal cursor", async (mode) => {
-    const setup = await createTestRenderer({ width: 40, height: 10, useThread: false })
+    const setup = await createTestRenderer({ width: 40, height: 10 })
     const responses: string[] = []
     try {
       const terminal = new EmbeddedTerminalRenderable(setup.renderer, {
