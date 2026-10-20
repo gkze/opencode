@@ -98,7 +98,12 @@ every patch's continued necessity and reuses the mechanical mapping where approp
 Its instructions allow one focused repair attempt per conflicting patch, prohibit
 repairs to controls or dependency manifests/lockfiles, and require passing validation.
 This repair budget is an agent instruction, not a separate tool-enforced sandbox.
-The run remains bounded by the existing workflow timeout.
+The run remains bounded by the existing workflow timeout. The pinned Bun binary is
+copied into the sandbox-mounted toolchain directory, so the agent does not install
+a newer runtime whose JSX behavior differs. Before exporting history, a trusted
+post-step independently runs the canonical check and fork-owned test suites with
+that pinned binary. Agent prose cannot waive this gate; any command failure stops
+export and publication.
 
 The agent has read-only repository credentials and exports a Git bundle and a
 per-commit keep/adapt/drop report. A separate workflow consumes artifacts only from
