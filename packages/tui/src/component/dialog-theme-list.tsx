@@ -1,4 +1,5 @@
 import { compareThemeIds } from "@opencode/ui/theme/appearance"
+import { CATPPUCCIN_THEMES } from "../theme/catppuccin"
 import { DialogSelect, type DialogSelectRef } from "../ui/dialog-select"
 import { useThemes } from "../context/theme"
 import { useDialog } from "../ui/dialog"
@@ -7,7 +8,7 @@ import { onCleanup } from "solid-js"
 export function DialogThemeList() {
   const themes = useThemes()
   const options = Object.keys(themes.all())
-    .filter((name) => name !== "catppuccin")
+    .filter((name) => name !== "catppuccin" || themes.all()[name] !== CATPPUCCIN_THEMES.catppuccin)
     .sort(compareThemeIds)
     .map((value) => ({
       title: value,
