@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { execFileSync } from "node:child_process"
+import { execFileSync, spawnSync } from "node:child_process"
 import { mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs"
 import path from "node:path"
 
@@ -44,6 +44,37 @@ if (command === "prepare") {
   const old = git("rev-parse", "HEAD")
   const input = { old, upstream, commits: lines(git("rev-list", "--reverse", `${upstream}..${old}`)) }
   writeFileSync(path.join(directory, "input.json"), JSON.stringify(input, null, 2))
+} else if (command === "replay") {
+  const input = read(path.join(directory, "input.json"))
+  assert.equal(git("rev-parse", "HEAD"), sha(input.old))
+  assert.equal(git("status", "--porcelain"), "", "Replay requires a clean checkout")
+  assert.deepEqual(input.commits, lines(git("rev-list", "--reverse", `${sha(input.upstream)}..${input.old}`)))
+  assert.equal(git("rev-list", "--merges", `${input.upstream}..${input.old}`), "", "Expected a linear patch stack")
+  git("checkout", "-b", "nightly-candidate", input.upstream)
+  const patches = []
+  for (const old of input.commits) {
+    const result = spawnSync("git", ["cherry-pick", "--no-gpg-sign", "--keep-redundant-commits", old], {
+      encoding: "utf8",
+    })
+    if (result.status === 0) {
+      patches.push({ old, commit: git("rev-parse", "HEAD") })
+      continue
+    }
+    const conflicts = lines(git("diff", "--name-only", "--diff-filter=U"))
+    assert.ok(conflicts.length, result.stderr || "Cherry-pick failed without a resolvable conflict")
+    git("cherry-pick", "--abort")
+    assert.ok(
+      !conflicts.some((file) => controls.some((control) => file === control || file.startsWith(`${control}/`))),
+      `Publication control conflict: ${conflicts.join(", ")}`,
+    )
+    writeFileSync(
+      path.join(directory, "replay.json"),
+      JSON.stringify({ patches, pending: input.commits.slice(patches.length), conflicts }, null, 2),
+    )
+    process.exit(0)
+  }
+  // Replay is mechanical evidence, never a substitute for the semantic review report.
+  writeFileSync(path.join(directory, "replay.json"), JSON.stringify({ patches, pending: [], conflicts: [] }, null, 2))
 } else if (command === "accept") {
   const input = read(path.join(directory, "input.json"))
   assert.equal(sha(input.old), sha(process.env.SOURCE_SHA))
@@ -118,5 +149,5 @@ if (command === "prepare") {
   }
   assert.equal(git("ls-remote", "origin", branch).split("\t")[0], candidate)
 } else {
-  throw new Error("Usage: nightly.mjs prepare|accept <directory>, or promote")
+  throw new Error("Usage: nightly.mjs prepare|replay|accept <directory>, or promote")
 }
