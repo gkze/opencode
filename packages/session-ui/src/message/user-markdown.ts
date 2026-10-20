@@ -272,7 +272,20 @@ function link(text: string) {
 }
 
 function trimLink(url: string): string {
-  if (/[.,;:!?]$/.test(url)) return trimLink(url.slice(0, -1))
-  if (url.endsWith(")") && url.split("(").length < url.split(")").length) return trimLink(url.slice(0, -1))
-  return url
+  let end = url.length
+  let excess = url.split(")").length - url.split("(").length
+  while (end > 0) {
+    const char = url[end - 1]!
+    if (/[.,;:!?]/.test(char)) {
+      end--
+      continue
+    }
+    if (char === ")" && excess > 0) {
+      excess--
+      end--
+      continue
+    }
+    break
+  }
+  return url.slice(0, end)
 }

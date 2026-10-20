@@ -1,5 +1,6 @@
-import type { Component } from "solid-js"
+import type { Component, JSX } from "solid-js"
 import { Icon } from "@opencode/ui/icon"
+import { useI18n } from "../context/i18n"
 
 export interface NumberStepperProps {
   value: number
@@ -20,10 +21,11 @@ const control =
 
 // A bounded numeric input with stepper buttons. Commits on blur so a half-typed value never leaves the field.
 export const NumberStepper: Component<NumberStepperProps> = (props) => {
+  const i18n = useI18n()
   const change = (value: number) => props.onChange(round(clamp(value, props.min, props.max)))
 
-  const onBlur = (event: FocusEvent) => {
-    const target = event.currentTarget as HTMLInputElement
+  const onBlur: JSX.EventHandler<HTMLInputElement, FocusEvent> = (event) => {
+    const target = event.currentTarget
     const parsed = Number.parseFloat(target.value)
 
     if (Number.isFinite(parsed)) change(parsed)
@@ -41,7 +43,7 @@ export const NumberStepper: Component<NumberStepperProps> = (props) => {
         class={control}
         onClick={() => change(props.value - props.step)}
         disabled={props.value <= props.min}
-        aria-label="Decrease"
+        aria-label={i18n.t("ui.numberStepper.decrease")}
       >
         <Icon name="minus" size="small" />
       </button>
@@ -58,7 +60,7 @@ export const NumberStepper: Component<NumberStepperProps> = (props) => {
         class={control}
         onClick={() => change(props.value + props.step)}
         disabled={props.value >= props.max}
-        aria-label="Increase"
+        aria-label={i18n.t("ui.numberStepper.increase")}
       >
         <Icon name="plus-small" size="small" />
       </button>
