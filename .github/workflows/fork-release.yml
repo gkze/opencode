@@ -107,6 +107,18 @@ jobs:
           path: packages/cli/dist/cli-*
           if-no-files-found: error
           retention-days: 3
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fork-cli-darwin-arm64
+          path: packages/cli/dist/cli-darwin-arm64
+          if-no-files-found: error
+          retention-days: 3
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fork-cli-darwin-x64
+          path: packages/cli/dist/cli-darwin-x64-baseline
+          if-no-files-found: error
+          retention-days: 3
 
   desktop:
     needs: [version, cli]
@@ -117,9 +129,11 @@ jobs:
           - runner: macos-15
             arch: arm64
             target: aarch64-apple-darwin
+            cli: cli-darwin-arm64
           - runner: macos-15-intel
             arch: x64
             target: x86_64-apple-darwin
+            cli: cli-darwin-x64-baseline
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     env:
@@ -135,8 +149,8 @@ jobs:
       - uses: ./.github/actions/setup-bun
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: fork-cli
-          path: packages/cli/dist
+          name: fork-cli-darwin-${{ matrix.arch }}
+          path: packages/cli/dist/${{ matrix.cli }}
       - name: Build desktop with this release's CLI
         working-directory: packages/desktop
         run: |
@@ -164,9 +178,10 @@ jobs:
             packages/desktop/dist/*.zip
           if-no-files-found: error
           retention-days: 3
+          compression-level: 0
 
   package:
-    needs: [version, cli, desktop]
+    needs: [version, cli]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -180,25 +195,23 @@ jobs:
           name: fork-cli
           path: packages/cli/dist
       - run: bun script/fork/package.ts packages/cli/dist release
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          pattern: fork-desktop-*
-          path: release/assets
-          merge-multiple: true
-      - name: Checksums
-        working-directory: release/assets
-        run: sha256sum * > SHA256SUMS
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: fork-release
-          path: |
-            release/assets
-            release/npm
+          name: fork-npm
+          path: release/npm
           if-no-files-found: error
           retention-days: 3
+          compression-level: 0
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fork-cli-assets
+          path: release/assets
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
 
   publish:
-    needs: [version, package]
+    needs: [version, package, desktop]
     if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-24.04
     permissions:
@@ -214,8 +227,8 @@ jobs:
           persist-credentials: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: fork-release
-          path: release
+          name: fork-npm
+          path: release/npm
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
@@ -268,8 +281,16 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: fork-release
-          path: release
+          name: fork-cli-assets
+          path: release/assets
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: fork-desktop-*
+          path: release/assets
+          merge-multiple: true
+      - name: Checksums
+        working-directory: release/assets
+        run: sha256sum * > SHA256SUMS
       - name: Promote validated nightly and create immutable tag
         if: inputs.nightly
         env:
