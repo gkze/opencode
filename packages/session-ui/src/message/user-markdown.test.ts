@@ -86,3 +86,16 @@ test.each<{ name: string; text: string; mentions?: UserMarkdownMention[]; html: 
 ])("parses $name", (row) => {
   expect(blocks(parseUserMarkdown(row.text, row.mentions))).toEqual(row.html)
 })
+
+test("long URL suffixes remain literal text without recursive trimming", () => {
+  const suffix = ").".repeat(25_000)
+  expect(parseUserMarkdown(`https://example.com/(a)${suffix}`)).toEqual([
+    {
+      type: "paragraph",
+      children: [
+        { type: "link", text: "https://example.com/(a)", start: 0, end: 23 },
+        { type: "text", text: suffix },
+      ],
+    },
+  ])
+})
