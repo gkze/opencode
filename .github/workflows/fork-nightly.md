@@ -43,6 +43,8 @@ steps:
 pre-agent-steps:
   - name: Capture upstream and patch stack
     run: |
+      mkdir -p /tmp/gh-aw/agent/toolchain/bin
+      cp "$(command -v bun)" /tmp/gh-aw/agent/toolchain/bin/bun
       node script/fork/nightly.mjs prepare /tmp/gh-aw/agent/fork-nightly
       git config user.name 'github-actions[bot]'
       git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -53,6 +55,19 @@ pre-agent-steps:
       path: /tmp/gh-aw/agent/fork-nightly/input.json
       retention-days: 14
 post-steps:
+  - name: Validate candidate with the pinned toolchain
+    if: success()
+    run: |
+      export PATH="/tmp/gh-aw/agent/toolchain/bin:$PATH"
+      test "$(bun --version)" = "$(node -p 'require("./package.json").packageManager.split("@")[1]')"
+      bun install --frozen-lockfile
+      bun run check
+      bun run --cwd packages/ui test
+      bun run --cwd packages/session-ui test
+      bun run --cwd packages/app test:unit
+      bun run --cwd packages/tui test test/catppuccin-theme.test.ts test/component/terminal-pane-theme.test.ts
+      bun run --cwd packages/cli test test/fork-version.test.ts test/fork-nightly.test.ts test/fork-package.test.ts test/fork-updater.test.ts
+      bun run --cwd packages/desktop test electron-builder.fork.test.ts
   - name: Export refreshed history
     if: success()
     run: |
@@ -112,11 +127,20 @@ release tags. Do not author changes to `.github/workflows`, `.github/actions`, `
 upstream-only control changes exactly as upstream wrote them. If a control file
 changed in both upstream and the fork, stop and explain the blocker.
 
+The pre-step copies the repository-pinned Bun binary into the sandbox-mounted
+`/tmp/gh-aw/agent/toolchain/bin`. Prepend that directory to PATH in every shell
+invocation that uses Bun, including child commands. Do not install a different Bun
+version or use an unpinned global runtime. Verify `bun --version` against the root
+`packageManager` before validation. Preserve shell exit status: use `set -o pipefail`
+when piping output, and do not mask failures with `tail`, `head`, or later commands.
+
 Run `bun install --frozen-lockfile`, `bun run check`, and relevant package tests
 (from package directories, never root). For dropped patches, exercise equivalent
 upstream behavior where possible. If a check fails, compare against clean upstream
 to identify the cause, but do not waive failures or claim a passing candidate.
-The next workflow also independently builds the CLI and both macOS packages.
+The trusted post-step independently reruns the canonical checks and fork-owned test
+suites with the pinned toolchain before exporting any candidate. The next workflow
+also independently builds the CLI and both macOS packages.
 Leave a clean committed checkout on `nightly-candidate`.
 
 Write `/tmp/gh-aw/agent/fork-nightly/report.json` with this shape:
