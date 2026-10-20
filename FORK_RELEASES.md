@@ -90,6 +90,16 @@ with Contents and Workflows read/write permissions. Upstream updates can include
 workflow files, which the built-in token cannot push. Only the trusted candidate
 and promotion steps receive this token; Copilot does not. Release tag creation and
 npm publication still use the built-in token.
+Before inference, the trusted preparation step replays the captured linear patch
+stack using Git and records `replay.json`. Redundant commits are retained for review,
+not silently dropped. A text conflict leaves a clean candidate prefix and an explicit
+pending suffix; a publication-control conflict fails preparation. The agent reviews
+every patch's continued necessity and reuses the mechanical mapping where appropriate.
+Its instructions allow one focused repair attempt per conflicting patch, prohibit
+repairs to controls or dependency manifests/lockfiles, and require passing validation.
+This repair budget is an agent instruction, not a separate tool-enforced sandbox.
+The run remains bounded by the existing workflow timeout.
+
 The agent has read-only repository credentials and exports a Git bundle and a
 per-commit keep/adapt/drop report. A separate workflow consumes artifacts only from
 successful scheduled/manual runs on this fork's maintained branch. It verifies
@@ -99,6 +109,17 @@ publication controls before pushing a temporary `nightly-<run-id>` candidate bra
 The existing release workflow checks the candidate, builds all CLI targets and both
 macOS applications, publishes and installs npm with read-only verification credentials, then atomically saves the old tip under `fork-backup-<sha>` and
 replaces `gkze/patches` with an exact lease. Concurrent changes stop promotion.
+Each desktop job downloads only its matching Darwin CLI. CLI package preparation
+runs alongside the desktop jobs; npm publication still waits for both desktops to
+pass. Separate npm and release-asset artifacts keep npm tarballs out of the GitHub
+release job and desktop archives out of the npm publisher. Final checksums are
+computed after collecting all release assets. Already compressed archives use
+uncompressed Actions transport.
+
+This reuses OpenCodex's deterministic-replay approach without introducing its
+patch-branch registry, parallel worker coordinator, or run-local SQLite journal.
+Those mechanisms serve independent patch ownership and same-runner recovery;
+the current linear stack and Actions job dependencies do not require them.
 The snapshot of upstream at run start is authoritative; newly arriving upstream
 commits are picked up on the next run. Unresolvable changes fail rather than silently
 removing customization. Upstream-only workflow/control changes carry through unchanged; conflicting fork
