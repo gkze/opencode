@@ -21,7 +21,7 @@ jobs:
       contents: write
       actions: read
     outputs:
-      sha: ${{ steps.accept.outputs.candidate }}
+      sha: ${{ steps.relock.outputs.candidate }}
       old: ${{ steps.accept.outputs.old }}
       upstream: ${{ steps.accept.outputs.upstream }}
     steps:
@@ -45,6 +45,19 @@ jobs:
           SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
           FORK_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN }}
         run: node script/fork/nightly.mjs accept "$RUNNER_TEMP/fork-nightly"
+      - id: pin
+        run: |
+          CANDIDATE="${{ steps.accept.outputs.candidate }}"
+          VERSION=$(git show "$CANDIDATE:package.json" | node -p 'JSON.parse(require("node:fs").readFileSync(0,"utf8")).packageManager.split("@")[1]')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ steps.pin.outputs.version }}
+      - id: relock
+        env:
+          FORK_CANDIDATE: ${{ steps.accept.outputs.candidate }}
+          FORK_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN }}
+        run: node script/fork/nightly.mjs relock "$RUNNER_TEMP/fork-nightly"
   release:
     needs: candidate
     permissions:
