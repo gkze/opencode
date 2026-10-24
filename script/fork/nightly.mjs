@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import { execFileSync, spawnSync } from "node:child_process"
-import { mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs"
+import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs"
 import path from "node:path"
 
 const git = (...args) =>
@@ -85,6 +85,13 @@ if (command === "prepare") {
     process.exit(0)
   }
   // Replay is mechanical evidence, never a substitute for the semantic review report.
+  // The lockfile is derived state: materialize it here so the canonical frozen install the
+  // reviewing agent runs next has a lockfile that matches the replayed package.json.
+  if (existsSync("bun.lock")) execFileSync("bun", ["install", "--lockfile-only"], { stdio: "inherit" })
+  if (git("status", "--porcelain", "--", "bun.lock")) {
+    git("add", "bun.lock")
+    git("commit", "-m", derivedSubject)
+  }
   writeFileSync(path.join(directory, "replay.json"), JSON.stringify({ patches, pending: [], conflicts: [] }, null, 2))
 } else if (command === "accept") {
   const input = read(path.join(directory, "input.json"))
@@ -129,9 +136,14 @@ if (command === "prepare") {
     assert.equal(p.commits.length === 0, p.action === "drop")
     return p.commits.map(sha)
   })
+  const candidateCommits = lines(git("rev-list", `${input.upstream}..${candidate}`))
+  for (const commit of candidateCommits.filter(isDerived)) {
+    // The replay materializes the lockfile; that commit is ours, so it has no review entry.
+    assert.deepEqual(lines(git("diff", "--name-only", `${commit}^`, commit)), ["bun.lock"], "Derived commit may only update bun.lock")
+  }
   assert.deepEqual(
     [...new Set(mapped)].sort(),
-    lines(git("rev-list", `${input.upstream}..${candidate}`)).sort(),
+    candidateCommits.filter((commit) => !isDerived(commit)).sort(),
     "Every new commit needs provenance",
   )
   const staging = `refs/heads/nightly-${process.env.GITHUB_RUN_ID}`
