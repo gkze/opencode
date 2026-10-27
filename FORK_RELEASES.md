@@ -120,8 +120,9 @@ repair/test commits in the report before any bundle is uploaded.
 The existing release workflow checks the candidate, builds all CLI targets and both
 macOS applications, publishes and installs npm with read-only verification credentials, then atomically saves the old tip under `fork-backup-<sha>` and
 replaces `gkze/patches` with an exact lease. Concurrent changes stop promotion.
-Each desktop job downloads only its matching Darwin CLI. CLI package preparation
-runs alongside the desktop jobs; npm publication still waits for both desktops to
+Each desktop job downloads only its matching Darwin CLI and requires that artifact
+before the package's build command prepares resources and bundles the app.
+CLI package preparation runs alongside the desktop jobs; npm publication still waits for both desktops to
 pass. Separate npm and release-asset artifacts keep npm tarballs out of the GitHub
 release job and desktop archives out of the npm publisher. Final checksums are
 computed after collecting all release assets. Already compressed archives use
