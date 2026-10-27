@@ -154,7 +154,8 @@ jobs:
       - name: Build desktop with this release's CLI
         working-directory: packages/desktop
         run: |
-          bun scripts/prepare.ts
+          test -f "../cli/dist/${{ matrix.cli }}/bin/opencode"
+          if [ -f scripts/prepare.ts ]; then bun scripts/prepare.ts; fi
           bun run build
       - name: Package with ad-hoc signing
         working-directory: packages/desktop
