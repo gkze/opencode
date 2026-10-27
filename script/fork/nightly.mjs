@@ -137,12 +137,14 @@ if (command === "prepare") {
     return p.commits.map(sha)
   })
   const candidateCommits = lines(git("rev-list", `${input.upstream}..${candidate}`))
+  const candidateSet = new Set(candidateCommits)
+  assert.ok(mapped.every((commit) => candidateSet.has(commit)), "Review references a commit outside candidate history")
   for (const commit of candidateCommits.filter(isDerived)) {
     // The replay materializes the lockfile; that commit is ours, so it has no review entry.
     assert.deepEqual(lines(git("diff", "--name-only", `${commit}^`, commit)), ["bun.lock"], "Derived commit may only update bun.lock")
   }
   assert.deepEqual(
-    [...new Set(mapped)].sort(),
+    [...new Set(mapped.filter((commit) => !isDerived(commit)))].sort(),
     candidateCommits.filter((commit) => !isDerived(commit)).sort(),
     "Every new commit needs provenance",
   )
