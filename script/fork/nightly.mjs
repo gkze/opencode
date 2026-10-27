@@ -44,6 +44,56 @@ const stack = (input) => [...input.commits, ...(input.derived ?? [])].sort()
 const gitIn = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim()
 const branch = "refs/heads/gkze/patches"
+const verifyCandidate = (input, candidate, directory) => {
+  assert.deepEqual(stack(input), lines(git("rev-list", "--reverse", `${input.upstream}..${input.old}`)).sort())
+  git("merge-base", "--is-ancestor", input.upstream, candidate)
+  assert.equal(
+    git("rev-list", "--merges", `${input.upstream}..${candidate}`),
+    "",
+    "Candidate must be a linear patch stack",
+  )
+  const base = git("merge-base", input.old, input.upstream)
+  for (const file of lines(git("diff", "--name-only", input.old, candidate, "--", ...controls))) {
+    // Carry upstream-only control changes, but never accept agent-authored workflows.
+    assert.equal(git("diff", "--name-only", base, input.old, "--", file), "", `Fork control conflict: ${file}`)
+    assert.equal(
+      git("diff", "--name-only", input.upstream, candidate, "--", file),
+      "",
+      `Publication control changed: ${file}`,
+    )
+  }
+  const report = read(path.join(directory, "report.json"))
+  assert.ok(typeof report.summary === "string" && report.summary.trim())
+  assert.ok(
+    Array.isArray(report.tests) && report.tests.length && report.tests.every((x) => typeof x === "string" && x.trim()),
+  )
+  assert.ok(Array.isArray(report.patches))
+  assert.deepEqual(
+    report.patches.map((p) => p.old).sort(),
+    [...input.commits].sort(),
+    "Every old patch needs exactly one decision",
+  )
+  const mapped = report.patches.flatMap((p) => {
+    assert.ok(["keep", "adapt", "drop"].includes(p.action))
+    assert.ok(typeof p.reason === "string" && p.reason.trim())
+    assert.ok(Array.isArray(p.commits))
+    assert.equal(p.commits.length === 0, p.action === "drop")
+    return p.commits.map(sha)
+  })
+  const candidateCommits = lines(git("rev-list", `${input.upstream}..${candidate}`))
+  const candidateSet = new Set(candidateCommits)
+  assert.ok(mapped.every((commit) => candidateSet.has(commit)), "Review references a commit outside candidate history")
+  for (const commit of candidateCommits.filter(isDerived)) {
+    // The replay materializes the lockfile; that commit is ours, so it has no review entry.
+    assert.deepEqual(lines(git("diff", "--name-only", `${commit}^`, commit)), ["bun.lock"], "Derived commit may only update bun.lock")
+  }
+  assert.deepEqual(
+    [...new Set(mapped.filter((commit) => !isDerived(commit)))].sort(),
+    candidateCommits.filter((commit) => !isDerived(commit)).sort(),
+    "Every new commit needs provenance",
+  )
+}
+
 const [command, directory] = process.argv.slice(2)
 
 if (command === "prepare") {
@@ -93,61 +143,22 @@ if (command === "prepare") {
     git("commit", "-m", derivedSubject)
   }
   writeFileSync(path.join(directory, "replay.json"), JSON.stringify({ patches, pending: [], conflicts: [] }, null, 2))
+} else if (command === "verify") {
+  const input = read(path.join(directory, "input.json"))
+  const candidate = git("rev-parse", "refs/heads/nightly-candidate")
+  assert.equal(git("rev-parse", "HEAD"), candidate, "Review must describe the checked out candidate")
+  assert.equal(git("status", "--porcelain"), "", "Review requires a clean committed candidate")
+  verifyCandidate(input, candidate, directory)
+  console.log(`Verified candidate and complete report: ${candidate}`)
 } else if (command === "accept") {
   const input = read(path.join(directory, "input.json"))
   assert.equal(sha(input.old), sha(process.env.SOURCE_SHA))
   git("fetch", "https://github.com/anomalyco/opencode.git", "dev")
   git("merge-base", "--is-ancestor", sha(input.upstream), "FETCH_HEAD")
-  assert.deepEqual(stack(input), lines(git("rev-list", "--reverse", `${input.upstream}..${input.old}`)).sort())
   git("bundle", "verify", path.join(directory, "candidate.bundle"))
   git("fetch", path.join(directory, "candidate.bundle"), "refs/heads/nightly-candidate")
   const candidate = git("rev-parse", "FETCH_HEAD")
-  git("merge-base", "--is-ancestor", input.upstream, candidate)
-  assert.equal(
-    git("rev-list", "--merges", `${input.upstream}..${candidate}`),
-    "",
-    "Candidate must be a linear patch stack",
-  )
-  const base = git("merge-base", input.old, input.upstream)
-  for (const file of lines(git("diff", "--name-only", input.old, candidate, "--", ...controls))) {
-    // Carry upstream-only control changes, but never accept agent-authored workflows.
-    assert.equal(git("diff", "--name-only", base, input.old, "--", file), "", `Fork control conflict: ${file}`)
-    assert.equal(
-      git("diff", "--name-only", input.upstream, candidate, "--", file),
-      "",
-      `Publication control changed: ${file}`,
-    )
-  }
-  const report = read(path.join(directory, "report.json"))
-  assert.ok(typeof report.summary === "string" && report.summary.trim())
-  assert.ok(
-    Array.isArray(report.tests) && report.tests.length && report.tests.every((x) => typeof x === "string" && x.trim()),
-  )
-  assert.ok(Array.isArray(report.patches))
-  assert.deepEqual(
-    report.patches.map((p) => p.old).sort(),
-    [...input.commits].sort(),
-    "Every old patch needs exactly one decision",
-  )
-  const mapped = report.patches.flatMap((p) => {
-    assert.ok(["keep", "adapt", "drop"].includes(p.action))
-    assert.ok(typeof p.reason === "string" && p.reason.trim())
-    assert.ok(Array.isArray(p.commits))
-    assert.equal(p.commits.length === 0, p.action === "drop")
-    return p.commits.map(sha)
-  })
-  const candidateCommits = lines(git("rev-list", `${input.upstream}..${candidate}`))
-  const candidateSet = new Set(candidateCommits)
-  assert.ok(mapped.every((commit) => candidateSet.has(commit)), "Review references a commit outside candidate history")
-  for (const commit of candidateCommits.filter(isDerived)) {
-    // The replay materializes the lockfile; that commit is ours, so it has no review entry.
-    assert.deepEqual(lines(git("diff", "--name-only", `${commit}^`, commit)), ["bun.lock"], "Derived commit may only update bun.lock")
-  }
-  assert.deepEqual(
-    [...new Set(mapped.filter((commit) => !isDerived(commit)))].sort(),
-    candidateCommits.filter((commit) => !isDerived(commit)).sort(),
-    "Every new commit needs provenance",
-  )
+  verifyCandidate(input, candidate, directory)
   const staging = `refs/heads/nightly-${process.env.GITHUB_RUN_ID}`
   assert.match(staging, /^refs\/heads\/nightly-\d+$/)
   git("push", "origin", `${candidate}:${staging}`)
@@ -204,5 +215,5 @@ if (command === "prepare") {
   }
   assert.equal(git("ls-remote", "origin", branch).split("\t")[0], candidate)
 } else {
-  throw new Error("Usage: nightly.mjs prepare|replay|accept|relock <directory>, or promote")
+  throw new Error("Usage: nightly.mjs prepare|replay|verify|accept|relock <directory>, or promote")
 }

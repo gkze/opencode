@@ -229,6 +229,27 @@ test("prepare keeps the derived lockfile commit out of the replay workload", () 
   }
 })
 
+test("read-only review catches supplemental commits before export and shares acceptance rules", () => {
+  const f = fixture()
+  try {
+    writeFileSync(path.join(f.repo, "supplemental-test-fix"), "new package path")
+    f.git("add", ".")
+    f.git("commit", "-m", "fix a test after replay")
+    const supplemental = f.git("rev-parse", "HEAD")
+    expect(f.run("verify").status).not.toBe(0)
+    f.report.patches[0]!.commits.push(supplemental)
+    writeFileSync(path.join(f.data, "report.json"), JSON.stringify(f.report))
+    expect(f.run("verify").status).toBe(0)
+    expect(f.git("ls-remote", "origin", "refs/heads/nightly-123")).toBe("")
+    expect(f.git("ls-remote", "origin", "refs/heads/gkze/patches")).toStartWith(f.old)
+    rmSync(path.join(f.data, "candidate.bundle"))
+    f.git("bundle", "create", path.join(f.data, "candidate.bundle"), "refs/heads/nightly-candidate")
+    expect(f.run("accept").status).toBe(0)
+  } finally {
+    rmSync(f.root, { recursive: true, force: true })
+  }
+})
+
 test.each(["listed", "unlisted", "other-file", "outside-history"])(
   "accept validates %s generated-lockfile provenance",
   (scenario) => {
