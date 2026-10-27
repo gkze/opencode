@@ -73,6 +73,7 @@ post-steps:
     run: |
       test -f /tmp/gh-aw/agent/fork-nightly/report.json
       test -z "$(git status --porcelain)"
+      node script/fork/nightly.mjs verify /tmp/gh-aw/agent/fork-nightly
       git bundle create /tmp/gh-aw/agent/fork-nightly/candidate.bundle refs/heads/nightly-candidate
   - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
     if: success()
@@ -171,3 +172,11 @@ Every candidate commit above upstream must appear in the mapping. Consolidating
 related fixes is allowed; multiple old commits may map to one replacement.
 On uncertainty, conflicts you cannot resolve, or failing checks, fail the run and
 explain why rather than dropping behavior or producing a report that claims success.
+
+Before finishing, run `node script/fork/nightly.mjs verify /tmp/gh-aw/agent/fork-nightly`.
+This read-only command checks the final committed candidate and report with the
+same provenance rules as publication. Include every supplemental repair or test
+fix commit in the owning original patch's `commits` array, not only its initial
+cherry-pick. If verification reports missing or stale commit mappings, inspect
+the final history and correct your report, then rerun verification. Do not finish
+until it passes; never remove a real candidate commit merely to satisfy the report.
