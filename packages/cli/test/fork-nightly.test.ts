@@ -228,3 +228,27 @@ test("prepare keeps the derived lockfile commit out of the replay workload", () 
     rmSync(f.root, { recursive: true, force: true })
   }
 })
+
+test.each(["listed", "unlisted", "other-file", "outside-history"])(
+  "accept validates %s generated-lockfile provenance",
+  (scenario) => {
+    const f = fixture()
+    try {
+      writeFileSync(path.join(f.repo, scenario === "other-file" ? "custom" : "bun.lock"), "derived")
+      f.git("add", ".")
+      f.git("commit", "-m", "chore(deps): regenerate fork lockfile")
+      const derived = f.git("rev-parse", "HEAD")
+      rmSync(path.join(f.data, "candidate.bundle"))
+      f.git("bundle", "create", path.join(f.data, "candidate.bundle"), "refs/heads/nightly-candidate")
+      const report = structuredClone(f.report)
+      if (scenario !== "unlisted") report.patches[0]!.commits.push(scenario === "outside-history" ? f.old : derived)
+      writeFileSync(path.join(f.data, "report.json"), JSON.stringify(report))
+      const result = f.run("accept")
+      expect(result.status === 0).toBe(scenario === "listed" || scenario === "unlisted")
+      if (scenario === "outside-history") expect(result.stderr).toContain("outside candidate history")
+      if (scenario === "other-file") expect(result.stderr).toContain("Derived commit may only update bun.lock")
+    } finally {
+      rmSync(f.root, { recursive: true, force: true })
+    }
+  },
+)
