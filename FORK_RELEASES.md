@@ -113,6 +113,9 @@ publication controls before pushing a temporary `nightly-<run-id>` candidate bra
 Reports may also reference the candidate's generated lockfile commits. Acceptance
 checks that those commits change only `bun.lock`, excludes them from the required
 product-patch mapping, and rejects references outside the candidate history.
+The agent runs the read-only `nightly.mjs verify` command before finishing; export
+runs it again. It shares the publisher's validation and requires supplemental
+repair/test commits in the report before any bundle is uploaded.
 
 The existing release workflow checks the candidate, builds all CLI targets and both
 macOS applications, publishes and installs npm with read-only verification credentials, then atomically saves the old tip under `fork-backup-<sha>` and
