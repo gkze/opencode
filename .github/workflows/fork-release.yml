@@ -153,6 +153,8 @@ jobs:
           path: packages/cli/dist/${{ matrix.cli }}
       - name: Build desktop with this release's CLI
         working-directory: packages/desktop
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
         run: |
           test -f "../cli/dist/${{ matrix.cli }}/bin/opencode"
           if [ -f scripts/prepare.ts ]; then bun scripts/prepare.ts; fi
