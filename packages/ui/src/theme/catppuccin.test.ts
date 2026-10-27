@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { flavorEntries, flavors, version } from "@catppuccin/palette"
 import postcss from "postcss"
+import { existsSync } from "node:fs"
 import { compareThemeIds, parseColorScheme, resolveLegacyThemeId, resolveThemeMode } from "./appearance"
 import { CATPPUCCIN_FLAVOR_NAMES, createCatppuccinDesktopTheme } from "./catppuccin"
 import { CATPPUCCIN_FLAVORS, CATPPUCCIN_PALETTE_VERSION } from "./catppuccin-palette"
@@ -20,8 +21,12 @@ const themes = Object.fromEntries(
 )
 
 const cssTokens = new Set<string>()
+const guiDirectories = ["../../../gui-extensions/src/", "../../../gui-plugins/src/"].filter((directory) =>
+  existsSync(new URL(directory, import.meta.url)),
+)
+if (guiDirectories.length === 0) throw new Error("Missing GUI plugin CSS consumer directory")
 
-for (const directory of ["../", "../../../app/src/", "../../../session-ui/src/", "../../../gui-extensions/src/"]) {
+for (const directory of ["../", "../../../app/src/", "../../../session-ui/src/", ...guiDirectories]) {
   const cwd = new URL(directory, import.meta.url).pathname
 
   for await (const path of new Bun.Glob("**/*.css").scan({ cwd, absolute: true })) {
