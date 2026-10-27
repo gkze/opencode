@@ -110,6 +110,9 @@ per-commit keep/adapt/drop report. A separate workflow consumes artifacts only f
 successful scheduled/manual runs on this fork's maintained branch. It verifies
 captured ancestry, complete patch provenance, a linear candidate stack, and no agent-authored changes to
 publication controls before pushing a temporary `nightly-<run-id>` candidate branch.
+Reports may also reference the candidate's generated lockfile commits. Acceptance
+checks that those commits change only `bun.lock`, excludes them from the required
+product-patch mapping, and rejects references outside the candidate history.
 
 The existing release workflow checks the candidate, builds all CLI targets and both
 macOS applications, publishes and installs npm with read-only verification credentials, then atomically saves the old tip under `fork-backup-<sha>` and
