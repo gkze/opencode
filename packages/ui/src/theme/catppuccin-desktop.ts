@@ -200,7 +200,17 @@ function v2(colors: Swatches, isLatte: boolean, isDark: boolean): ResolvedV2Them
     // Geometry belongs to V2. Its color references are all covered above; this
     // explicit list makes new upstream elevation roles a coverage failure.
     ...Object.fromEntries(
-      ["raised", "floating", "overlay", "button-neutral", "button-contrast", "elements", "switch-off", "switch-on"].map(
+      [
+        "raised",
+        "floating",
+        "overlay",
+        "input",
+        "button-neutral",
+        "button-contrast",
+        "elements",
+        "switch-off",
+        "switch-on",
+      ].map(
         (role) => [`v2-elevation-${role}`, semantics[`v2-elevation-${role}`]],
       ),
     ),
