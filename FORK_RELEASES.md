@@ -95,8 +95,11 @@ stack using Git and records `replay.json`. Redundant commits are retained for re
 not silently dropped. A text conflict leaves a clean candidate prefix and an explicit
 pending suffix; a publication-control conflict fails preparation. The agent reviews
 every patch's continued necessity and reuses the mechanical mapping where appropriate.
-Its instructions allow one focused repair attempt per conflicting patch, prohibit
-repairs to controls or dependency manifests/lockfiles, and require passing validation.
+Its instructions allow one focused repair attempt per conflicting patch, prohibit hand
+edits to controls, dependency manifests and the lockfile while allowing the sanctioned
+`nightly.mjs lockfile` derivation after a conflicted replay, and require passing validation.
+A trusted post-step derives `bun.lock` again before validation and export, so a conflicted
+replay cannot dead-end on a stale lockfile and a hand-edited lockfile is never published.
 This repair budget is an agent instruction, not a separate tool-enforced sandbox.
 The run remains bounded by the existing workflow timeout. The pinned Bun binary is
 copied into the sandbox-mounted toolchain directory, so the agent does not install
