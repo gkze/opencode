@@ -15,7 +15,7 @@
   }
   // BEGIN GENERATED CATPPUCCIN
   var catppuccin = {
-    revision: "5af20f5696bc62c14a7ef52927ec3b7d4fc17da786ee866233e6f50a6d1cd513",
+    revision: "4ebb774221807fd23cf2355b8ee8d8c7ca9ff875f89e9b90c3084f53c5fcdeea",
     themes: {
       "catppuccin-latte": { mode: "light", background: "#eff1f5" },
       "catppuccin-frappe": { mode: "dark", background: "#303446" },
