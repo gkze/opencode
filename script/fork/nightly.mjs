@@ -43,6 +43,16 @@ const split = (commits) => ({ patches: commits.filter((c) => !isDerived(c)), der
 const stack = (input) => [...input.commits, ...(input.derived ?? [])].sort()
 const gitIn = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim()
+// `bun.lock` is derived state. Materialize it so the canonical frozen install always
+// sees a lockfile that matches the replayed package.json, including after a text
+// conflict stopped `replay` before it could derive one.
+const materializeLockfile = () => {
+  if (!existsSync("bun.lock")) return
+  execFileSync("bun", ["install", "--lockfile-only"], { stdio: "inherit" })
+  if (!git("status", "--porcelain", "--", "bun.lock")) return
+  git("add", "bun.lock")
+  git("commit", "-m", derivedSubject)
+}
 const branch = "refs/heads/gkze/patches"
 const verifyCandidate = (input, candidate, directory) => {
   assert.deepEqual(stack(input), lines(git("rev-list", "--reverse", `${input.upstream}..${input.old}`)).sort())
@@ -137,11 +147,7 @@ if (command === "prepare") {
   // Replay is mechanical evidence, never a substitute for the semantic review report.
   // The lockfile is derived state: materialize it here so the canonical frozen install the
   // reviewing agent runs next has a lockfile that matches the replayed package.json.
-  if (existsSync("bun.lock")) execFileSync("bun", ["install", "--lockfile-only"], { stdio: "inherit" })
-  if (git("status", "--porcelain", "--", "bun.lock")) {
-    git("add", "bun.lock")
-    git("commit", "-m", derivedSubject)
-  }
+  materializeLockfile()
   writeFileSync(path.join(directory, "replay.json"), JSON.stringify({ patches, pending: [], conflicts: [] }, null, 2))
 } else if (command === "verify") {
   const input = read(path.join(directory, "input.json"))
@@ -163,6 +169,13 @@ if (command === "prepare") {
   assert.match(staging, /^refs\/heads\/nightly-\d+$/)
   git("push", "origin", `${candidate}:${staging}`)
   appendFileSync(process.env.GITHUB_OUTPUT, `candidate=${candidate}\nold=${input.old}\nupstream=${input.upstream}\n`)
+} else if (command === "lockfile") {
+  // A text conflict stops `replay` before it derives the lockfile. The trusted post-step
+  // derives it here, after the agent finished the replay and before install-dependent
+  // validation, so a conflicted candidate can never dead-end on a stale `bun.lock`.
+  materializeLockfile()
+  // Prove the derived lockfile resolves reproducibly before validation and export.
+  execFileSync("bun", ["install", "--frozen-lockfile", "--ignore-scripts"], { stdio: "inherit" })
 } else if (command === "relock") {
   // package.json is the authority for the dependency graph and bun.lock is derived from it,
   // so regenerate the lockfile here with the candidate's own pinned Bun. A dependency bump
@@ -215,5 +228,5 @@ if (command === "prepare") {
   }
   assert.equal(git("ls-remote", "origin", branch).split("\t")[0], candidate)
 } else {
-  throw new Error("Usage: nightly.mjs prepare|replay|verify|accept|relock <directory>, or promote")
+  throw new Error("Usage: nightly.mjs prepare|replay|verify|accept|relock <directory>, lockfile, or promote")
 }

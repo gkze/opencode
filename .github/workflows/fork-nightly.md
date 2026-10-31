@@ -55,6 +55,11 @@ pre-agent-steps:
       path: /tmp/gh-aw/agent/fork-nightly/input.json
       retention-days: 14
 post-steps:
+  - name: Materialize the fork lockfile
+    if: success()
+    run: |
+      export PATH="/tmp/gh-aw/agent/toolchain/bin:$PATH"
+      node script/fork/nightly.mjs lockfile
   - name: Validate candidate with the pinned toolchain
     if: success()
     run: |
@@ -115,10 +120,15 @@ inspect every input patch as described above. Reuse the replayed history and map
 when the behavior remains necessary; do not redo clean cherry-picks.
 
 For a pending conflict, allow one focused repair attempt per patch, confined to
-its original files and the reported conflict paths. Do not repair publication
-controls, dependency manifests or lockfiles; fail for maintainer review instead.
-Run the relevant tests after repair and fail if validation does not pass. Do not
-loop on speculative repairs or broaden changes merely to make tests pass.
+its original files and the reported conflict paths. Do not hand-edit publication
+controls, dependency manifests or `bun.lock`. A text conflict stops the
+deterministic replay before it derives the lockfile, so a stale `bun.lock` is not
+a blocker by itself: derive it with `node script/fork/nightly.mjs lockfile`, then
+continue. That command is the only sanctioned way to update the lockfile, and the
+trusted post-step derives it again before validation, so a hand-edited lockfile
+never reaches publication. Run the relevant tests after repair and fail if
+validation does not pass. Do not loop on speculative repairs or broaden changes
+merely to make tests pass.
 Continue pending patches in order. If semantic review establishes that a cleanly
 replayed patch needs adaptation or removal, rebuild only the affected suffix.
 Keep the smallest necessary patch stack and meaningful
