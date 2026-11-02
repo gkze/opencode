@@ -1,7 +1,7 @@
 # Fork releases
 
 `fork-release.yml` uses standard GitHub-hosted runners in this public repository:
-Ubuntu 24.04 for all CLI targets and packaging, macOS 15 ARM64 and Intel for desktop.
+Ubuntu 24.04 for all CLI targets and packaging, macOS 26 ARM64 and macOS 15 Intel for desktop.
 It reuses the production CLI builder, embedded web UI, desktop preparation, and npm
 postinstall code. Fork publication is separate from upstream's npm/Cloudflare pipeline.
 
