@@ -27,18 +27,27 @@ function UnreadBadge(props: { show: boolean; ring: "base" | "deep" }) {
   )
 }
 
-// The desktop window sets `trafficLightPosition: { x: 14, y: 14 }`, and the titlebar moves the buttons down to share the
-// header's center line in vertical tabs. macOS 26 and later draw 14px buttons on a 23px pitch, so the zoom button ends
-// 74px from the window edge. macOS 15 and earlier end at 68px.
+// The desktop window sets `trafficLightPosition: { x: 14, y: 14 }`. macOS 26 and later draw 14px buttons on a 23px
+// pitch, so from there the zoom button ends 74px from the window edge. macOS 15 and earlier end at 68px.
 const macTrafficLightsBaseWidth = 74
 
-// Vertical tabs center the 14pt traffic lights on the session header's center line, 32px from the top, and inset them as
-// far from the left edge as from the top. The center scales with zoom. Returns window points; `width` is where the zoom
-// button ends.
-export function macVerticalTrafficLights(zoom: number) {
-  const inset = 32 * zoom - 7
+// Vertical tabs center the traffic lights on the window corner's visual radius. macOS draws the 16pt corner as a
+// continuous curve that blends into the straight edges about 1.5 radii out, so a center there nests the lights in the
+// corner as it reads, where macOS's own position (concentric with the nominal 16pt) hugs it. The sidebar header's
+// 48pt row shares this center line. Window chrome doesn't scale with zoom, so neither does this. Window points.
+const macTrafficLightsCenterLine = 1.5 * 16
 
-  return { x: inset, y: inset, width: inset + macTrafficLightsBaseWidth - 14 }
+// `width` is where the zoom button ends. The 14pt lights are positioned by their top-start corner.
+const macVerticalTrafficLightsInset = macTrafficLightsCenterLine - 7
+export const macVerticalTrafficLights = {
+  x: macVerticalTrafficLightsInset,
+  y: macVerticalTrafficLightsInset,
+  width: macVerticalTrafficLightsInset + macTrafficLightsBaseWidth - 14,
+}
+
+/** The traffic lights' center line in CSS pixels, held low enough that a 28px control centered on it stays inside the window. */
+export function macTrafficLightsCenter(zoom: number) {
+  return Math.max(macTrafficLightsCenterLine / zoom, 14)
 }
 
 // Matches the horizontal titlebar, whose first control starts 16px past the traffic lights.
@@ -152,10 +161,12 @@ function useCollapsedSlot() {
   return {
     visible: () => desktop() && !windows() && settings.appearance.tabLayout() !== "horizontal",
     open: settings.appearance.sidebarOpen,
+    // Beside the traffic lights, the 28px toggle shares their center line, as the sidebar header's does.
+    top: () => (mac() ? `${macTrafficLightsCenter(platform.webviewZoom?.() ?? 1) - 14}px` : undefined),
     // Lays the toggle out as if the traffic lights were the header's first control.
     width: () =>
       mac()
-        ? macVerticalTrafficLights(platform.webviewZoom?.() ?? 1).width / (platform.webviewZoom?.() ?? 1) +
+        ? macVerticalTrafficLights.width / (platform.webviewZoom?.() ?? 1) +
           macTrafficLightsGap -
           contentStart +
           slotWidth
@@ -221,8 +232,9 @@ function slotRef(width: () => number) {
   return collapsedRef((slot, closed) => (slot.style.width = `${width() * closed}px`))
 }
 
-// Floats over the top of every screen, centered on the session header's 48px row, where the content starts once the
-// sidebar has closed. It sits outside the sidebar and the content, so neither clips it as it travels.
+// Floats over the top of every screen, centered on the session header's 48px row, or on the traffic lights' line beside
+// them, where the content starts once the sidebar has closed. It sits outside the sidebar and the content, so neither
+// clips it as it travels.
 export function CollapsedSidebarToggle() {
   const slot = useCollapsedSlot()
 
@@ -230,7 +242,7 @@ export function CollapsedSidebarToggle() {
     <Show when={slot.visible()}>
       <div
         data-slot="collapsed-sidebar-toggle"
-        style={{ width: `${slot.width()}px` }}
+        style={{ width: `${slot.width()}px`, top: slot.top() }}
         class={`absolute top-[calc(var(--shell-top-inset,8px)+10px)] start-[calc(var(--shell-inline-inset,8px)+10px)] z-40 flex shrink-0 justify-end`}
         inert={slot.open()}
       >
