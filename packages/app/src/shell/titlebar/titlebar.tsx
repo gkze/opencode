@@ -16,7 +16,7 @@ import { useSettings } from "@/settings/model"
 import { WindowsAppMenu } from "./windows-menu"
 import { applyPath, backPath, forwardPath, type HistoryLocation } from "./history"
 import { TitlebarTabStrip } from "@/shell/titlebar/tab-strip"
-import { macVerticalTrafficLights, SidebarToggle } from "@/shell/sidebar-toggle"
+import { macTrafficLightsCenter, macVerticalTrafficLights, SidebarToggle } from "@/shell/sidebar-toggle"
 import { SidebarInbox } from "@/shell/titlebar/inbox"
 import { makeEventListener } from "@solid-primitives/event-listener"
 import { createMediaQuery } from "@solid-primitives/media"
@@ -95,12 +95,12 @@ export function Titlebar(props: { verticalTabs?: { mount?: HTMLElement } }) {
 
   const windowsControlsWidth = () => `${windowsControlsBaseWidth / Math.max(titlebarZoom(), 1)}px`
 
-  // The vertical sidebar header's center line scales with zoom, so the 14pt traffic lights follow it. The horizontal
-  // titlebar stays at the window's default position.
+  // Vertical tabs nest the traffic lights in the window's corner, and the sidebar header shares their center line. The
+  // horizontal titlebar stays at the window's default position.
   createEffect(() => {
     if (!mac()) return
     void platform.setTrafficLightsPosition?.(
-      macVerticalTabs() ? macVerticalTrafficLights(zoom()) : macTrafficLightsDefaultPosition,
+      macVerticalTabs() ? macVerticalTrafficLights : macTrafficLightsDefaultPosition,
     )
   })
 
@@ -815,21 +815,30 @@ export function Titlebar(props: { verticalTabs?: { mount?: HTMLElement } }) {
                             ref={(element) => (element.className = "flex size-full min-h-0 flex-col")}
                           >
                             <Show when={!windows()}>
-                              {/* Shares the session header's 48px center line. Without traffic lights, Home fills the
-                                  start so the row doesn't leave an empty band. */}
+                              {/* Shares the traffic lights' center line, rising over the panel's top inset to reach it.
+                                  Otherwise shares the session header's 48px center line. Without traffic lights, Home
+                                  fills the start so the row doesn't leave an empty band. */}
                               <div
                                 data-slot="sidebar-header"
                                 data-home={homeInSidebarHeader() ? "" : undefined}
                                 class="flex w-full shrink-0 gap-2"
                                 classList={{
                                   "items-start pt-2.5 pb-1": homeInSidebarHeader(),
-                                  "mb-2 h-12 items-center": !homeInSidebarHeader(),
+                                  "mb-2 items-center": !homeInSidebarHeader(),
+                                  "h-12": !homeInSidebarHeader() && !macTrafficLights(),
                                 }}
-                                style={{
-                                  "min-height": macVerticalTabs()
-                                    ? `${macTrafficLightsTopClearance / zoom()}px`
-                                    : undefined,
-                                }}
+                                style={
+                                  macTrafficLights()
+                                    ? {
+                                        "margin-top": "calc(-1 * var(--shell-top-inset, 8px))",
+                                        height: `${2 * macTrafficLightsCenter(zoom())}px`,
+                                      }
+                                    : {
+                                        "min-height": macVerticalTabs()
+                                          ? `${macTrafficLightsTopClearance / zoom()}px`
+                                          : undefined,
+                                      }
+                                }
                                 data-tauri-drag-region
                               >
                                 <Show when={macTrafficLights()}>
@@ -837,7 +846,7 @@ export function Titlebar(props: { verticalTabs?: { mount?: HTMLElement } }) {
                                   <div
                                     class="shrink-0"
                                     style={{
-                                      width: `calc(${macVerticalTrafficLights(zoom()).width / zoom()}px - 18px)`,
+                                      width: `calc(${macVerticalTrafficLights.width / zoom()}px - 18px)`,
                                     }}
                                     aria-hidden="true"
                                   />
