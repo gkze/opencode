@@ -314,7 +314,7 @@ export function HomeSessionsView(props: HomeSessionsViewProps) {
               props.groups.length === 0
             }
           >
-            <div class={`px-2 pt-6 text-[13px] leading-[var(--line-height-compact)] ${HOME_SECTION_LABEL}`}>
+            <div class={`px-2 pt-6 text-[length:var(--font-size-small)] leading-[var(--line-height-compact)] ${HOME_SECTION_LABEL}`}>
               {props.searchNoResultsLabel}
             </div>
           </Match>
@@ -476,7 +476,7 @@ function HomeSessionSearch(
                     fallback={
                       <p
                         class={`
-                          my-1.5 px-4 pb-2 text-[13px] leading-4 tracking-[-0.04px]
+                          my-1.5 px-4 pb-2 text-[length:var(--font-size-small)] leading-4 tracking-[-0.04px]
                           text-v2-text-text-muted [font-weight:440]
                         `}
                       >
@@ -487,7 +487,7 @@ function HomeSessionSearch(
                     <div class="flex flex-col">
                       <p
                         class={`
-                          my-1.5 pl-[18px] pr-6 text-[13px] leading-4 tracking-[-0.04px]
+                          my-1.5 pl-[18px] pr-6 text-[length:var(--font-size-small)] leading-4 tracking-[-0.04px]
                           text-v2-text-text-muted [font-weight:440]
                         `}
                       >
@@ -977,7 +977,7 @@ function HomeSessionTitle(props: { title: string; showProjectName: boolean; sear
       dir="auto"
       class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-v2-text-text-base [font-weight:530]"
       classList={{
-        "text-[13px] leading-4 tracking-[-0.04px]": !!props.search,
+        "text-[length:var(--font-size-small)] leading-4 tracking-[-0.04px]": !!props.search,
         "max-w-[min(70%,480px)] flex-[0_1_auto]": props.showProjectName,
         "flex-[1_1_auto]": !props.showProjectName,
       }}
@@ -1028,7 +1028,7 @@ function HomeSessionProjectName(props: { name: string; search?: boolean }) {
       dir="auto"
       class="min-w-0 flex-[1_1_auto] overflow-hidden text-ellipsis whitespace-nowrap text-v2-text-text-muted [font-weight:440]"
       classList={{
-        "text-[13px] leading-4 tracking-[-0.04px]": !!props.search,
+        "text-[length:var(--font-size-small)] leading-4 tracking-[-0.04px]": !!props.search,
       }}
     >
       {props.name}
@@ -1041,7 +1041,7 @@ function HomeSessionsEmpty(props: { onNewSession?: () => void; language: ReturnT
     <div class="flex min-h-full flex-col items-center gap-4 px-6 pt-[52px] text-center">
       <div
         class={`
-          shrink-0 text-[13px] leading-text-compact tracking-[-0.04px]
+          shrink-0 text-[length:var(--font-size-small)] leading-text-compact tracking-[-0.04px]
           text-v2-text-text-base [font-weight:530]
         `}
       >
@@ -1049,7 +1049,7 @@ function HomeSessionsEmpty(props: { onNewSession?: () => void; language: ReturnT
       </div>
       <p
         class={`
-          mb-1 text-center text-[13px] leading-5 tracking-[-0.04px]
+          mb-1 text-center text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px]
           text-v2-text-text-muted [font-weight:440]
         `}
       >
@@ -1080,11 +1080,11 @@ function HomeSessionsUnavailable(props: {
       role={props.role}
       class="flex min-h-full flex-col items-center gap-4 px-6 pt-[52px] text-center"
     >
-      <div class="shrink-0 text-[13px] leading-text-compact tracking-[-0.04px] text-v2-text-text-base [font-weight:530]">
+      <div class="shrink-0 text-[length:var(--font-size-small)] leading-text-compact tracking-[-0.04px] text-v2-text-text-base [font-weight:530]">
         {props.title}
       </div>
       <Show when={props.description}>
-        <p class="mb-1 text-center text-[13px] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-weight:440]">
+        <p class="mb-1 text-center text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-weight:440]">
           {props.description}
         </p>
       </Show>

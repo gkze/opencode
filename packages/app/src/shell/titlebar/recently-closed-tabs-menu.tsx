@@ -112,7 +112,7 @@ export function RecentlyClosedTabsMenu(props: {
           type="button"
           data-titlebar-tab-action
           data-action="vertical-tabs-new-session"
-          class="group flex h-7 w-full shrink-0 items-center gap-2 rounded-[6px] px-2 text-[13px] leading-4 text-v2-text-text-faint hover:text-v2-text-text-base"
+          class="group flex h-7 w-full shrink-0 items-center gap-2 rounded-[6px] px-2 text-[length:var(--font-size-small)] leading-4 text-v2-text-text-faint hover:text-v2-text-text-base"
           onClick={props.onNewTab}
           aria-label={language.t("command.session.new")}
         >
@@ -196,7 +196,7 @@ export function RecentlyClosedTabsMenu(props: {
             <Show when={!recent().length && !other().length}>
               <div
                 role="status"
-                class="px-3 py-2 text-[13px] leading-[var(--line-height-compact)] text-v2-text-text-faint"
+                class="px-3 py-2 text-[length:var(--font-size-small)] leading-[var(--line-height-compact)] text-v2-text-text-faint"
               >
                 {language.t(state.query.trim() ? "session.search.noResults" : "session.tabs.closed.empty")}
               </div>

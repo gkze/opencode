@@ -28,8 +28,8 @@ export function FailurePage(props: {
         size="large"
         class="mb-2 shrink-0 text-v2-icon-icon-muted"
       />
-      <h2 class="text-[13px] font-[530] leading-[var(--line-height-compact)] text-v2-text-text-base">{props.title}</h2>
-      <p class="max-w-[360px] text-[13px] font-[440] leading-[var(--line-height-base)] text-v2-text-text-muted">
+      <h2 class="text-[length:var(--font-size-small)] font-[530] leading-[var(--line-height-compact)] text-v2-text-text-base">{props.title}</h2>
+      <p class="max-w-[360px] text-[length:var(--font-size-small)] font-[440] leading-[var(--line-height-base)] text-v2-text-text-muted">
         {props.description}
       </p>
       <Show when={props.actions.length > 0}>
