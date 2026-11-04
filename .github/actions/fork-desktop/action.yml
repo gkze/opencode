@@ -1,0 +1,79 @@
+name: "Build fork desktop"
+description: "Build, package, verify and upload the fork's macOS desktop app for one architecture"
+inputs:
+  arch:
+    description: "Target architecture: arm64 or x64"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    # A runner whose architecture differs from the target cross-packages the app, as upstream's dev desktop
+    # builds do: install every CPU's node-pty prebuild, and OPENCODE_TARGET selects the bundled CLI and pty.
+    - id: plan
+      shell: bash
+      env:
+        ARCH: ${{ inputs.arch }}
+      run: |
+        case "$ARCH" in
+          arm64) echo "cli=cli-darwin-arm64" >> "$GITHUB_OUTPUT" ;;
+          x64) echo "cli=cli-darwin-x64-baseline" >> "$GITHUB_OUTPUT" ;;
+          *) echo "::error::Unsupported desktop architecture: $ARCH"; exit 1 ;;
+        esac
+        HOST=$([ "$RUNNER_ARCH" = ARM64 ] && echo arm64 || echo x64)
+        echo "native=$([ "$HOST" = "$ARCH" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        echo "OPENCODE_TARGET=darwin-$ARCH" >> "$GITHUB_ENV"
+    - uses: ./.github/actions/setup-bun
+      with:
+        install-flags: ${{ steps.plan.outputs.native == 'false' && '--os=darwin --cpu=*' || '' }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      with:
+        name: fork-cli-darwin-${{ inputs.arch }}
+        path: packages/cli/dist/${{ steps.plan.outputs.cli }}
+    - name: Build desktop with this release's CLI
+      shell: bash
+      working-directory: packages/desktop
+      env:
+        NODE_OPTIONS: --max-old-space-size=4096
+        CLI: ${{ steps.plan.outputs.cli }}
+      run: |
+        test -f "../cli/dist/$CLI/bin/opencode"
+        bun run build
+    - name: Package with ad-hoc signing
+      shell: bash
+      working-directory: packages/desktop
+      env:
+        ARCH: ${{ inputs.arch }}
+      run: bunx electron-builder --mac --"$ARCH" --publish never --config electron-builder.fork.ts
+    # electron-builder's afterPack already checks that the bundled CLI contains only target-architecture code.
+    # A cross-packaged app cannot run here, so it is checked structurally instead of launched.
+    - name: Verify packaged application and CLI
+      shell: bash
+      working-directory: packages/desktop
+      env:
+        ARCH: ${{ inputs.arch }}
+        NATIVE: ${{ steps.plan.outputs.native }}
+      run: |
+        APP=$(find dist -maxdepth 2 -name 'OpenCode Dev.app' -type d | head -n 1)
+        test -n "$APP"
+        codesign --verify --deep --strict "$APP"
+        test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist")" = 'io.github.gkze.opencode'
+        test "$(lipo -archs "$APP/Contents/MacOS/OpenCode Dev")" = "$([ "$ARCH" = x64 ] && echo x86_64 || echo arm64)"
+        test "$(cat "$APP/Contents/Resources/opencode-cli.version")" = "$OPENCODE_VERSION"
+        # Packaging succeeds without the target's node-pty prebuild, and the app then cannot open a terminal.
+        PTY="$APP/Contents/Resources/app.asar.unpacked/node_modules/@lydell/node-pty-darwin-$ARCH/prebuilds/darwin-$ARCH"
+        for FILE in pty.node spawn-helper; do
+          test "$(lipo -archs "$PTY/$FILE")" = "$(lipo -archs "$APP/Contents/MacOS/OpenCode Dev")"
+        done
+        if [ "$NATIVE" = true ]; then
+          ELECTRON_RUN_AS_NODE=1 "$APP/Contents/MacOS/OpenCode Dev" -e 'if (!process.versions.electron) process.exit(1)'
+          test "$("$APP/Contents/Resources/opencode-cli" --version)" = "opencode v$OPENCODE_VERSION"
+        fi
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: fork-desktop-${{ inputs.arch }}
+        path: |
+          packages/desktop/dist/*.dmg
+          packages/desktop/dist/*.zip
+        if-no-files-found: error
+        retention-days: 3
+        compression-level: 0
