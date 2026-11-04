@@ -87,10 +87,10 @@ export const Settings = {
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="general">
-        <p class="text-[12px] text-[#5c5c5c] mx-4 my-3.5">General settings</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-4 my-3.5">General settings</p>
       </Tabs.Content>
       <Tabs.Content value="appearance">
-        <p class="text-[12px] text-[#5c5c5c] mx-4 my-3.5">Appearance settings</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-4 my-3.5">Appearance settings</p>
       </Tabs.Content>
     </StoryTabs>
   ),
@@ -109,10 +109,10 @@ export const Normal = {
         <Tabs.Trigger value="second">Second</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="first">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Normal content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Normal content</p>
       </Tabs.Content>
       <Tabs.Content value="second">
-        <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">Some more alt content</p>
+        <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">Some more alt content</p>
       </Tabs.Content>
     </StoryTabs>
   ),
@@ -158,7 +158,7 @@ function closableTabs(initialTabs: StoryTab[]) {
         <For each={tabs()}>
           {(tab) => (
             <Tabs.Content value={tab.value}>
-              <p class="text-[12px] text-[#5c5c5c] mx-3.5 my-2">{tab.content}</p>
+              <p class="text-[length:var(--font-size-x-small)] text-[#5c5c5c] mx-3.5 my-2">{tab.content}</p>
             </Tabs.Content>
           )}
         </For>
