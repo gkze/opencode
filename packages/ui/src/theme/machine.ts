@@ -1,3 +1,4 @@
+import { resolveLegacyThemeId, themeAppearanceMode } from "./appearance"
 import type { DesktopTheme } from "./types"
 
 export type ColorScheme = "light" | "dark" | "system"
@@ -114,7 +115,13 @@ export function createThemeState(input: {
   return reconcile(
     {
       status: "committed",
-      committed: { themeId: input.themeId, scheme: input.scheme },
+      committed: {
+        themeId: resolveLegacyThemeId(
+          input.themeId,
+          input.scheme === "system" ? input.systemMode : input.scheme,
+        ),
+        scheme: input.scheme,
+      },
       systemMode: input.systemMode,
       registration: "pending",
       themes: { [DEFAULT_THEME_ID]: input.defaultTheme },
@@ -134,6 +141,16 @@ export function transitionTheme(
   event: ThemeEvent,
   bundled: ReadonlySet<string>,
 ): ThemeTransition {
+  if (state.status === "disposed") return { state, effects: NO_EFFECTS }
+
+  // A pre-split "catppuccin" id resolves to the variant matching the current appearance.
+  if (event.type === "theme.selected" || event.type === "preview.theme" || event.type === "storage.theme.changed")
+    return transition(state, { ...event, id: resolveLegacyThemeId(event.id, selectMode(state, bundled)) }, bundled)
+
+  return transition(state, event, bundled)
+}
+
+function transition(state: ThemeMachineState, event: ThemeEvent, bundled: ReadonlySet<string>): ThemeTransition {
   if (state.status === "disposed") return { state, effects: NO_EFFECTS }
 
   switch (event.type) {
@@ -346,7 +363,10 @@ export function selectColorScheme(state: ThemeMachineState) {
 }
 
 /** The light or dark mode the window shows, preview included. */
-export function selectMode(state: ThemeMachineState): ResolvedMode {
+export function selectMode(state: ThemeMachineState, bundled: ReadonlySet<string>): ResolvedMode {
+  const locked = themeAppearanceMode(selectThemeId(state, bundled))
+
+  if (locked) return locked
   const scheme = previewedScheme(state)
 
   return scheme === "system" ? state.systemMode : scheme
@@ -438,7 +458,7 @@ function reconcileCache(state: ActiveState, bundled: ReadonlySet<string>): Step 
 function reconcileApplied(state: ActiveState, bundled: ReadonlySet<string>): Step {
   const id = selectThemeId(state, bundled)
   const scheme = previewedScheme(state)
-  const mode = selectMode(state)
+  const mode = selectMode(state, bundled)
   const theme = state.themes[id]
   const applied = state.applied
 
