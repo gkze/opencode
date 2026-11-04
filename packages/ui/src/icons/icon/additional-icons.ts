@@ -109,6 +109,7 @@ export const additionalIcons = {
   // The open book OpenCode Console draws for a skill, so a skill looks the same in both.
   "post-skill": `<path d="M8 4.5c-1.5-1-3.5-1.5-5.5-1.5v9c2 0 4 .5 5.5 1.5 1.5-1 3.5-1.5 5.5-1.5V3c-2 0-4 .5-5.5 1.5zM8 4.5v9" stroke="currentColor" stroke-linecap="square" stroke-linejoin="round"/>`,
   "arrow-undo-down": `<path d="M4.08333 11.0859L1.75 8.7526L4.08333 6.41927M2.33333 8.7526L12.5417 8.7526L12.5417 3.21094L7 3.21094" stroke="currentColor" stroke-width="1" stroke-linecap="square"/>`,
+  minus: `<path d="M5.4165 10H14.5832" stroke="currentColor" stroke-linecap="square"/>`,
 }
 
 export function additionalIconViewBox(name: keyof typeof additionalIcons) {
