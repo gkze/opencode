@@ -140,7 +140,7 @@ export const DialogConnectProvider: Component<{
         "[&_[data-slot=dialog-header-title]]:!text-[15px] [&_[data-slot=dialog-header-title]]:!tracking-[-0.13px]":
           frame() === "models",
         "search-dialog": frame() === "picker" || frame() === "accounts",
-        "[&_[data-slot=dialog-description]]:!text-[13px] [&_[data-slot=dialog-description]]:!tracking-[-0.04px]":
+        "[&_[data-slot=dialog-description]]:!text-[length:var(--font-size-small)] [&_[data-slot=dialog-description]]:!tracking-[-0.04px]":
           frame() === "picker",
       }}
     >
@@ -161,7 +161,7 @@ export const DialogConnectProvider: Component<{
               <>
                 <nav
                   aria-label={language.t("provider.connect.breadcrumb.label")}
-                  class="flex min-w-0 flex-1 items-center gap-1 text-[13px] leading-5 tracking-[-0.04px]"
+                  class="flex min-w-0 flex-1 items-center gap-1 text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px]"
                 >
                   <For each={view().crumbs}>
                     {(crumb, index) => {
@@ -253,7 +253,7 @@ export const DialogConnectProvider: Component<{
               placement="bottom"
               contentClass="!max-w-64 !whitespace-normal"
               triggerTabIndex={0}
-              class="me-3 flex min-w-0 shrink-0 !cursor-default items-center gap-1.5 rounded-sm text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted focus-visible:outline-none focus-visible:text-v2-text-text-base"
+              class="me-3 flex min-w-0 shrink-0 !cursor-default items-center gap-1.5 rounded-sm text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted focus-visible:outline-none focus-visible:text-v2-text-text-base"
             >
               <Icon name="server" size="small" class="shrink-0 text-v2-icon-icon-muted" />
               <span class="max-w-40 truncate">{language.t("provider.connect.remote.label", { server: server() })}</span>
@@ -289,7 +289,7 @@ export const DialogConnectProvider: Component<{
 const CLAUDE_CODE_SETUP_URL = "https://code.claude.com/docs/en/setup"
 
 const STEP_CLASS =
-  "flex flex-col items-start gap-5 px-2 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted"
+  "flex flex-col items-start gap-5 px-2 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted"
 
 const methodLabel = (language: ReturnType<typeof useLanguage>, value: ProviderConnectMethod) =>
   value.type === "key" ? (value.label ?? language.t("provider.connect.method.apiKey")) : value.label
@@ -411,7 +411,7 @@ function ProviderPicker(props: { directory?: string; onSelect: (provider: string
             {(group) => (
               <Show when={group.items().length > 0}>
                 <section class="flex flex-col gap-0.5">
-                  <div class="px-2 pt-2.5 pb-0.5 text-[12px] font-[440] leading-[18px] tracking-[0.05px] text-v2-text-text-faint">
+                  <div class="px-2 pt-2.5 pb-0.5 text-[length:var(--font-size-x-small)] font-[440] leading-[18px] tracking-[0.05px] text-v2-text-text-faint">
                     {group.title}
                   </div>
                   <For each={group.items()}>
@@ -431,7 +431,7 @@ function ProviderPicker(props: { directory?: string; onSelect: (provider: string
                         <button
                           type="button"
                           data-provider-id={provider.id}
-                          class="flex min-h-8 w-full items-center gap-2 rounded-md py-1.5 ps-2 pe-2 text-left text-[13px] leading-5 tracking-[-0.04px] hover:bg-v2-overlay-simple-overlay-hover focus:bg-v2-overlay-simple-overlay-hover focus:outline-none disabled:pointer-events-none"
+                          class="flex min-h-8 w-full items-center gap-2 rounded-md py-1.5 ps-2 pe-2 text-left text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px] hover:bg-v2-overlay-simple-overlay-hover focus:bg-v2-overlay-simple-overlay-hover focus:outline-none disabled:pointer-events-none"
                           classList={{ "bg-v2-overlay-simple-overlay-hover": store.active === provider.id }}
                           onMouseEnter={() => setStore("active", provider.id)}
                           disabled={disabled(provider)}
@@ -479,7 +479,7 @@ function ProviderPicker(props: { directory?: string; onSelect: (provider: string
             )}
           </For>
           <Show when={all().length === 0}>
-            <div class="flex h-24 items-center justify-center text-[13px] font-[440] text-v2-text-text-muted">
+            <div class="flex h-24 items-center justify-center text-[length:var(--font-size-small)] font-[440] text-v2-text-text-muted">
               {language.t("dialog.provider.empty")}
             </div>
           </Show>
@@ -616,12 +616,12 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
         <div data-component="provider-connect-form" class="flex flex-col items-start gap-2 px-2 pt-2">
           <Show when={!text()}>
             <div class="flex w-full flex-col gap-1">
-              <div class="text-[13px] font-[530] leading-5 tracking-[-0.04px] text-v2-text-text-base">
+              <div class="text-[length:var(--font-size-small)] font-[530] leading-5 tracking-[-0.04px] text-v2-text-text-base">
                 {form()?.title}
               </div>
               <Show when={form()?.description}>
                 {(description) => (
-                  <div class="text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
+                  <div class="text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
                     {description()}
                   </div>
                 )}
@@ -797,7 +797,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
                     <Field.Label>{step().title}</Field.Label>
                     <Show when={step().description}>
                       {(description) => (
-                        <Field.Prefix class="!-mt-1 !text-[13px] !leading-5 !tracking-[-0.04px]">
+                        <Field.Prefix class="!-mt-1 !text-[length:var(--font-size-small)] !leading-5 !tracking-[-0.04px]">
                           {description()}
                         </Field.Prefix>
                       )}
@@ -834,7 +834,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
   function MethodSelection() {
     return (
       <div class="flex flex-col">
-        <p class="px-2 pb-3 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
+        <p class="px-2 pb-3 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
           {language.t("provider.connect.methods.description", { provider: name() })}
         </p>
         <For each={connect().methods}>
@@ -842,7 +842,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
             <button
               type="button"
               data-action="provider-connect-method"
-              class="group flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-[13px] leading-5 tracking-[-0.04px] hover:bg-v2-overlay-simple-overlay-hover focus-visible:bg-v2-overlay-simple-overlay-hover focus-visible:outline-none"
+              class="group flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px] hover:bg-v2-overlay-simple-overlay-hover focus-visible:bg-v2-overlay-simple-overlay-hover focus-visible:outline-none"
               onClick={() => props.controller.input({ type: "method.selected", index: index() })}
             >
               <Icon name={METHOD_ICON[item.type]} size="small" class="shrink-0 text-v2-icon-icon-muted" />
@@ -868,7 +868,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
           {(output) => (
             <pre
               data-component="provider-connect-command-output"
-              class="max-h-60 overflow-auto whitespace-pre-wrap rounded-md bg-v2-background-bg-layer-03 px-3 py-2 font-mono text-[12px] leading-[18px] text-v2-text-text-base"
+              class="max-h-60 overflow-auto whitespace-pre-wrap rounded-md bg-v2-background-bg-layer-03 px-3 py-2 font-mono text-[length:var(--font-size-x-small)] leading-[18px] text-v2-text-text-base"
             >
               {output()}
             </pre>
@@ -883,7 +883,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
 
   function StatusRow(input: { children: JSX.Element }) {
     return (
-      <div class="flex items-center gap-2 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
+      <div class="flex items-center gap-2 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
         <Loader class="size-4 shrink-0 text-v2-icon-icon-muted" />
         <span>{input.children}</span>
       </div>
@@ -1140,7 +1140,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
               <Show
                 when={!marked("confirming", account.id)}
                 fallback={
-                  <div class="flex min-h-8 items-center gap-1.5 rounded-md ps-[30px] pe-1 text-[13px] leading-5 tracking-[-0.04px]">
+                  <div class="flex min-h-8 items-center gap-1.5 rounded-md ps-[30px] pe-1 text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px]">
                     <span role="alert" class="min-w-0 flex-1 truncate font-[440] text-v2-text-text-base">
                       {language.t("dialog.provider.accounts.removeConfirm", { account: account.label })}
                     </span>
@@ -1168,7 +1168,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
                       <div class="flex min-h-8 min-w-0 flex-1 items-center ps-[30px] pe-2">
                         <AccountNameInput
                           value={account.label}
-                          class="-ms-1 max-w-full text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base"
+                          class="-ms-1 max-w-full text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-base"
                           onSave={(label) => props.controller.rename(account, label)}
                           onClose={() => props.controller.dispatch({ type: "account.rename.closed" })}
                         />
@@ -1179,7 +1179,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
                       type="button"
                       role="radio"
                       aria-checked={input.body.activeID === account.id}
-                      class="flex min-h-8 min-w-0 flex-1 items-center gap-1.5 ps-2 pe-2 text-start text-[13px] leading-5 tracking-[-0.04px] focus-visible:outline-none"
+                      class="flex min-h-8 min-w-0 flex-1 items-center gap-1.5 ps-2 pe-2 text-start text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px] focus-visible:outline-none"
                       disabled={input.body.busy}
                       onClick={() => props.controller.chooseAccount(account)}
                     >
@@ -1248,7 +1248,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
         <button
           type="button"
           data-action="provider-account-add"
-          class="flex h-8 w-full items-center gap-1.5 rounded-md ps-2 pe-2 text-start text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted hover:bg-v2-overlay-simple-overlay-hover hover:text-v2-text-text-base focus-visible:bg-v2-overlay-simple-overlay-hover focus-visible:text-v2-text-text-base focus-visible:outline-none disabled:pointer-events-none"
+          class="flex h-8 w-full items-center gap-1.5 rounded-md ps-2 pe-2 text-start text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted hover:bg-v2-overlay-simple-overlay-hover hover:text-v2-text-text-base focus-visible:bg-v2-overlay-simple-overlay-hover focus-visible:text-v2-text-text-base focus-visible:outline-none disabled:pointer-events-none"
           disabled={!input.body.canAdd}
           onClick={() => props.controller.dispatch({ type: "account.add" })}
         >
@@ -1405,7 +1405,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
 
     return (
       <div data-component="first-provider-models" class="flex min-h-0 flex-1 flex-col px-2">
-        <p class="shrink-0 pb-5 text-[13px] leading-5 text-v2-text-text-muted">
+        <p class="shrink-0 pb-5 text-[length:var(--font-size-small)] leading-5 text-v2-text-text-muted">
           {language.t("provider.connect.models.description")}
         </p>
         <div
@@ -1413,7 +1413,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
           class="settings-panel settings-models min-h-0 flex-1 overflow-y-auto pb-4"
         >
           <div data-component="available-models-heading" class="flex items-center gap-1.5">
-            <span class="text-[13px] font-[530] leading-4 text-v2-text-text-base">
+            <span class="text-[length:var(--font-size-small)] font-[530] leading-4 text-v2-text-text-base">
               {language.t("provider.connect.models.available")}
             </span>
             <Show when={managed()}>{(group) => <Badge>{group().workspace}</Badge>}</Show>
@@ -1526,7 +1526,7 @@ function ProviderSteps(props: { provider: string; controller: ProviderDialogCont
             </div>
           </Match>
           <Match when={kind("environment-only")}>
-            <div class="px-2 text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
+            <div class="px-2 text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted">
               {language.t("dialog.provider.environmentOnly")}
             </div>
           </Match>
