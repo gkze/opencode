@@ -1,6 +1,5 @@
-import { EmbeddedTerminalRenderable, type RGBA } from "@opentui/core"
+import { EmbeddedTerminalRenderable } from "@opentui/core"
 import { decodePersistentPtyMessage, persistentPtyFrame } from "@opencode/client/solid"
-import { rgbToOklch, type ResolvedThemeTokens } from "@opencode/theme/tui"
 import { extend, useRenderer } from "@opentui/solid"
 import { Option } from "effect"
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js"
@@ -9,6 +8,7 @@ import { Keymap } from "../context/keymap"
 import { useSessionTerminals } from "../context/session-terminals"
 import { useTheme, useThemes } from "../context/theme"
 import { errorMessage } from "../util/error"
+import { terminalPalette } from "../theme/terminal"
 
 declare module "@opentui/solid" {
   interface OpenTUIComponents {
@@ -162,7 +162,13 @@ export function TerminalPane(props: {
 
   createEffect(() => {
     const tokens = themes.currentTokens()
-    terminalTheme = terminalPalette(tokens, themes.mode(), tokens.background.raised.base)
+    terminalTheme = terminalPalette(
+      tokens,
+      themes.mode(),
+      tokens.background.raised.base,
+      themes.selected,
+      themes.all()[themes.selected],
+    )
     applyTerminalTheme()
   })
 
@@ -319,59 +325,3 @@ function sameSize(first: TerminalSize | undefined, second: TerminalSize | undefi
   return !!first && !!second && first.cols === second.cols && first.rows === second.rows
 }
 
-export function terminalPalette(theme: ResolvedThemeTokens, mode: "light" | "dark", background: RGBA) {
-  const black = theme.hue.neutral[mode === "dark" ? 800 : 200]
-  const white = theme.hue.neutral[mode === "dark" ? 200 : 800]
-  const brightWhite = theme.hue.neutral[mode === "dark" ? 100 : 900]
-  const blue = terminalHue(theme, rgbToOklch(0, 0, 1).h)
-  const magenta = terminalHue(theme, rgbToOklch(1, 0, 1).h)
-  const normal = [
-    theme.text.feedback.error.base,
-    theme.text.feedback.success.base,
-    theme.text.feedback.warning.base,
-    blue,
-    magenta,
-    theme.text.feedback.info.base,
-    white,
-  ]
-  const colors = [
-    black,
-    ...normal,
-    theme.text.muted,
-    ...normal.slice(0, -1).map((color) => theme.decrease(color)),
-    brightWhite,
-  ]
-  return Buffer.from(
-    colors
-      .map((color, index) => `\x1b]4;${index};${hex(color)}\x1b\\`)
-      .concat(`\x1b]10;${hex(theme.text.base)}\x1b\\`, `\x1b]11;${hex(background)}\x1b\\`)
-      .join(""),
-  )
-}
-
-function terminalHue(theme: ResolvedThemeTokens, target: number) {
-  const nearest = Object.values(theme.hue)
-    .map((scale) => {
-      const color = scale[200]
-      const [red, green, blue, alpha] = color.toInts()
-      const converted = rgbToOklch(red / 255, green / 255, blue / 255)
-      return { color, alpha, chroma: converted.c, distance: hueDistance(converted.h, target) }
-    })
-    .filter((item) => item.alpha > 0 && item.chroma >= 0.03)
-    .sort((first, second) => first.distance - second.distance)[0]
-  if (!nearest || nearest.distance > 30) return theme.hue.accent[200]
-  return nearest.color
-}
-
-function hueDistance(first: number, second: number) {
-  const difference = Math.abs(first - second)
-  return Math.min(difference, 360 - difference)
-}
-
-function hex(color: RGBA) {
-  return `#${color
-    .toInts()
-    .slice(0, 3)
-    .map((value) => value.toString(16).padStart(2, "0"))
-    .join("")}`
-}
