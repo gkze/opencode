@@ -270,7 +270,7 @@ function NewSessionLocation(props: {
   const fitted = createMemo(() => fitPath(path() ?? "", layout.width, layout.font))
 
   return (
-    <div class="relative flex min-h-9 min-w-0 items-center gap-3 ps-2 pe-1.5 text-[13px] font-[440] leading-[var(--line-height-compact)] tracking-[-0.04px]">
+    <div class="relative flex min-h-9 min-w-0 items-center gap-3 ps-2 pe-1.5 text-[length:var(--font-size-small)] font-[440] leading-[var(--line-height-compact)] tracking-[-0.04px]">
       <div class="flex min-w-0 max-w-full flex-wrap items-center gap-x-0 gap-y-1 py-1.5">
         <div class="flex min-w-0 max-w-full items-center">
           <Tooltip
