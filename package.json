@@ -121,7 +121,8 @@
     "oxlint": "1.60.0",
     "prettier": "3.6.2",
     "semver": "^7.6.0",
-    "turbo": "2.10.2"
+    "turbo": "2.10.2",
+    "vite": "catalog:"
   },
   "dependencies": {
     "@opencode/plugin": "workspace:*",
