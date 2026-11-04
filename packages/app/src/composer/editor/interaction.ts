@@ -7,6 +7,7 @@ import { createComposerAttachments, type ComposerAttachmentConfig } from "../att
 import type { Upload } from "../attachments/uploads"
 import { resolveBlobUrl } from "@/runtime/persistence/drafts"
 import { createComposerEditorActions, type ComposerStateStoreInput } from "./actions"
+import { getCursorPosition, setCursorPosition } from "./dom"
 import type {
   ComposerAttachment,
   ComposerComment,
@@ -27,7 +28,6 @@ import {
   type ComposerInteractionState,
   type ComposerSavedDraft,
 } from "../suggestions/machine"
-import { getCursorPosition, setCursorPosition } from "./dom"
 import { clonePrompt, isAttachment, promptLength } from "../prompt-parts"
 import type { ComposerDelivery, ComposerQueue } from "../adapter"
 import { isCommentItem } from "../state"
