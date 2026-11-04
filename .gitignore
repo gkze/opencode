@@ -27,6 +27,7 @@ target
 .scripts
 .cache
 .direnv/
+.envrc.local
 
 # Local dev files
 opencode-dev
