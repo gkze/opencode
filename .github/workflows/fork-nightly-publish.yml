@@ -1,0 +1,75 @@
+name: Publish fork nightly
+on:
+  workflow_run:
+    workflows: [Fork nightly refresh]
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: fork-nightly-publish
+  cancel-in-progress: false
+jobs:
+  candidate:
+    if: >-
+      github.repository == 'gkze/opencode' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == 'gkze/patches' &&
+      (github.event.workflow_run.event == 'schedule' || github.event.workflow_run.event == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      sha: ${{ steps.relock.outputs.candidate }}
+      old: ${{ steps.accept.outputs.old }}
+      upstream: ${{ steps.accept.outputs.upstream }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: nightly-input
+          path: ${{ runner.temp }}/fork-nightly
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: nightly-output
+          path: ${{ runner.temp }}/fork-nightly
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - id: accept
+        env:
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          FORK_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN }}
+        run: node script/fork/nightly.mjs accept "$RUNNER_TEMP/fork-nightly"
+      - id: pin
+        run: |
+          CANDIDATE="${{ steps.accept.outputs.candidate }}"
+          VERSION=$(git show "$CANDIDATE:package.json" | node -p 'JSON.parse(require("node:fs").readFileSync(0,"utf8")).packageManager.split("@")[1]')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ steps.pin.outputs.version }}
+      - id: relock
+        env:
+          FORK_CANDIDATE: ${{ steps.accept.outputs.candidate }}
+          FORK_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN }}
+        run: node script/fork/nightly.mjs relock "$RUNNER_TEMP/fork-nightly"
+  release:
+    needs: candidate
+    permissions:
+      contents: write
+      packages: write
+      actions: read
+    uses: ./.github/workflows/fork-release.yml
+    secrets:
+      FORK_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN }}
+    with:
+      source_ref: ${{ needs.candidate.outputs.sha }}
+      nightly: true
+      old: ${{ needs.candidate.outputs.old }}
+      upstream: ${{ needs.candidate.outputs.upstream }}
+      report_run: ${{ format('{0}', github.event.workflow_run.id) }}
