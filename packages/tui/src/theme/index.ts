@@ -9,6 +9,7 @@ import { resolveThemeColors } from "./resolve"
 import { DEFAULT_THEMES, type Theme, type ThemeV1Json } from "./v1"
 import opencodeClassic from "./assets/v2/opencode-classic.json" with { type: "json" }
 import opencode from "./assets/v2/opencode.json" with { type: "json" }
+import { CATPPUCCIN_THEMES } from "./catppuccin"
 
 export { DEFAULT_THEMES, type Theme, type ThemeV1Json } from "./v1"
 
@@ -43,6 +44,7 @@ function listThemes(): Record<string, ThemeDocumentSource> {
     ...DEFAULT_THEMES,
     opencode: getOpenCodeTheme(),
     "opencode-classic": getOpenCodeClassicTheme(),
+    ...CATPPUCCIN_THEMES,
     ...customThemes,
   }
   return {
