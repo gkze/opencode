@@ -46,7 +46,7 @@ export const SettingsProjectGeneral: Component<{
                 url: props.project.icon?.url,
                 override: model.view().iconOverride,
               }}
-              class="!size-8 shrink-0 [&_[data-slot=project-avatar-surface]]:!rounded-[6px] [&_[data-slot=project-avatar-surface]]:!text-[16px]"
+              class="!size-8 shrink-0 [&_[data-slot=project-avatar-surface]]:!rounded-[6px] [&_[data-slot=project-avatar-surface]]:!text-[length:var(--font-size-large)]"
             />
             <div class="flex min-w-0 flex-col gap-1">
               <h2 class="settings-tab-title truncate">
@@ -111,7 +111,7 @@ export const SettingsProjectGeneral: Component<{
                     url: props.project.icon?.url,
                     override: model.view().iconOverride,
                   }}
-                  class="!size-8 [&_[data-slot=project-avatar-surface]]:!rounded-[6px] [&_[data-slot=project-avatar-surface]]:!text-[16px]"
+                  class="!size-8 [&_[data-slot=project-avatar-surface]]:!rounded-[6px] [&_[data-slot=project-avatar-surface]]:!text-[length:var(--font-size-large)]"
                 />
                 <span class="project-settings-icon-overlay">
                   <Icon name={model.view().iconOverride ? "close" : "share"} />

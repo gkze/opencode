@@ -98,7 +98,7 @@
   margin: 0;
   font-style: normal;
   font-weight: 440;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   line-height: 20px;
   text-align: center;
   letter-spacing: -0.04px;
@@ -113,7 +113,7 @@
   margin: 4px 0 0;
   font-style: normal;
   font-weight: 440;
-  font-size: 12px;
+  font-size: var(--font-size-x-small);
   line-height: 18px;
   text-align: center;
   letter-spacing: -0.04px;
@@ -140,7 +140,7 @@
   user-select: none;
   font-style: normal;
   font-weight: 440;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   line-height: 16px;
   letter-spacing: -0.04px;
   font-variation-settings: "slnt" 0;
@@ -207,7 +207,7 @@
 .settings-wsl-distro-label {
   font-style: normal;
   font-weight: 440;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   line-height: 16px;
   letter-spacing: -0.04px;
   font-variant-numeric: tabular-nums;
@@ -219,7 +219,7 @@
   flex: none;
   font-style: normal;
   font-weight: 440;
-  font-size: 12px;
+  font-size: var(--font-size-x-small);
   line-height: 12px;
   letter-spacing: 0.05px;
   font-variant-numeric: tabular-nums;
@@ -244,7 +244,7 @@
 
 .settings-wsl-distro-empty {
   padding: 16px;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-weight: 440;
   line-height: 1.4;
   color: var(--v2-text-text-muted);
@@ -303,7 +303,7 @@
   user-select: none;
   font-style: normal;
   font-weight: 440;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   line-height: 16px;
   letter-spacing: -0.04px;
   font-variation-settings: "slnt" 0;
@@ -314,7 +314,7 @@
   user-select: none;
   font-style: normal;
   font-weight: 440;
-  font-size: 12px;
+  font-size: var(--font-size-x-small);
   line-height: 12px;
   letter-spacing: 0.05px;
   font-variation-settings: "slnt" 0;
@@ -365,7 +365,7 @@
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
-  font-size: 13px;
+  font-size: var(--font-size-small);
   font-weight: 440;
   line-height: var(--line-height-compact);
   color: var(--v2-text-text-muted);
