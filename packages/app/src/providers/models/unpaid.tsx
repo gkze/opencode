@@ -94,7 +94,7 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
           <div ref={listEl} class="flex min-h-0 flex-col">
             <div data-section="free-models" class="flex w-full flex-col items-start pb-3">
               <div class="flex h-8 w-full flex-none select-none flex-row items-center px-3 pb-2">
-                <div class="flex h-5 items-center text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-family:var(--v2-font-family-sans)] [font-variant-numeric:tabular-nums] [font-variation-settings:'slnt'_0]">
+                <div class="flex h-5 items-center text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-family:var(--v2-font-family-sans)] [font-variant-numeric:tabular-nums] [font-variation-settings:'slnt'_0]">
                   {language.t("dialog.model.unpaid.freeModels.title")}
                 </div>
               </div>
@@ -117,7 +117,7 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
                   >
                     <button
                       type="button"
-                      class="flex w-full scroll-my-3.5 flex-row items-center gap-1.5 rounded-md px-3 py-2 text-left text-[13px] font-[530] leading-5 tracking-[-0.04px] text-v2-text-text-base [font-family:var(--v2-font-family-sans)] [font-variation-settings:'slnt'_0] hover:bg-v2-overlay-simple-overlay-hover focus-visible:-outline-offset-2"
+                      class="flex w-full scroll-my-3.5 flex-row items-center gap-1.5 rounded-md px-3 py-2 text-left text-[length:var(--font-size-small)] font-[530] leading-5 tracking-[-0.04px] text-v2-text-text-base [font-family:var(--v2-font-family-sans)] [font-variation-settings:'slnt'_0] hover:bg-v2-overlay-simple-overlay-hover focus-visible:-outline-offset-2"
                       onClick={() => selectModel(item)}
                     >
                       <span class="min-w-0 truncate">{displayModelName(item.name)}</span>
@@ -143,7 +143,7 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
                 }}
               >
                 <div class="flex h-8 w-full select-none items-center px-0.5 pb-2">
-                  <div class="flex h-5 items-center text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-family:var(--v2-font-family-sans)] [font-variant-numeric:tabular-nums] [font-variation-settings:'slnt'_0]">
+                  <div class="flex h-5 items-center text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-family:var(--v2-font-family-sans)] [font-variant-numeric:tabular-nums] [font-variation-settings:'slnt'_0]">
                     {language.t("dialog.model.unpaid.addMore.title")}
                   </div>
                 </div>
@@ -158,7 +158,7 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
                       <button
                         type="button"
                         data-provider-id={provider.id}
-                        class="flex min-h-11 w-full scroll-my-3.5 flex-row items-start gap-2 rounded-md bg-v2-background-bg-base px-3 py-2.5 text-left text-[13px] font-[530] leading-5 tracking-[-0.04px] text-v2-text-text-base [font-family:var(--v2-font-family-sans)] [font-variation-settings:'slnt'_0] hover:bg-v2-background-bg-layer-01"
+                        class="flex min-h-11 w-full scroll-my-3.5 flex-row items-start gap-2 rounded-md bg-v2-background-bg-base px-3 py-2.5 text-left text-[length:var(--font-size-small)] font-[530] leading-5 tracking-[-0.04px] text-v2-text-text-base [font-family:var(--v2-font-family-sans)] [font-variation-settings:'slnt'_0] hover:bg-v2-background-bg-layer-01"
                         classList={{
                           "border-[0.5px] border-transparent shadow-[var(--v2-elevation-raised)]":
                             theme.mode() !== "dark",
@@ -183,7 +183,7 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
                   </For>
                   <button
                     type="button"
-                    class="col-span-full flex h-8 w-full scroll-my-3.5 items-center justify-start rounded-md px-3 text-left text-[13px] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-family:var(--v2-font-family-sans)] [font-variation-settings:'slnt'_0] hover:bg-v2-overlay-simple-overlay-hover focus-visible:-outline-offset-2"
+                    class="col-span-full flex h-8 w-full scroll-my-3.5 items-center justify-start rounded-md px-3 text-left text-[length:var(--font-size-small)] font-[440] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-family:var(--v2-font-family-sans)] [font-variation-settings:'slnt'_0] hover:bg-v2-overlay-simple-overlay-hover focus-visible:-outline-offset-2"
                     onClick={() => openProviders()}
                   >
                     {language.t("dialog.model.unpaid.viewMoreProviders")}
