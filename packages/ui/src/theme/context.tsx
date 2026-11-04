@@ -4,8 +4,9 @@ import { createMemo, createSignal, onCleanup, onMount, untrack } from "solid-js"
 import { makeEventListener } from "@solid-primitives/event-listener"
 import { createSimpleContext } from "../context/helper"
 import oc2ThemeJson from "./themes/oc-2.json"
-import { resolveThemeVariant, themeToCss } from "./resolve"
-import { resolveThemeVariantV2, themeV2ToCss } from "./v2/resolve"
+import { compareThemeIds, themeAppearanceMode } from "./appearance"
+import { themeCacheCss, themeVariantCss } from "./theme-css"
+import { CATPPUCCIN_PRELOAD } from "./catppuccin-preload"
 import type { DesktopTheme } from "./types"
 import {
   createThemeState,
@@ -30,6 +31,7 @@ const STORAGE_KEYS = {
   COLOR_SCHEME: "opencode-color-scheme",
   THEME_CSS_LIGHT: "opencode-theme-css-light",
   THEME_CSS_DARK: "opencode-theme-css-dark",
+  CATPPUCCIN_REVISION: "opencode-catppuccin-revision",
 } as const
 
 const THEME_STYLE_ID = "oc-theme"
@@ -51,7 +53,7 @@ function themeIDs() {
   if (ids) return ids
   ids = Object.keys(getFiles())
     .map((path) => path.slice("./themes/".length, -".json".length))
-    .sort()
+    .sort(compareThemeIds)
 
   return ids
 }
@@ -70,8 +72,9 @@ const names = new Map(
     aura: "Aura",
     ayu: "Ayu",
     carbonfox: "Carbonfox",
-    catppuccin: "Catppuccin",
-    "catppuccin-frappe": "Catppuccin Frappe",
+    "catppuccin-latte": "Catppuccin Latte",
+    "catppuccin-mocha": "Catppuccin Mocha",
+    "catppuccin-frappe": "Catppuccin Frappé",
     "catppuccin-macchiato": "Catppuccin Macchiato",
     cobalt2: "Cobalt2",
     cursor: "Cursor",
@@ -132,6 +135,7 @@ function drop(key: string) {
 function clear() {
   drop(STORAGE_KEYS.THEME_CSS_LIGHT)
   drop(STORAGE_KEYS.THEME_CSS_DARK)
+  drop(STORAGE_KEYS.CATPPUCCIN_REVISION)
 }
 
 function ensureThemeStyleElement(): HTMLStyleElement {
@@ -151,39 +155,39 @@ function getSystemMode(): "light" | "dark" {
 
 function applyThemeCss(theme: DesktopTheme, themeId: string, mode: "light" | "dark") {
   const isDark = mode === "dark"
-  const variant = isDark ? theme.dark : theme.light
-  const tokens = resolveThemeVariant(variant, isDark)
-  const css = themeToCss(tokens)
-  const v2 = themeV2ToCss(resolveThemeVariantV2(variant, isDark))
+  const css = themeVariantCss(isDark ? theme.dark : theme.light, isDark)
 
   const fullCss = `:root {
   color-scheme: ${mode};
   --text-mix-blend-mode: ${isDark ? "plus-lighter" : "multiply"};
   ${css}
-  ${v2}
 }`
 
   document.getElementById("oc-theme-preload")?.remove()
   ensureThemeStyleElement().textContent = fullCss
   document.documentElement.dataset.theme = themeId
   document.documentElement.dataset.colorScheme = mode
-  document.documentElement.style.backgroundColor = isDark ? "#080808" : "#fafafa"
+
+  const background = themeAppearanceMode(themeId)
+    ? getComputedStyle(document.documentElement).getPropertyValue("--v2-background-bg-base").trim()
+    : isDark
+      ? "#080808"
+      : "#fafafa"
+
+  document.documentElement.style.backgroundColor = background
 
   // Update theme-color meta tag to match light/dark mode
   const meta = document.querySelector('meta[name="theme-color"]')
 
-  if (meta) meta.setAttribute("content", isDark ? "#080808" : "#fafafa")
+  if (meta) meta.setAttribute("content", background)
 }
 
-function cacheThemeVariants(theme: DesktopTheme) {
-  for (const mode of ["light", "dark"] as const) {
-    const isDark = mode === "dark"
-    const variant = isDark ? theme.dark : theme.light
-    const tokens = resolveThemeVariant(variant, isDark)
-    const css = themeToCss(tokens)
-    const v2 = themeV2ToCss(resolveThemeVariantV2(variant, isDark))
-    write(isDark ? STORAGE_KEYS.THEME_CSS_DARK : STORAGE_KEYS.THEME_CSS_LIGHT, `${css}\n  ${v2}`)
-  }
+function cacheThemeVariants(theme: DesktopTheme, themeId: string) {
+  const css = themeCacheCss(theme, themeId)
+  write(STORAGE_KEYS.THEME_CSS_LIGHT, css.light)
+  write(STORAGE_KEYS.THEME_CSS_DARK, css.dark)
+
+  if (themeAppearanceMode(themeId)) write(STORAGE_KEYS.CATPPUCCIN_REVISION, CATPPUCCIN_PRELOAD.revision)
 }
 
 export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
@@ -252,7 +256,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
 
       if (effect.type === "persist-scheme") return write(STORAGE_KEYS.COLOR_SCHEME, effect.scheme)
 
-      if (effect.type === "cache-theme") return cacheThemeVariants(effect.theme)
+      if (effect.type === "cache-theme") return cacheThemeVariants(effect.theme, effect.id)
 
       if (effect.type === "clear-cache") return clear()
 
@@ -319,7 +323,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
       themeId: createMemo(() => selectThemeId(state(), knownThemes())),
       colorScheme: createMemo(() => selectColorScheme(state())),
       /** The mode the window shows, a previewed scheme included. */
-      mode: createMemo(() => selectMode(state())),
+      mode: createMemo(() => selectMode(state(), knownThemes())),
       // Bundled and registered themes in one list, alphabetical by name.
       ids: () =>
         [...themeIDs(), ...Object.keys(state().themes).filter((id) => !knownThemes().has(id))].toSorted((a, b) =>

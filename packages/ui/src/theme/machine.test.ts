@@ -95,7 +95,7 @@ test("a system light/dark flip keeps a previewed scheme until the preview follow
   )
 
   expect(flipped.effects).toEqual([])
-  expect(selectMode(flipped.state)).toBe("light")
+  expect(selectMode(flipped.state, bundled)).toBe("light")
   expect(flipped.state.status).toBe("previewing")
 
   const system = run(flipped.state, { type: "preview.scheme", scheme: "system" })
@@ -263,14 +263,14 @@ test("mode and theme id follow a preview and return on cancel; the saved scheme 
   const previewed = run(state, { type: "preview.scheme", scheme: "light" }, { type: "preview.theme", id: "dracula" })
 
   expect([
-    selectMode(previewed.state),
+    selectMode(previewed.state, bundled),
     selectThemeId(previewed.state, bundled),
     selectColorScheme(previewed.state),
   ]).toEqual(["light", "dracula", "dark"])
 
   const cancelled = run(previewed.state, { type: "preview.cancelled" }).state
 
-  expect([selectMode(cancelled), selectThemeId(cancelled, bundled), selectColorScheme(cancelled)]).toEqual([
+  expect([selectMode(cancelled, bundled), selectThemeId(cancelled, bundled), selectColorScheme(cancelled)]).toEqual([
     "dark",
     "oc-2",
     "dark",
@@ -278,7 +278,7 @@ test("mode and theme id follow a preview and return on cancel; the saved scheme 
 
   const committed = run(previewed.state, { type: "preview.committed" }).state
 
-  expect([selectMode(committed), selectThemeId(committed, bundled), selectColorScheme(committed)]).toEqual([
+  expect([selectMode(committed, bundled), selectThemeId(committed, bundled), selectColorScheme(committed)]).toEqual([
     "light",
     "dracula",
     "light",
