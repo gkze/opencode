@@ -14,7 +14,8 @@
 
 ## Typography
 
-- Use the shared typography metrics instead of copying solid line heights from design exports: `--line-height-tight` is `12px`, `--line-height-compact` is `16px`, and `--line-height-base` is `20px`.
+- Use the shared typography metrics instead of copying solid line heights from design exports: `--line-height-tight`, `--line-height-compact`, and `--line-height-base`. They are `12px`, `16px`, and `20px` at the default `14px` base text size and scale with the user's Font Size setting.
+- Text sizes and line heights derive from `--font-size-base` and `--line-height-mono`, which the appearance settings set. Add a token to the scale rather than hardcoding a pixel size in component CSS.
 - Inter text at `13px` must use at least the compact `16px` line height. A `13px` solid line box can clip `g`, `j`, `p`, `q`, and `y` when the text or an ancestor truncates or hides overflow.
 - Reserve `line-height: 1` and `leading-none` for non-text glyphs, icons, or deliberately reviewed display marks. Do not compensate text with transforms, negative margins, or clip-padding hacks.
 - `TextShimmer` inherits font metrics. Put typography overrides on its parent when they must supersede the component defaults.
