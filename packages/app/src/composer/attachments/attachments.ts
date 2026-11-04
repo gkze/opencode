@@ -4,6 +4,7 @@ import { createBlobReference } from "@/runtime/persistence/drafts"
 import { uuid } from "@opencode/util/uuid"
 import type { ComposerPrompt } from "../types"
 import type { ImageAttachmentPart, PathAttachmentPart } from "../state"
+import { getCursorPosition } from "../editor/dom"
 import type { AttachmentDestination } from "./destination"
 import { uploads } from "./uploads"
 
@@ -53,7 +54,7 @@ export function createComposerAttachments(
 
     if (!editor) return
 
-    return { prompt, cursor: prompt.cursor() ?? cursorPosition(editor) }
+    return { prompt, cursor: prompt.cursor() ?? getCursorPosition(editor) }
   }
 
   // A composer without a draft scope owns its uploads itself.
@@ -334,20 +335,6 @@ async function attachmentMime(file: File) {
   if (bytes.length > 0 && control / bytes.length > 0.3) return binary
 
   return "text/plain"
-}
-
-function cursorPosition(editor: HTMLElement) {
-  const selection = window.getSelection()
-
-  if (!selection || selection.rangeCount === 0) return 0
-  const range = selection.getRangeAt(0)
-
-  if (!editor.contains(range.startContainer)) return 0
-  const before = range.cloneRange()
-  before.selectNodeContents(editor)
-  before.setEnd(range.startContainer, range.startOffset)
-
-  return before.toString().replace(/\u200B/g, "").length
 }
 
 function largePaste(text: string) {
