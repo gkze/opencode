@@ -41,13 +41,17 @@
   z-index: 20;
 }
 
-[data-color-scheme="light"] [data-component="new-session-wordmark"] {
-  --icon-weak-base: color-mix(in srgb, var(--icon-base) 30%, transparent);
-}
-
 [data-color-scheme="dark"] [data-component="new-session-wordmark"] {
   /* Preserve the previous dark highlight strength: 0.16 × 0.7 × 0.6. */
   --wordmark-shimmer-opacity: 0.0672;
+}
+
+/* Inner fills sit at 30% of the outer fill: upstream's light recipe, and both modes for
+   Catppuccin, whose icon neutrals sit close together. Other themes keep their own weak
+   icon role in dark mode, so they render exactly as upstream does. */
+[data-color-scheme="light"] [data-component="new-session-wordmark"],
+[data-theme^="catppuccin"] [data-component="new-session-wordmark"] {
+  --icon-weak-base: color-mix(in srgb, var(--icon-base) 30%, transparent);
 }
 
 /* Oversizing the mask moves its highlight physically left to right, including in RTL. */
