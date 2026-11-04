@@ -1,5 +1,8 @@
 import { app } from "electron"
+import { Fork } from "../../fork"
 import { resolveIdentity, type Channel } from "./identity"
+
+export const FORK_BUILD = import.meta.env.OPENCODE_FORK === true
 
 const raw = import.meta.env.OPENCODE_CHANNEL
 
@@ -7,7 +10,10 @@ export const CHANNEL: Channel = raw === "local" || raw === "dev" || raw === "bet
 
 export const VERSION = app.isPackaged ? app.getVersion() : (process.env.OPENCODE_VERSION ?? app.getVersion())
 
-const identity = resolveIdentity(CHANNEL, app.isPackaged)
+const identity =
+  FORK_BUILD && app.isPackaged
+    ? { appName: Fork.name, appID: Fork.id, appUserModelID: Fork.id }
+    : resolveIdentity(CHANNEL, app.isPackaged)
 
 export const APP_NAME = identity.appName
 

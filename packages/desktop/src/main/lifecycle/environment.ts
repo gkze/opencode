@@ -3,7 +3,7 @@ import http from "node:http"
 import { getCACertificates, setDefaultCACertificates } from "node:tls"
 import { app, shell } from "electron"
 import { Effect, Path } from "effect"
-import { APP_USER_MODEL_ID } from "../constants"
+import { APP_USER_MODEL_ID, FORK_BUILD } from "../constants"
 import { isCollidingDevShortcut } from "../identity"
 import { DesktopPaths } from "../paths"
 import { getUserShell, loadShellEnv } from "../service/shell-env"
@@ -62,7 +62,7 @@ export const prepareDesktop = Effect.gen(function* () {
   const path = yield* Path.Path
   const paths = yield* DesktopPaths.resolve
 
-  if (app.isPackaged || process.env.OPENCODE_DESKTOP_DISABLE_PROTOCOL_REGISTRATION !== "1")
+  if (!FORK_BUILD && (app.isPackaged || process.env.OPENCODE_DESKTOP_DISABLE_PROTOCOL_REGISTRATION !== "1"))
     app.setAsDefaultProtocolClient("opencode")
   const runFork = Effect.runForkWith(yield* Effect.context())
   setProtocolReporter((level, message, data) =>
