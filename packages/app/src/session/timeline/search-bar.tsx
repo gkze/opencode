@@ -59,7 +59,7 @@ export function TimelineSearchBar(props: { controller: TimelineSearchController 
           <Show when={c.result.showCount()}>
             <span
               data-slot="timeline-search-count"
-              class="shrink-0 self-center text-[11px] text-v2-text-text-muted [font-weight:440] tabular-nums"
+              class="shrink-0 self-center text-[length:var(--font-size-2x-small)] text-v2-text-text-muted [font-weight:440] tabular-nums"
             >
               {c.result.activeDisplay()}/{c.result.count()}
             </span>

@@ -99,7 +99,7 @@ function SidebarAction(props: {
       data-titlebar-tab-action
       data-action={props.action}
       data-state={props.pressed || props.current ? "pressed" : undefined}
-      class="group flex h-7 w-full shrink-0 items-center gap-2 rounded-[6px] px-2 text-[13px] leading-[var(--line-height-compact)] text-v2-text-text-faint hover:text-v2-text-text-base data-[state=pressed]:text-v2-text-text-base"
+      class="group flex h-7 w-full shrink-0 items-center gap-2 rounded-[6px] px-2 text-[length:var(--font-size-small)] leading-[var(--line-height-compact)] text-v2-text-text-faint hover:text-v2-text-text-base data-[state=pressed]:text-v2-text-text-base"
       aria-label={props.label}
       aria-pressed={props.pressed}
       aria-current={props.current ? "page" : undefined}
@@ -109,7 +109,7 @@ function SidebarAction(props: {
       <span class="min-w-0 truncate">{props.label}</span>
       <Show when={props.count}>
         <span
-          class="ms-auto text-[12px] tabular-nums"
+          class="ms-auto text-[length:var(--font-size-x-small)] tabular-nums"
           classList={{ "group-hover:hidden group-focus-visible:hidden": props.keybind.length > 0 }}
         >
           {props.count}
@@ -849,7 +849,7 @@ export function Titlebar(props: { verticalTabs?: { mount?: HTMLElement } }) {
                             >
                               <MobileDrawerTrigger
                                 data-slot="mobile-tabs-trigger"
-                                class="flex h-7 min-w-0 flex-1 items-center gap-2 rounded-[6px] px-2 text-[13px] leading-4 text-v2-text-text-base focus-visible:-outline-offset-2 [app-region:no-drag]"
+                                class="flex h-7 min-w-0 flex-1 items-center gap-2 rounded-[6px] px-2 text-[length:var(--font-size-small)] leading-4 text-v2-text-text-base focus-visible:-outline-offset-2 [app-region:no-drag]"
                                 aria-label={language.t("titlebar.tabs")}
                               >
                                 <Show when={currentTab()} fallback={<Icon name="sessions-stack" class="shrink-0" />}>
@@ -918,7 +918,7 @@ export function Titlebar(props: { verticalTabs?: { mount?: HTMLElement } }) {
                                   <button
                                     type="button"
                                     data-action="mobile-tabs-new-session"
-                                    class="flex h-7 w-full shrink-0 items-center gap-2 rounded-[6px] px-2 text-[13px] leading-4 text-v2-text-text-base hover:bg-v2-background-bg-layer-02 focus-visible:-outline-offset-2"
+                                    class="flex h-7 w-full shrink-0 items-center gap-2 rounded-[6px] px-2 text-[length:var(--font-size-small)] leading-4 text-v2-text-text-base hover:bg-v2-background-bg-layer-02 focus-visible:-outline-offset-2"
                                     onClick={() => {
                                       openNewTab()
                                       closeMobileTabs()
@@ -933,7 +933,7 @@ export function Titlebar(props: { verticalTabs?: { mount?: HTMLElement } }) {
                                       data-action="mobile-tabs-home"
                                       data-state={layout.route().type === "home" ? "pressed" : undefined}
                                       aria-current={layout.route().type === "home" ? "page" : undefined}
-                                      class="flex h-7 w-full items-center gap-2 rounded-[6px] px-2 text-[13px] leading-4 text-v2-text-text-faint data-[state=pressed]:text-v2-text-text-base focus-visible:-outline-offset-2"
+                                      class="flex h-7 w-full items-center gap-2 rounded-[6px] px-2 text-[length:var(--font-size-small)] leading-4 text-v2-text-text-faint data-[state=pressed]:text-v2-text-text-base focus-visible:-outline-offset-2"
                                       onClick={() => {
                                         if (layout.route().type !== "home") toggleHome()
                                         closeMobileTabs()
@@ -946,7 +946,7 @@ export function Titlebar(props: { verticalTabs?: { mount?: HTMLElement } }) {
                                       <button
                                         type="button"
                                         data-action="mobile-tabs-settings"
-                                        class="flex h-7 min-w-0 flex-1 items-center gap-2 rounded-[6px] px-2 text-[13px] leading-4 text-v2-text-text-faint hover:bg-v2-background-bg-layer-02 focus-visible:-outline-offset-2"
+                                        class="flex h-7 min-w-0 flex-1 items-center gap-2 rounded-[6px] px-2 text-[length:var(--font-size-small)] leading-4 text-v2-text-text-faint hover:bg-v2-background-bg-layer-02 focus-visible:-outline-offset-2"
                                         onClick={() => dispatchMobileTabs({ type: "settings.requested" })}
                                       >
                                         <Icon name="settings-gear" />
@@ -955,7 +955,7 @@ export function Titlebar(props: { verticalTabs?: { mount?: HTMLElement } }) {
                                       <button
                                         type="button"
                                         data-action="mobile-tabs-help"
-                                        class="flex h-7 shrink-0 items-center gap-2 rounded-[6px] px-2 text-[13px] leading-4 text-v2-text-text-faint hover:bg-v2-background-bg-layer-02 focus-visible:-outline-offset-2"
+                                        class="flex h-7 shrink-0 items-center gap-2 rounded-[6px] px-2 text-[length:var(--font-size-small)] leading-4 text-v2-text-text-faint hover:bg-v2-background-bg-layer-02 focus-visible:-outline-offset-2"
                                         onClick={() => {
                                           closeMobileTabs()
                                           platform.openExternal("https://opencode.ai/desktop-feedback")
