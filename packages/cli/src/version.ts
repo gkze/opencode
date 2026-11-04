@@ -4,6 +4,7 @@ declare const OPENCODE_VERSION: string
 declare const OPENCODE_CHANNEL: string
 declare const OPENCODE_ARTIFACT: string
 declare const OPENCODE_RELEASE_HIGHLIGHTS: string
+declare const OPENCODE_FORK: boolean
 
 const version = typeof OPENCODE_VERSION === "string" ? OPENCODE_VERSION : "local"
 const channel = typeof OPENCODE_CHANNEL === "string" ? OPENCODE_CHANNEL : "local"
@@ -26,3 +27,5 @@ export {
   highlights as OPENCODE_HIGHLIGHTS,
 }
 export const OPENCODE_LOCAL = channel === "local"
+
+export const FORK_BUILD = typeof OPENCODE_FORK !== "undefined" && OPENCODE_FORK
