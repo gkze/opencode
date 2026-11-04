@@ -17,7 +17,7 @@ export function ConnectMethodSwitch(props: {
   return (
     <div
       data-component="server-connect-method"
-      class={`flex min-h-7 flex-wrap items-center gap-1 text-[13px] ${props.class ?? ""}`}
+      class={`flex min-h-7 flex-wrap items-center gap-1 text-[length:var(--font-size-small)] ${props.class ?? ""}`}
       classList={{ "justify-center": props.align !== "start", "justify-start": props.align === "start" }}
     >
       <span class="text-v2-text-text-faint">
