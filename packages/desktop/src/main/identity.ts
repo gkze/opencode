@@ -22,11 +22,11 @@ const appIDs: Record<Channel, string> = {
 // clicks to bare `electron.exe`.
 const LOCAL_APP_USER_MODEL_ID = "ai.opencode.desktop.local"
 
-export function resolveIdentity(channel: Channel, packaged: boolean) {
+export function resolveIdentity(channel: Channel, packaged: boolean, fork?: { readonly name: string; readonly id: string }) {
   return {
-    appName: packaged ? appNames[channel] : "OpenCode Dev",
-    appID: packaged ? appIDs[channel] : "ai.opencode.desktop.dev",
-    appUserModelID: packaged ? appIDs[channel] : LOCAL_APP_USER_MODEL_ID,
+    appName: packaged ? (fork?.name ?? appNames[channel]) : "OpenCode Dev",
+    appID: packaged ? (fork?.id ?? appIDs[channel]) : "ai.opencode.desktop.dev",
+    appUserModelID: packaged ? (fork?.id ?? appIDs[channel]) : LOCAL_APP_USER_MODEL_ID,
   }
 }
 
