@@ -3,4 +3,6 @@ interface ImportMetaEnv {
   readonly OPENCODE_COMMIT?: string
   /** A beta desktop build's commit, recent history and notes as JSON (packages/desktop/script/beta-notes.ts). */
   readonly OPENCODE_BETA_NOTES?: string
+  /** Whether this is a gkze/opencode fork build; the desktop main build defines it (packages/desktop/fork.ts). */
+  readonly OPENCODE_FORK: boolean
 }
