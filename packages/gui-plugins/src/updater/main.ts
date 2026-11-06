@@ -23,10 +23,13 @@ const setup: Plugin.MainSetup = async (ctx) => {
     from: { settings: "ready", file: "opencode.updater" },
   })
 
-  // electron-updater loads only in packaged builds, after the first window is up.
-  const platform = enabled
-    ? await import("./platform").then((module) => runPromise(module.make(build.channel)))
-    : undefined
+  // electron-updater loads only in packaged builds, after the first window is up. Fork builds update from the fork's
+  // GitHub releases, never from upstream.
+  const platform = !enabled
+    ? undefined
+    : import.meta.env.OPENCODE_FORK === true
+      ? await import("./fork-platform").then((module) => runPromise(module.make()))
+      : await import("./platform").then((module) => runPromise(module.make(build.channel)))
 
   if (ctx.signal.aborted) return
   const scope = Scope.makeUnsafe()
