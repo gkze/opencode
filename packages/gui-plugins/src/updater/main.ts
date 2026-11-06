@@ -38,17 +38,20 @@ const setup: Plugin.MainSetup = async (ctx) => {
 
   const publishPreferences = { changed: () => {} }
 
-  // electron-updater loads only in packaged builds with a feed, after the first window is up.
-  const platform = enabled
-    ? await import("./platform").then((module) =>
-        runPromise(
-          module.make(build.channel, {
-            installOnQuit: installOnQuit.value,
-            onQuitPendingChanged: () => publishPreferences.changed(),
-          }),
-        ),
-      )
-    : undefined
+  // electron-updater loads only in packaged builds with a feed, after the first window is up. Fork builds update from
+  // the fork's GitHub releases, never from upstream.
+  const platform = !enabled
+    ? undefined
+    : import.meta.env.OPENCODE_FORK === true
+      ? await import("./fork-platform").then((module) => runPromise(module.make()))
+      : await import("./platform").then((module) =>
+          runPromise(
+            module.make(build.channel, {
+              installOnQuit: installOnQuit.value,
+              onQuitPendingChanged: () => publishPreferences.changed(),
+            }),
+          ),
+        )
 
   if (ctx.signal.aborted) return
   const scope = Scope.makeUnsafe()
