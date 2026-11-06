@@ -51,8 +51,16 @@ preferences are separate, and it does not register as the upstream URL handler.
 The bundled CLI is built from the same commit and version. Both CLI and desktop
 use the existing `dev` runtime channel, retaining its existing server/session storage
 semantics; desktop identity isolation does not isolate the shared background server.
-Upstream CLI update lookup/install and desktop updates are disabled. Update through
-GitHub releases or npm. Never enable upstream updates on these packages.
+Upstream CLI update lookup/install and upstream desktop updates are disabled. Update the
+CLI through GitHub releases or npm. Never enable upstream updates on these packages.
+
+OpenCode Dev updates itself from this repository's GitHub releases instead. Squirrel.Mac
+rejects every ad-hoc signed update, because each build has its own designated requirement,
+so the fork updater (`packages/gui-plugins/src/updater/fork-platform.ts`) picks the newest
+`fork-v*` release, prereleases included, that ships `opencode-desktop-mac-<arch>.zip`. It
+verifies the archive against the release's `SHA256SUMS`, checks the unpacked app's signature
+and version, and replaces the bundle after the app quits. The app's folder must be writable
+by the user; a failed swap restores the previous app.
 
 Trusted macOS distribution later requires a paid Apple Developer Program membership,
 a Developer ID Application certificate/private key, and notarization credentials.
