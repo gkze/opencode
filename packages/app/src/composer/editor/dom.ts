@@ -22,6 +22,10 @@ const ZERO_WIDTH = /\u200B/g
 const BLOCKS = new Set(["DIV", "P", "LI"])
 const mentionParts = new WeakMap<HTMLElement, MentionPart>()
 
+export function composerMentionPart(element: HTMLElement) {
+  return mentionParts.get(element)
+}
+
 /**
  * Replaces the editor content with the prompt text and mentions. With `markdown`, `- ` and `1. ` lines render as
  * list items whose markers exist only in the prompt text, and inline styles render with their markers dimmed.
