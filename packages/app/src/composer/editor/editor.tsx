@@ -38,6 +38,7 @@ import type { ComposerAttachment, ComposerComment, ComposerOption, ComposerSugge
 import type { ComposerEditorModel, ComposerSelectControl } from "./interaction"
 import { isAttachment } from "../prompt-parts"
 import {
+  composerMentionPart,
   editComposerList,
   editorMatchesPrompt,
   getCursorPosition,
@@ -343,7 +344,7 @@ export function ComposerEditor(props: ComposerEditorProps) {
               onContextMenu={(event) => {
                 const target = event.target instanceof Element ? event.target : undefined
                 const mention = target?.closest<HTMLElement>('[data-mention="session"]')
-                const part = mention ? mentionParts.get(mention) : undefined
+                const part = mention ? composerMentionPart(mention) : undefined
                 const menu = markdown?.sessionMenu
 
                 if (part?.type !== "session" || !menu) return
