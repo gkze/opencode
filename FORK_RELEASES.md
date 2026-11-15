@@ -81,6 +81,24 @@ binaries under the same version. Build-only runs
 are the first validation boundary; installed desktop UI and Gatekeeper behavior
 must still be tested on a downloaded package.
 
+## Fork CI
+
+Pull requests into `gkze/patches` run `fork-check.yml` on GitHub-hosted runners: lint,
+the TypeScript 7.1 typecheck, and the affected unit tests. Upstream's `check.yml` only
+runs for pull requests into `dev` and `beta`, and its other checks use Blacksmith runners
+this fork does not have.
+
+These upstream workflows are disabled in this fork's Actions settings, not edited, because
+the nightly rejects a candidate when a fork patch and upstream both change a workflow file:
+
+- `check-test.yml`: its jobs wait for Blacksmith runners until they are cancelled.
+- `triage-close-issues.yml`, `triage-close-prs.yml`, `triage-compliance-close.yml`,
+  `triage-contributor.yml` and `triage-pr-standards.yml`: upstream's issue and pull
+  request policy, which labels and comments on fork pull requests and has nothing to manage here.
+
+Re-enable one with `gh workflow enable <file> -R gkze/opencode`. A workflow upstream adds
+later starts enabled, so review new upstream workflows when the nightly carries them.
+
 ## Nightly maintenance
 
 The maintained branch is `gkze/patches`. Upstream V2 development now lives on
