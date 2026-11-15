@@ -57,10 +57,15 @@ CLI through GitHub releases or npm. Never enable upstream updates on these packa
 OpenCode Dev updates itself from this repository's GitHub releases instead. Squirrel.Mac
 rejects every ad-hoc signed update, because each build has its own designated requirement,
 so the fork updater (`packages/gui-plugins/src/updater/fork-platform.ts`) picks the newest
-`fork-v*` release, prereleases included, that ships `opencode-desktop-mac-<arch>.zip`. It
-verifies the archive against the release's `SHA256SUMS`, checks the unpacked app's signature
-and version, and replaces the bundle after the app quits. The app's folder must be writable
-by the user; a failed swap restores the previous app.
+`fork-v*` release, prereleases included, whose `SHA256SUMS` lists
+`opencode-desktop-mac-<arch>.zip`. It reads releases from the repository's `releases.atom`
+feed and downloads from `github.com` release URLs, never `api.github.com`, whose
+unauthenticated limit of 60 requests an hour per address made checks fail with HTTP 403.
+The app checks at launch and every 10 minutes while it runs, downloads a newer release in
+the background, and verifies the archive against `SHA256SUMS` and the unpacked app's
+signature and version. The update installs only when the user chooses Restart in the update
+prompt: the app quits and the bundle is replaced. Quitting any other way keeps the current
+build. The app's folder must be writable by the user; a failed swap restores the previous app.
 
 Trusted macOS distribution later requires a paid Apple Developer Program membership,
 a Developer ID Application certificate/private key, and notarization credentials.
