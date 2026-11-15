@@ -6,8 +6,15 @@ import { access, mkdir, rm } from "node:fs/promises"
 import path from "node:path"
 import { promisify } from "node:util"
 import { app } from "electron"
-import { Effect, Schema } from "effect"
-import { checksumFor, FORK_REPOSITORY, GitHubReleases, latestForkRelease, type ForkRelease } from "./fork-release"
+import { Effect } from "effect"
+import {
+  checksumFor,
+  FORK_RELEASE_FEED,
+  FORK_REPOSITORY,
+  forkReleaseCandidates,
+  forkReleaseTags,
+  type ForkRelease,
+} from "./fork-release"
 import type { Platform } from "./machine"
 import type { DesktopPlatform } from "./platform"
 
@@ -33,8 +40,8 @@ fi
 open "$target"
 `
 
-/** The release the last check found, and the app staged from it. */
-type Pending = { release?: ForkRelease; app?: string }
+/** The release the last check found with the archive's `SHA256SUMS` digest, and the app staged from it. */
+type Pending = { release?: ForkRelease & { readonly digest: string }; app?: string }
 
 export const make = Effect.fn("Updater.forkPlatform")(function* () {
   // The executable is <bundle>/Contents/MacOS/<name>.
@@ -51,17 +58,15 @@ export const make = Effect.fn("Updater.forkPlatform")(function* () {
 
   const checkForUpdate = Effect.tryPromise({
     try: async (signal) => {
-      const response = await fetch(`https://api.github.com/repos/${FORK_REPOSITORY}/releases?per_page=30`, {
-        headers: { ...headers, Accept: "application/vnd.github+json" },
-        signal,
-      })
+      const response = await fetch(FORK_RELEASE_FEED, { headers, signal })
 
       if (!response.ok) throw new Error(`Fork release lookup failed with HTTP ${response.status}`)
 
-      const release = latestForkRelease(Schema.decodeUnknownSync(GitHubReleases)(await response.json()), {
+      const candidates = forkReleaseCandidates(forkReleaseTags(await response.text()), {
         currentVersion: app.getVersion(),
         arch: process.arch,
       })
+      const release = await firstWithArchive(candidates, headers, signal)
 
       pending.release = release
 
@@ -83,13 +88,6 @@ export const make = Effect.fn("Updater.forkPlatform")(function* () {
         await execFileAsync("/bin/rm", ["-rf", staging])
         await mkdir(directory, { recursive: true })
 
-        const sums = await fetch(release.checksums, { headers, signal })
-
-        if (!sums.ok) throw new Error(`Fork checksum download failed with HTTP ${sums.status}`)
-        const expected = checksumFor(await sums.text(), release.name)
-
-        if (!expected) throw new Error(`SHA256SUMS does not list ${release.name}`)
-
         const archive = path.join(directory, release.name)
         const response = await fetch(release.archive, { headers, signal })
 
@@ -106,7 +104,7 @@ export const make = Effect.fn("Updater.forkPlatform")(function* () {
         file.end()
         await once(file, "close")
 
-        if (hash.digest("hex") !== expected) throw new Error(`${release.name} does not match SHA256SUMS`)
+        if (hash.digest("hex") !== release.digest) throw new Error(`${release.name} does not match SHA256SUMS`)
 
         await execFileAsync("/usr/bin/ditto", ["-x", "-k", archive, directory])
         await rm(archive)
@@ -156,3 +154,18 @@ export const make = Effect.fn("Updater.forkPlatform")(function* () {
     isPendingQuitInstall: () => false,
   } satisfies Platform & Pick<DesktopPlatform, "setInstallOnQuit" | "isPendingQuitInstall">
 })
+
+// A newer release may lack this architecture's archive, so the newest one whose SHA256SUMS lists it wins. A release
+// without SHA256SUMS (404) is skipped; any other failure fails the check rather than settling on an older release.
+async function firstWithArchive(candidates: ForkRelease[], headers: HeadersInit, signal: AbortSignal) {
+  for (const release of candidates) {
+    const sums = await fetch(release.checksums, { headers, signal })
+
+    if (sums.status === 404) continue
+
+    if (!sums.ok) throw new Error(`Fork checksum download failed with HTTP ${sums.status}`)
+    const digest = checksumFor(await sums.text(), release.name)
+
+    if (digest) return { ...release, digest }
+  }
+}
