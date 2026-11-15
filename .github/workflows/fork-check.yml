@@ -1,0 +1,59 @@
+name: Fork check
+
+# Upstream's check.yml only runs for pull requests into dev and beta, and check-test runs on Blacksmith runners this
+# fork does not have, so fork pull requests got no lint, typecheck or unit-test verdict. This runs the same checks on
+# GitHub-hosted runners for pull requests into the patch branch. check-test is disabled in this fork's Actions settings
+# (FORK_RELEASES.md, "Fork CI").
+on:
+  pull_request:
+    branches: [gkze/patches]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  check:
+    if: github.repository == 'gkze/opencode' && !github.event.pull_request.draft
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      # Pull requests test what changed against the merge's first parent; manual runs test everything.
+      TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && format('{0}^1', github.sha) || '' }}
+      TURBO_SCM_HEAD: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-bun
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck (TypeScript 7.1)
+        run: bun run typecheck:tsc
+
+      - name: Configure git identity
+        run: |
+          git config --global user.email "bot@opencode.ai"
+          git config --global user.name "opencode"
+
+      - name: Run unit tests
+        timeout-minutes: 25
+        run: |
+          # The runners have four vCPUs, and each Bun test process performs its own concurrent work.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            GITHUB_ACTIONS=false bun turbo test --affected --concurrency=3
+            exit 0
+          fi
+          GITHUB_ACTIONS=false bun turbo test --concurrency=3
