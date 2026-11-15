@@ -1,16 +1,12 @@
-import { Schema } from "effect"
-
 /** The GitHub repository that publishes fork desktop releases. */
 export const FORK_REPOSITORY = "gkze/opencode"
 
-/** The fields of GitHub's release list this updater reads. */
-export const GitHubReleases = Schema.Array(
-  Schema.Struct({
-    tag_name: Schema.String,
-    draft: Schema.Boolean,
-    assets: Schema.Array(Schema.Struct({ name: Schema.String, browser_download_url: Schema.String })),
-  }),
-)
+/**
+ * The repository's release feed. Unlike `api.github.com`, whose unauthenticated limit of 60 requests an hour is shared
+ * by everything behind the same address and left checks failing with HTTP 403, the feed and release downloads are
+ * ordinary github.com pages. It lists published releases only, prereleases included, newest first.
+ */
+export const FORK_RELEASE_FEED = `https://github.com/${FORK_REPOSITORY}/releases.atom`
 
 export type ForkRelease = {
   readonly version: string
@@ -21,31 +17,35 @@ export type ForkRelease = {
 }
 
 const versionPattern = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/
+const tagLink = new RegExp(`href="https://github\\.com/${FORK_REPOSITORY}/releases/tag/([^"?#]+)"`, "g")
+
+/** The release tags the feed links to. */
+export function forkReleaseTags(feed: string) {
+  return Array.from(feed.matchAll(tagLink), (match) => decodeURIComponent(match[1]))
+}
 
 /**
- * The newest published fork release newer than `currentVersion` that ships a desktop archive for `arch`. Nightly
- * releases are GitHub prereleases, so prereleases count.
+ * Fork releases newer than `currentVersion`, newest first, with the download URLs of `arch`'s desktop archive and the
+ * release's `SHA256SUMS`. The feed does not list assets, so a candidate may lack the archive; its `SHA256SUMS` says
+ * whether it ships one. Nightly releases are GitHub prereleases, so prereleases count.
  */
-export function latestForkRelease(
-  releases: typeof GitHubReleases.Type,
+export function forkReleaseCandidates(
+  tags: readonly string[],
   input: { readonly currentVersion: string; readonly arch: string },
-): ForkRelease | undefined {
+): ForkRelease[] {
   const name = `opencode-desktop-mac-${input.arch}.zip`
 
-  return releases
-    .flatMap((release) => {
-      const version = release.tag_name.replace(/^fork-v/, "")
-      const archive = release.assets.find((asset) => asset.name === name)
-      const checksums = release.assets.find((asset) => asset.name === "SHA256SUMS")
+  return tags
+    .flatMap((tag) => {
+      const version = tag.replace(/^fork-v/, "")
 
-      if (release.draft || !release.tag_name.startsWith("fork-v") || !versionPattern.test(version)) return []
+      if (!tag.startsWith("fork-v") || !versionPattern.test(version)) return []
+      const base = `https://github.com/${FORK_REPOSITORY}/releases/download/${encodeURIComponent(tag)}`
 
-      if (!archive || !checksums) return []
-
-      return [{ version, name, archive: archive.browser_download_url, checksums: checksums.browser_download_url }]
+      return [{ version, name, archive: `${base}/${name}`, checksums: `${base}/SHA256SUMS` }]
     })
     .filter((release) => compareVersions(release.version, input.currentVersion) > 0)
-    .toSorted((left, right) => compareVersions(right.version, left.version))[0]
+    .toSorted((left, right) => compareVersions(right.version, left.version))
 }
 
 /** The SHA-256 digest `SHA256SUMS` lists for `name`. */
