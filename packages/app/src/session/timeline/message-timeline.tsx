@@ -656,7 +656,7 @@ function MessageTimelineView(
                     <h1
                       data-slot="session-title-child"
                       dir="auto"
-                      class="max-w-[45%] shrink-0 w-fit truncate rounded-[6px] px-1 py-1.5 text-[13px] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base"
+                      class="max-w-[45%] shrink-0 w-fit truncate rounded-[6px] px-1 py-1.5 text-[length:var(--font-size-small)] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base"
                     >
                       {value()}
                     </h1>
@@ -667,7 +667,7 @@ function MessageTimelineView(
                 <Show
                   when={title().editing}
                   fallback={
-                    <h1 class="session-title-rename w-fit text-[13px] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base">
+                    <h1 class="session-title-rename w-fit text-[length:var(--font-size-small)] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base">
                       <button
                         ref={titleButton}
                         type="button"
@@ -687,7 +687,7 @@ function MessageTimelineView(
                     dir="auto"
                     value={title().draft}
                     disabled={title().saving}
-                    class="block text-[13px] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base field-sizing-content rounded-[6px] px-1 py-1.5"
+                    class="block text-[length:var(--font-size-small)] font-[530] leading-4 tracking-[-0.04px] text-v2-text-text-base field-sizing-content rounded-[6px] px-1 py-1.5"
                     classList={{ "max-w-[45%] shrink-0": !!parentID() }}
                     style={{
                       "text-align": "start",

@@ -330,7 +330,7 @@ export function ComposerEditor(props: ComposerEditorProps) {
               spellcheck={mode() === "normal"}
               // @ts-expect-error
               autocomplete="off"
-              class="relative z-10 block w-full whitespace-pre-wrap bg-transparent ps-4 pe-[var(--composer-scroll-end)] pt-4 pb-2 text-[13px] font-[440] leading-5 text-v2-text-text-base focus:outline-none [&_[data-mention=file]]:text-syntax-property [&_[data-mention=agent]]:text-syntax-type [&_[data-mention=reference]]:text-v2-text-text-muted"
+              class="relative z-10 block w-full whitespace-pre-wrap bg-transparent ps-4 pe-[var(--composer-scroll-end)] pt-4 pb-2 text-[length:var(--font-size-small)] font-[440] leading-5 text-v2-text-text-base focus:outline-none [&_[data-mention=file]]:text-syntax-property [&_[data-mention=agent]]:text-syntax-type [&_[data-mention=reference]]:text-v2-text-text-muted"
               classList={{ "font-mono! tracking-[-0.04px]": mode() === "shell", "opacity-50": props.disabled }}
               style={{
                 "unicode-bidi": mode() === "normal" ? "plaintext" : undefined,
@@ -447,7 +447,7 @@ export function ComposerEditor(props: ComposerEditorProps) {
             <Show when={!props.controller.value()}>
               <div
                 dir={mode() === "normal" ? "auto" : "ltr"}
-                class="pointer-events-none absolute inset-x-0 top-0 ps-4 pe-[var(--composer-scroll-end)] pt-4 text-[13px] font-[440] leading-5 text-v2-text-text-faint"
+                class="pointer-events-none absolute inset-x-0 top-0 ps-4 pe-[var(--composer-scroll-end)] pt-4 text-[length:var(--font-size-small)] font-[440] leading-5 text-v2-text-text-faint"
                 classList={{ "font-mono! tracking-[-0.04px]": mode() === "shell" }}
                 style={{ "unicode-bidi": mode() === "normal" ? "plaintext" : undefined, "text-align": "start" }}
               >
@@ -1419,7 +1419,7 @@ function ComposerEditorPopover(props: {
                 value={search().value}
                 aria-label={search().label}
                 placeholder={search().placeholder}
-                class="w-full bg-transparent text-[13px] leading-5 text-v2-text-text-base outline-none placeholder:text-v2-text-text-faint"
+                class="w-full bg-transparent text-[length:var(--font-size-small)] leading-5 text-v2-text-text-base outline-none placeholder:text-v2-text-text-faint"
                 onInput={(event) => search().onValueChange(event.currentTarget.value)}
                 onKeyDown={(event) => search().onKeyDown(event)}
                 onMouseDown={(event) => event.stopPropagation()}

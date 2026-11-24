@@ -313,7 +313,7 @@ export function HomeSessionsView(props: HomeSessionsViewProps) {
               props.groups.length === 0
             }
           >
-            <div class={`px-2 pt-6 text-[13px] leading-[var(--line-height-compact)] ${HOME_SECTION_LABEL}`}>
+            <div class={`px-2 pt-6 text-[length:var(--font-size-small)] leading-[var(--line-height-compact)] ${HOME_SECTION_LABEL}`}>
               {props.searchNoResultsLabel}
             </div>
           </Match>
@@ -1074,11 +1074,11 @@ function HomeSessionsUnavailable(props: {
       role={props.role}
       class="flex min-h-full flex-col items-center gap-4 px-6 pt-[52px] text-center"
     >
-      <div class="shrink-0 text-[13px] leading-text-compact tracking-[-0.04px] text-v2-text-text-base [font-weight:530]">
+      <div class="shrink-0 text-[length:var(--font-size-small)] leading-text-compact tracking-[-0.04px] text-v2-text-text-base [font-weight:530]">
         {props.title}
       </div>
       <Show when={props.description}>
-        <p class="mb-1 text-center text-[13px] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-weight:440]">
+        <p class="mb-1 text-center text-[length:var(--font-size-small)] leading-5 tracking-[-0.04px] text-v2-text-text-muted [font-weight:440]">
           {props.description}
         </p>
       </Show>

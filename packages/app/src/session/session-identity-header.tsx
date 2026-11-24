@@ -231,7 +231,7 @@ export function SessionLocation(props: {
           <Menu.Trigger
             data-slot="session-location-trigger"
             aria-label={label()}
-            class="relative flex h-7 min-w-0 max-w-full shrink items-center gap-2 overflow-hidden rounded-[6px] px-1.5 text-start text-[13px] font-normal leading-[var(--line-height-compact)] tracking-[-0.04px] text-v2-text-text-muted transition-[background-color,color] hover:bg-v2-overlay-simple-overlay-hover hover:text-v2-text-text-base data-[expanded]:bg-v2-overlay-simple-overlay-hover data-[expanded]:text-v2-text-text-base"
+            class="relative flex h-7 min-w-0 max-w-full shrink items-center gap-2 overflow-hidden rounded-[6px] px-1.5 text-start text-[length:var(--font-size-small)] font-normal leading-[var(--line-height-compact)] tracking-[-0.04px] text-v2-text-text-muted transition-[background-color,color] hover:bg-v2-overlay-simple-overlay-hover hover:text-v2-text-text-base data-[expanded]:bg-v2-overlay-simple-overlay-hover data-[expanded]:text-v2-text-text-base"
           >
             <ProjectAvatar
               class="shrink-0"
@@ -459,7 +459,7 @@ export function SessionLocation(props: {
 
 function SessionLocationDetail(props: ParentProps<{ icon: ComponentProps<typeof Icon>["name"] }>) {
   return (
-    <div class="flex h-7 min-w-0 items-center gap-2 px-2 text-[13px] font-[440] leading-[var(--line-height-compact)] tracking-[-0.04px] text-v2-text-text-base">
+    <div class="flex h-7 min-w-0 items-center gap-2 px-2 text-[length:var(--font-size-small)] font-[440] leading-[var(--line-height-compact)] tracking-[-0.04px] text-v2-text-text-base">
       <Icon name={props.icon} class="shrink-0 text-v2-icon-icon-muted" />
       <span class="flex min-w-0 truncate">{props.children}</span>
     </div>

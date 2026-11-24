@@ -1514,7 +1514,7 @@ export function createSessionTimelineRowRenderer(input: {
               {(notice) => (
                 <div
                   role="status"
-                  class="text-[13px] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted"
+                  class="text-[length:var(--font-size-small)] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted"
                 >
                   {notice().text}
                   <Show when={input.actions?.chooseModel}>
@@ -1538,7 +1538,7 @@ export function createSessionTimelineRowRenderer(input: {
               {(text) => (
                 <div
                   role="status"
-                  class="text-[13px] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted"
+                  class="text-[length:var(--font-size-small)] font-[440] leading-text-compact tracking-[-0.04px] text-v2-text-text-muted"
                 >
                   {text()}
                 </div>

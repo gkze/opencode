@@ -613,7 +613,7 @@ function ChatgptPlanFooter() {
   return (
     <>
       <div class="h-px bg-v2-border-border-muted" />
-      <div class="flex min-h-10 items-center gap-2 px-3 py-2 text-[13px] leading-5 text-v2-text-text-base">
+      <div class="flex min-h-10 items-center gap-2 px-3 py-2 text-[length:var(--font-size-small)] leading-5 text-v2-text-text-base">
         <ProviderModelIcon provider={{ id: "openai", name: "OpenAI" }} class="shrink-0" />
         <span class="min-w-0 flex-1 truncate">{language.t("dialog.model.chatgptPlan")}</span>
         <ExternalLink
@@ -1284,7 +1284,7 @@ export function DialogSelectModel(props: { provider?: string; model?: ModelState
                         class="cursor-default px-3 py-1.5 font-[440] tabular-nums select-none"
                       >
                         <div
-                          class="text-[13px] leading-5"
+                          class="text-[length:var(--font-size-small)] leading-5"
                           classList={{
                             "text-v2-state-fg-danger": value().reached,
                             "text-v2-text-text-base": !value().reached,
