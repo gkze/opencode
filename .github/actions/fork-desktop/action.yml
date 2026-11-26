@@ -78,7 +78,24 @@ runs:
           test "$(lipo -archs "$PTY/$FILE")" = "$(lipo -archs "$APP/Contents/MacOS/OpenCode Dev")"
         done
         if [ "$NATIVE" = true ]; then
-          ELECTRON_RUN_AS_NODE=1 "$APP/Contents/MacOS/OpenCode Dev" -e 'if (!process.versions.electron) process.exit(1)'
+          # Upstream turns Electron's runAsNode fuse off, so the app ignores ELECTRON_RUN_AS_NODE: asked to run a
+          # script as plain Node, it starts the whole app and never exits. Start it for real instead, on a throwaway
+          # profile. A runtime that cannot start (a broken signature, a library the ad-hoc signature may not load)
+          # exits at once, so an app still running after 20 seconds has started. SIGKILL ends it and its helpers
+          # without waiting on a quit prompt; an opencode-cli process it starts can outlive that, and the runner
+          # ends it with the job.
+          LOG="$RUNNER_TEMP/fork-desktop-launch.log"
+          OPENCODE_DESKTOP_TEST_ROOT="$RUNNER_TEMP/fork-desktop-launch" "$APP/Contents/MacOS/OpenCode Dev" > "$LOG" 2>&1 &
+          LAUNCHED=$!
+          sleep 20
+          if ! kill -0 "$LAUNCHED" 2> /dev/null; then
+            cat "$LOG"
+            echo "::error::The packaged app exited within 20 seconds of starting"
+            exit 1
+          fi
+          kill -9 "$LAUNCHED"
+          wait "$LAUNCHED" 2> /dev/null || true
+          pkill -9 -f 'OpenCode Dev\.app/Contents/' || true
           test "$("$APP/Contents/Resources/opencode-cli" --version)" = "opencode v$OPENCODE_VERSION"
         fi
     - name: Record uploaded desktop files
