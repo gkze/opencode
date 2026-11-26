@@ -8,7 +8,8 @@ const theme: DesktopTheme = await Bun.file(new URL("../themes/oc-2.json", import
 const themesDir = new URL("../themes/", import.meta.url)
 
 const bundledThemeFiles = Array.from(new Bun.Glob("*.json").scanSync({ cwd: Bun.fileURLToPath(themesDir) }))
-  .filter((name) => name !== "oc-2.json")
+  // Native Catppuccin documents pin canonical colors and are covered by catppuccin.test.ts instead.
+  .filter((name) => name !== "oc-2.json" && !name.startsWith("catppuccin-"))
   .sort()
 
 describe("icon emphasis", () => {
