@@ -169,6 +169,15 @@ release job and desktop archives out of the npm publisher. Final checksums are
 computed after collecting all release assets. Already compressed archives use
 uncompressed Actions transport.
 
+The refresh finishes before its candidate is built, so a publication failure used to
+repeat every night unseen. A trusted pre-step (`nightly.mjs feedback`) now records how
+the latest publication ended in `publish.json`, with the last 200 lines of each failed
+job's log, using the built-in token's `actions: read`. The agent reads it first. When
+that publication failed, it must find the cause and name it in the report's `publish`
+field, which `nightly.mjs verify` requires: it repairs a fork patch or a fork-owned
+check such as `packages/desktop/script/verify-fork.ts`, and fails the run with the
+blocker when only a publication control can fix it.
+
 This reuses OpenCodex's deterministic-replay approach without introducing its
 patch-branch registry, parallel worker coordinator, or run-local SQLite journal.
 Those mechanisms serve independent patch ownership and same-runner recovery;
