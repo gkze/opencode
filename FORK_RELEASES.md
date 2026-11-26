@@ -78,6 +78,13 @@ typechecks, and `bun run check` from the repository root. CI builds all binaries
 checks native Linux CLI startup, verifies both macOS app signatures, Electron runtime
 startup, and bundled CLI versions, and verifies an npm install before announcing the release.
 
+The macOS app checks are `packages/desktop/script/verify-fork.ts`, which the
+`fork-desktop` action only calls. Upstream ships the app with Electron's `runAsNode`
+fuse off, so the startup check launches the app for real on a throwaway profile and
+requires it to still be running after 20 seconds. The script is fork product code, not
+a publication control: the nightly refresh may adapt it when upstream changes how the
+app is built, packaged or started, keeping what each check establishes.
+
 npm publication and GitHub Releases are separate services, not one transaction.
 If publication fails midway, rerun only the failed jobs to reuse the same artifacts.
 The publisher skips existing versions only when their registry integrity matches

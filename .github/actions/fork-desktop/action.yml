@@ -58,29 +58,15 @@ runs:
         ARCH: ${{ inputs.arch }}
       run: bunx electron-builder --mac --"$ARCH" --publish never --config electron-builder.fork.ts
     # electron-builder's afterPack already checks that the bundled CLI contains only target-architecture code.
-    # A cross-packaged app cannot run here, so it is checked structurally instead of launched.
+    # The checks live in the desktop package, not in this publication control, so the nightly refresh can adapt
+    # them when upstream changes how the app is built, packaged or started.
     - name: Verify packaged application and CLI
       shell: bash
       working-directory: packages/desktop
       env:
         ARCH: ${{ inputs.arch }}
         NATIVE: ${{ steps.plan.outputs.native }}
-      run: |
-        APP=$(find dist -maxdepth 2 -name 'OpenCode Dev.app' -type d | head -n 1)
-        test -n "$APP"
-        codesign --verify --deep --strict "$APP"
-        test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Contents/Info.plist")" = 'io.github.gkze.opencode'
-        test "$(lipo -archs "$APP/Contents/MacOS/OpenCode Dev")" = "$([ "$ARCH" = x64 ] && echo x86_64 || echo arm64)"
-        test "$(cat "$APP/Contents/Resources/opencode-cli.version")" = "$OPENCODE_VERSION"
-        # Packaging succeeds without the target's node-pty prebuild, and the app then cannot open a terminal.
-        PTY="$APP/Contents/Resources/app.asar.unpacked/node_modules/@lydell/node-pty-darwin-$ARCH/prebuilds/darwin-$ARCH"
-        for FILE in pty.node spawn-helper; do
-          test "$(lipo -archs "$PTY/$FILE")" = "$(lipo -archs "$APP/Contents/MacOS/OpenCode Dev")"
-        done
-        if [ "$NATIVE" = true ]; then
-          ELECTRON_RUN_AS_NODE=1 "$APP/Contents/MacOS/OpenCode Dev" -e 'if (!process.versions.electron) process.exit(1)'
-          test "$("$APP/Contents/Resources/opencode-cli" --version)" = "opencode v$OPENCODE_VERSION"
-        fi
+      run: bun run script/verify-fork.ts
     - name: Record uploaded desktop files
       id: manifest
       shell: bash
