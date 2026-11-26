@@ -77,6 +77,13 @@ const verifyCandidate = (input, candidate, directory) => {
   assert.ok(
     Array.isArray(report.tests) && report.tests.length && report.tests.every((x) => typeof x === "string" && x.trim()),
   )
+  // A candidate that follows a failed publication fails the same way unless the review dealt with the cause.
+  const publish = path.join(directory, "publish.json")
+  if (existsSync(publish) && !["success", "none"].includes(read(publish).conclusion))
+    assert.ok(
+      typeof report.publish === "string" && report.publish.trim(),
+      "The report must address the failed publication",
+    )
   assert.ok(Array.isArray(report.patches))
   assert.deepEqual(
     report.patches.map((p) => p.old).sort(),
@@ -227,6 +234,56 @@ if (command === "prepare") {
     )
   }
   assert.equal(git("ls-remote", "origin", branch).split("\t")[0], candidate)
+} else if (command === "feedback") {
+  // The refresh never sees the publication it hands its candidate to. Record how the latest one ended, with the
+  // end of each failed job's log, so the review starts from a failure instead of reproducing it.
+  mkdirSync(directory, { recursive: true })
+  const api = (endpoint) =>
+    fetch(`${process.env.GITHUB_API_URL}/repos/${process.env.GITHUB_REPOSITORY}/actions/${endpoint}`, {
+      headers: { authorization: `Bearer ${process.env.GH_TOKEN}`, accept: "application/vnd.github+json" },
+    })
+  const json = async (endpoint) => {
+    const response = await api(endpoint)
+    assert.ok(response.ok, `${endpoint}: HTTP ${response.status}`)
+    return response.json()
+  }
+  // A publication whose refresh failed is skipped before it builds anything, so it says nothing.
+  const runs = await json("workflows/fork-nightly-publish.yml/runs?status=completed&per_page=30")
+  const run = runs.workflow_runs.find((item) => item.conclusion !== "skipped")
+  const failed =
+    !run || run.conclusion === "success"
+      ? []
+      : (await json(`runs/${run.id}/jobs?per_page=100`)).jobs.filter(
+          (job) => !["success", "skipped"].includes(job.conclusion),
+        )
+  const jobs = await Promise.all(
+    failed.map(async (job) => {
+      // A log expires before its run does, and an expired one must not stop the refresh.
+      const response = await api(`jobs/${job.id}/logs`)
+      const log = response.ok
+        ? (await response.text()).replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, "")
+        : `Log unavailable: HTTP ${response.status}`
+      writeFileSync(
+        path.join(directory, `publish-${job.id}.log`),
+        `${log.trimEnd().split("\n").slice(-200).join("\n")}\n`,
+      )
+      return {
+        name: job.name,
+        conclusion: job.conclusion,
+        url: job.html_url,
+        steps: job.steps.filter((step) => !["success", "skipped"].includes(step.conclusion)).map((step) => step.name),
+        log: `publish-${job.id}.log`,
+      }
+    }),
+  )
+  writeFileSync(
+    path.join(directory, "publish.json"),
+    JSON.stringify(
+      run ? { run: run.id, url: run.html_url, conclusion: run.conclusion, jobs } : { conclusion: "none", jobs },
+      null,
+      2,
+    ),
+  )
 } else {
-  throw new Error("Usage: nightly.mjs prepare|replay|verify|accept|relock <directory>, lockfile, or promote")
+  throw new Error("Usage: nightly.mjs prepare|replay|verify|accept|relock|feedback <directory>, lockfile, or promote")
 }

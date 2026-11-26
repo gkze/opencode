@@ -273,3 +273,143 @@ test.each(["listed", "unlisted", "other-file", "outside-history"])(
     }
   },
 )
+
+// Serves a publication history the way the GitHub API does, and runs `feedback` against it. Without a `log`, job
+// logs have expired.
+async function feedback(runs: object[], jobs: object[] = [], log?: string) {
+  const root = mkdtempSync(path.join(os.tmpdir(), "fork-feedback-"))
+  const server = Bun.serve({
+    port: 0,
+    fetch(request) {
+      if (request.headers.get("authorization") !== "Bearer test") return new Response("", { status: 401 })
+      const route = new URL(request.url).pathname.replace("/repos/gkze/opencode/actions/", "")
+      if (route === "workflows/fork-nightly-publish.yml/runs") return Response.json({ workflow_runs: runs })
+      if (/^runs\/\d+\/jobs$/.test(route)) return Response.json({ jobs })
+      if (/^jobs\/\d+\/logs$/.test(route)) return new Response(log, { status: log === undefined ? 410 : 200 })
+      return new Response("", { status: 404 })
+    },
+  })
+  const child = Bun.spawn([process.execPath, script, "feedback", root], {
+    env: {
+      ...process.env,
+      GITHUB_API_URL: `http://localhost:${server.port}`,
+      GITHUB_REPOSITORY: "gkze/opencode",
+      GH_TOKEN: "test",
+    },
+    stderr: "inherit",
+  })
+  const status = await child.exited
+  await server.stop(true)
+  return { root, status, publish: () => JSON.parse(readFileSync(path.join(root, "publish.json"), "utf8")) }
+}
+
+test("feedback records a failed publication with the end of each failed job's log", async () => {
+  const f = await feedback(
+    [
+      // The refresh after this publication failed, so its own publication never built anything.
+      { id: 3, conclusion: "skipped", html_url: "https://example.invalid/3" },
+      { id: 2, conclusion: "cancelled", html_url: "https://example.invalid/2" },
+      { id: 1, conclusion: "success", html_url: "https://example.invalid/1" },
+    ],
+    [
+      { id: 20, name: "release / cli", conclusion: "success", html_url: "https://example.invalid/2/job/20", steps: [] },
+      {
+        id: 21,
+        name: "release / desktop",
+        conclusion: "cancelled",
+        html_url: "https://example.invalid/2/job/21",
+        steps: [
+          { name: "Set up job", conclusion: "success" },
+          { name: "Run ./.github/actions/fork-desktop", conclusion: "cancelled" },
+          { name: "Complete job", conclusion: "skipped" },
+        ],
+      },
+    ],
+    `${Array.from({ length: 250 }, (_, index) => `\x1b[36mline ${index + 1}\x1b[0m`).join("\n")}\n`,
+  )
+  try {
+    expect(f.status).toBe(0)
+    expect(f.publish()).toEqual({
+      run: 2,
+      url: "https://example.invalid/2",
+      conclusion: "cancelled",
+      jobs: [
+        {
+          name: "release / desktop",
+          conclusion: "cancelled",
+          url: "https://example.invalid/2/job/21",
+          steps: ["Run ./.github/actions/fork-desktop"],
+          log: "publish-21.log",
+        },
+      ],
+    })
+    const log = readFileSync(path.join(f.root, "publish-21.log"), "utf8").split("\n")
+    expect([log.length, log[0], log[199], log[200]]).toEqual([201, "line 51", "line 250", ""])
+  } finally {
+    rmSync(f.root, { recursive: true, force: true })
+  }
+})
+
+test.each([
+  [
+    [{ id: 1, conclusion: "success", html_url: "https://example.invalid/1" }],
+    { run: 1, url: "https://example.invalid/1", conclusion: "success", jobs: [] },
+  ],
+  [[], { conclusion: "none", jobs: [] }],
+])("feedback records a publication that needs no review: %j", async (runs, expected) => {
+  const f = await feedback(runs)
+  try {
+    expect(f.status).toBe(0)
+    expect(f.publish()).toEqual(expected)
+  } finally {
+    rmSync(f.root, { recursive: true, force: true })
+  }
+})
+
+test("feedback still records a failed publication whose log has expired", async () => {
+  const f = await feedback(
+    [{ id: 2, conclusion: "failure", html_url: "https://example.invalid/2" }],
+    [
+      {
+        id: 21,
+        name: "release / publish",
+        conclusion: "failure",
+        html_url: "https://example.invalid/2/job/21",
+        steps: [],
+      },
+    ],
+  )
+  try {
+    expect(f.status).toBe(0)
+    expect(f.publish().jobs).toEqual([
+      {
+        name: "release / publish",
+        conclusion: "failure",
+        url: "https://example.invalid/2/job/21",
+        steps: [],
+        log: "publish-21.log",
+      },
+    ])
+    expect(readFileSync(path.join(f.root, "publish-21.log"), "utf8")).toBe("Log unavailable: HTTP 410\n")
+  } finally {
+    rmSync(f.root, { recursive: true, force: true })
+  }
+})
+
+test("a review after a failed publication must say what it did about it", () => {
+  const f = fixture()
+  try {
+    writeFileSync(path.join(f.data, "publish.json"), JSON.stringify({ run: 2, conclusion: "cancelled", jobs: [] }))
+    expect(f.run("verify").stderr).toContain("The report must address the failed publication")
+    writeFileSync(
+      path.join(f.data, "report.json"),
+      JSON.stringify({ ...f.report, publish: "The desktop check waited on an app that never exits; adapted it." }),
+    )
+    expect(f.run("verify").status).toBe(0)
+    writeFileSync(path.join(f.data, "report.json"), JSON.stringify(f.report))
+    writeFileSync(path.join(f.data, "publish.json"), JSON.stringify({ run: 3, conclusion: "success", jobs: [] }))
+    expect(f.run("verify").status).toBe(0)
+  } finally {
+    rmSync(f.root, { recursive: true, force: true })
+  }
+})
