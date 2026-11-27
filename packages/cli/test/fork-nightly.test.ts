@@ -275,17 +275,19 @@ test.each(["listed", "unlisted", "other-file", "outside-history"])(
 )
 
 // Serves a publication history the way the GitHub API does, and runs `feedback` against it. Without a `log`, job
-// logs have expired.
-async function feedback(runs: object[], jobs: object[] = [], log?: string) {
+// logs have expired. Without `annotations`, the token may not read them.
+async function feedback(runs: object[], jobs: object[] = [], log?: string, annotations?: object[]) {
   const root = mkdtempSync(path.join(os.tmpdir(), "fork-feedback-"))
   const server = Bun.serve({
     port: 0,
     fetch(request) {
       if (request.headers.get("authorization") !== "Bearer test") return new Response("", { status: 401 })
-      const route = new URL(request.url).pathname.replace("/repos/gkze/opencode/actions/", "")
-      if (route === "workflows/fork-nightly-publish.yml/runs") return Response.json({ workflow_runs: runs })
-      if (/^runs\/\d+\/jobs$/.test(route)) return Response.json({ jobs })
-      if (/^jobs\/\d+\/logs$/.test(route)) return new Response(log, { status: log === undefined ? 410 : 200 })
+      const route = new URL(request.url).pathname.replace("/repos/gkze/opencode/", "")
+      if (route === "actions/workflows/fork-nightly-publish.yml/runs") return Response.json({ workflow_runs: runs })
+      if (/^actions\/runs\/\d+\/jobs$/.test(route)) return Response.json({ jobs })
+      if (/^actions\/jobs\/\d+\/logs$/.test(route)) return new Response(log, { status: log === undefined ? 410 : 200 })
+      if (/^check-runs\/\d+\/annotations$/.test(route))
+        return annotations ? Response.json(annotations) : new Response("", { status: 403 })
       return new Response("", { status: 404 })
     },
   })
@@ -303,7 +305,7 @@ async function feedback(runs: object[], jobs: object[] = [], log?: string) {
   return { root, status, publish: () => JSON.parse(readFileSync(path.join(root, "publish.json"), "utf8")) }
 }
 
-test("feedback records a failed publication with the end of each failed job's log", async () => {
+test("feedback records a failed publication with the runner's errors and the end of each failed job's log", async () => {
   const f = await feedback(
     [
       // The refresh after this publication failed, so its own publication never built anything.
@@ -326,6 +328,11 @@ test("feedback records a failed publication with the end of each failed job's lo
       },
     ],
     `${Array.from({ length: 250 }, (_, index) => `\x1b[36mline ${index + 1}\x1b[0m`).join("\n")}\n`,
+    // A person cancelled this job. Nothing says that it ran out of time, so it is not a hang.
+    [
+      { annotation_level: "warning", message: "Node.js 20 is deprecated." },
+      { annotation_level: "failure", message: "The operation was canceled." },
+    ],
   )
   try {
     expect(f.status).toBe(0)
@@ -338,13 +345,93 @@ test("feedback records a failed publication with the end of each failed job's lo
           name: "release / desktop",
           conclusion: "cancelled",
           url: "https://example.invalid/2/job/21",
-          steps: ["Run ./.github/actions/fork-desktop"],
+          errors: ["The operation was canceled."],
+          steps: [{ name: "Run ./.github/actions/fork-desktop", conclusion: "cancelled" }],
           log: "publish-21.log",
         },
       ],
     })
     const log = readFileSync(path.join(f.root, "publish-21.log"), "utf8").split("\n")
     expect([log.length, log[0], log[199], log[200]]).toEqual([201, "line 51", "line 250", ""])
+  } finally {
+    rmSync(f.root, { recursive: true, force: true })
+  }
+})
+
+// What the runner logged, on 2026-11-26, around the packaged-app check that waited on an app that never exits.
+const verify = [
+  "2026-11-26T11:52:31.5161320Z ##[end-action id=desktop.__run_3;outcome=success;conclusion=success;duration_ms=243310]",
+  "2026-11-26T11:52:31.5171160Z ##[start-action display=Verify packaged application and CLI;id=desktop.__run_4]",
+  "2026-11-26T11:52:40.8879920Z (electron) 'console-message' arguments are deprecated and will be removed.",
+  "2026-11-26T12:44:53.3748060Z ##[error]The operation was canceled.",
+  "2026-11-26T12:44:53.3934270Z ##[end-action id=desktop.__run_4;outcome=cancelled;conclusion=cancelled;duration_ms=3141831]",
+  "2026-11-26T12:44:53.3993900Z ##[start-action display=Record uploaded desktop files;id=desktop.manifest]",
+  "2026-11-26T12:44:53.4015580Z ##[end-action id=desktop.manifest;outcome=skipped;conclusion=skipped;duration_ms=0]",
+]
+// The same markers when the step that never returns belongs to an action that another action runs.
+const nested = [
+  "2026-11-26T11:44:55.3205150Z ##[start-action display=Run ./.github/actions/setup-bun;id=desktop.__self]",
+  "2026-11-26T11:45:10.4765520Z ##[start-action display=Install dependencies;id=desktop.__self.__run_2]",
+  "2026-11-26T12:44:53.3748060Z ##[error]The operation was canceled.",
+  "2026-11-26T12:44:53.3934270Z ##[end-action id=desktop.__self.__run_2;outcome=cancelled;conclusion=cancelled;duration_ms=3582917]",
+  "2026-11-26T12:44:53.3941020Z ##[end-action id=desktop.__self;outcome=cancelled;conclusion=cancelled;duration_ms=3598073]",
+]
+
+test.each([
+  ["in the step inside the action", verify, [{ name: "Verify packaged application and CLI", took: "52m22s" }]],
+  ["in the innermost step when actions nest", nested, [{ name: "Install dependencies", took: "59m43s" }]],
+  ["in the job's own step when its log has expired", undefined, []],
+])("feedback marks a job that ran out of time as a hang %s", async (_, log, inside) => {
+  const f = await feedback(
+    [{ id: 2, conclusion: "cancelled", html_url: "https://example.invalid/2" }],
+    [
+      {
+        id: 21,
+        name: "release / desktop",
+        conclusion: "cancelled",
+        html_url: "https://example.invalid/2/job/21",
+        started_at: "2026-11-26T11:44:40Z",
+        completed_at: "2026-11-26T12:45:03Z",
+        steps: [
+          {
+            name: "Set up job",
+            conclusion: "success",
+            started_at: "2026-11-26T11:44:41Z",
+            completed_at: "2026-11-26T11:44:42Z",
+          },
+          {
+            name: "Run ./.github/actions/fork-desktop",
+            conclusion: "cancelled",
+            started_at: "2026-11-26T11:44:54Z",
+            completed_at: "2026-11-26T12:44:53Z",
+          },
+        ],
+      },
+    ],
+    log?.join("\n"),
+    [
+      { annotation_level: "failure", message: "The job has exceeded the maximum execution time of 1h0m0s" },
+      { annotation_level: "failure", message: "The operation was canceled." },
+    ],
+  )
+  try {
+    const steps = [{ name: "Run ./.github/actions/fork-desktop", took: "59m59s" }, ...inside].map((step) => ({
+      ...step,
+      conclusion: "cancelled",
+    }))
+    expect(f.status).toBe(0)
+    expect(f.publish().jobs).toEqual([
+      {
+        name: "release / desktop",
+        conclusion: "cancelled",
+        url: "https://example.invalid/2/job/21",
+        took: "1h0m23s",
+        hang: { limit: "1h0m0s", step: steps.at(-1)?.name, took: steps.at(-1)?.took },
+        errors: ["The job has exceeded the maximum execution time of 1h0m0s", "The operation was canceled."],
+        steps,
+        log: "publish-21.log",
+      },
+    ])
   } finally {
     rmSync(f.root, { recursive: true, force: true })
   }
@@ -366,7 +453,7 @@ test.each([
   }
 })
 
-test("feedback still records a failed publication whose log has expired", async () => {
+test("feedback still records a failed publication whose log has expired and whose annotations it may not read", async () => {
   const f = await feedback(
     [{ id: 2, conclusion: "failure", html_url: "https://example.invalid/2" }],
     [
@@ -386,6 +473,7 @@ test("feedback still records a failed publication whose log has expired", async 
         name: "release / publish",
         conclusion: "failure",
         url: "https://example.invalid/2/job/21",
+        errors: ["Annotations unavailable: HTTP 403"],
         steps: [],
         log: "publish-21.log",
       },
