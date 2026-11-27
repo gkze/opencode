@@ -327,6 +327,8 @@ function legacy(colors: Swatches, isLatte: boolean): ResolvedTheme {
         ],
       ),
     ),
+    "icon-weak": colors.subtext0,
+    "icon-weaker": colors.overlay0,
     "icon-invert-base": colors.base,
     "icon-brand-base": colors.blue,
     "icon-interactive-base": colors.blue,

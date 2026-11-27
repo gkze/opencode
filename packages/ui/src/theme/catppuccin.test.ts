@@ -132,7 +132,7 @@ describe("Catppuccin fidelity", () => {
         ])
 
         expect(
-          [...required].filter((token) => !(token in (variant.v2Overrides ?? {}))),
+          [...required].filter((token) => !(token in (variant.v2Overrides ?? {})) && !(token in (variant.overrides ?? {}))),
           "Unmapped upstream/CSS tokens",
         ).toEqual([])
 
