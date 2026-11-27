@@ -178,6 +178,17 @@ field, which `nightly.mjs verify` requires: it repairs a fork patch or a fork-ow
 check such as `packages/desktop/script/verify-fork.ts`, and fails the run with the
 blocker when only a publication control can fix it.
 
+For each failed job the record also gives the steps that did not pass and how long each
+took, and the runner's error annotations (`checks: read`). The API reports a composite
+action as one step, so the steps inside one come from the runner's log, which names
+each and says how it ended. A job that ran until its time limit stopped it is marked as
+a `hang` in the innermost step that was still running, with the limit and how long that
+step had run. Only the annotations say that a job ran out of time; its log says that it
+was cancelled, as it does when a person cancels it. The agent once read a desktop check
+that waited an hour on an app that never exits as a runner cancellation with nothing to
+repair. Step names and errors are copied from what a job printed, which the code it
+builds can influence, so the agent treats them as source material like the log itself.
+
 This reuses OpenCodex's deterministic-replay approach without introducing its
 patch-branch registry, parallel worker coordinator, or run-local SQLite journal.
 Those mechanisms serve independent patch ownership and same-runner recovery;
