@@ -235,11 +235,12 @@ if (command === "prepare") {
   }
   assert.equal(git("ls-remote", "origin", branch).split("\t")[0], candidate)
 } else if (command === "feedback") {
-  // The refresh never sees the publication it hands its candidate to. Record how the latest one ended, with the
-  // end of each failed job's log, so the review starts from a failure instead of reproducing it.
+  // The refresh never sees the publication it hands its candidate to. Record how the latest one ended, so the
+  // review starts from a failure instead of reproducing it: for each failed job, the steps that did not pass and
+  // how long each took, what the runner reported, and the end of its log.
   mkdirSync(directory, { recursive: true })
   const api = (endpoint) =>
-    fetch(`${process.env.GITHUB_API_URL}/repos/${process.env.GITHUB_REPOSITORY}/actions/${endpoint}`, {
+    fetch(`${process.env.GITHUB_API_URL}/repos/${process.env.GITHUB_REPOSITORY}/${endpoint}`, {
       headers: { authorization: `Bearer ${process.env.GH_TOKEN}`, accept: "application/vnd.github+json" },
     })
   const json = async (endpoint) => {
@@ -247,19 +248,39 @@ if (command === "prepare") {
     assert.ok(response.ok, `${endpoint}: HTTP ${response.status}`)
     return response.json()
   }
+  const passed = (item) => ["success", "skipped"].includes(item.conclusion)
+  // Written the way the runner writes a time limit ("1h0m0s"), so the two compare at a glance.
+  const took = (ms) => {
+    const seconds = Math.round(ms / 1000)
+    return Number.isFinite(seconds)
+      ? `${Math.floor(seconds / 3600)}h${Math.floor(seconds / 60) % 60}m${seconds % 60}s`.replace(/^0h(0m)?/, "")
+      : undefined
+  }
+  // The API reports a composite action as one step. The runner's log names each step inside one and says how it
+  // ended. An action ends after the step inside it that failed, so only the innermost are kept.
+  const inside = (log) => {
+    const names = new Map(
+      Array.from(log.matchAll(/##\[start-action display=(.*);id=(\S+)\]$/gm), (match) => [match[2], match[1]]),
+    )
+    return Array.from(
+      log.matchAll(/##\[end-action id=(\S+);outcome=\w+;conclusion=(\w+);duration_ms=(\d+)\]$/gm),
+      (match) => ({ id: match[1], conclusion: match[2], took: took(Number(match[3])) }),
+    )
+      .filter((step) => !passed(step))
+      .filter((step, _, all) => !all.some((other) => other.id.startsWith(`${step.id}.`)))
+      .map((step) => ({ name: names.get(step.id) ?? step.id, conclusion: step.conclusion, took: step.took }))
+  }
   // A publication whose refresh failed is skipped before it builds anything, so it says nothing.
-  const runs = await json("workflows/fork-nightly-publish.yml/runs?status=completed&per_page=30")
+  const runs = await json("actions/workflows/fork-nightly-publish.yml/runs?status=completed&per_page=30")
   const run = runs.workflow_runs.find((item) => item.conclusion !== "skipped")
   const failed =
     !run || run.conclusion === "success"
       ? []
-      : (await json(`runs/${run.id}/jobs?per_page=100`)).jobs.filter(
-          (job) => !["success", "skipped"].includes(job.conclusion),
-        )
+      : (await json(`actions/runs/${run.id}/jobs?per_page=100`)).jobs.filter((job) => !passed(job))
   const jobs = await Promise.all(
     failed.map(async (job) => {
-      // A log expires before its run does, and an expired one must not stop the refresh.
-      const response = await api(`jobs/${job.id}/logs`)
+      // A log expires before its run does, and nothing missing here may stop the refresh.
+      const response = await api(`actions/jobs/${job.id}/logs`)
       const log = response.ok
         ? (await response.text()).replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, "")
         : `Log unavailable: HTTP ${response.status}`
@@ -267,11 +288,35 @@ if (command === "prepare") {
         path.join(directory, `publish-${job.id}.log`),
         `${log.trimEnd().split("\n").slice(-200).join("\n")}\n`,
       )
+      // A job is also a check run, which the runner annotates with why the job ended. Only there does it say that
+      // a job ran out of time: the log of one says that it was cancelled, as it does when a person cancels it.
+      const annotations = await api(`check-runs/${job.id}/annotations?per_page=100`)
+      const errors = annotations.ok
+        ? (await annotations.json()).filter((item) => item.annotation_level === "failure").map((item) => item.message)
+        : [`Annotations unavailable: HTTP ${annotations.status}`]
+      const steps = [
+        ...job.steps
+          .filter((step) => !passed(step))
+          .map((step) => ({
+            name: step.name,
+            conclusion: step.conclusion,
+            took: took(Date.parse(step.completed_at) - Date.parse(step.started_at)),
+          })),
+        ...inside(log),
+      ]
+      const limit = errors
+        .map((error) => error.match(/exceeded the maximum execution time of (\S+)/)?.[1])
+        .find(Boolean)
+      // The innermost step still running when the limit stopped the job is the one that did not return.
+      const stopped = steps.findLast((step) => step.conclusion === "cancelled")
       return {
         name: job.name,
         conclusion: job.conclusion,
         url: job.html_url,
-        steps: job.steps.filter((step) => !["success", "skipped"].includes(step.conclusion)).map((step) => step.name),
+        took: took(Date.parse(job.completed_at) - Date.parse(job.started_at)),
+        ...(limit ? { hang: { limit, step: stopped?.name, took: stopped?.took } } : {}),
+        errors,
+        steps,
         log: `publish-${job.id}.log`,
       }
     }),
